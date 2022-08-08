@@ -1,0 +1,36 @@
+{
+  "name": "@photonhealth/react",
+  "version": "0.0.1-alpha.5+5e16b05c",
+  "main": "index.js",
+  "scripts": {
+    "build": "vite build",
+    "prepublish": "npm run build",
+    "prepack": "json -f package.json -I -e \"delete this.devDependencies; delete this.dependencies\""
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "exports": {
+    ".": {
+      "import": "./dist/react.es.js",
+      "require": "./dist/react.cjs.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Photon-Health/photon-sdk-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Photon-Health/photon-sdk-js/issues"
+  },
+  "homepage": "https://github.com/Photon-Health/photon-sdk-js#readme",
+  "description": "",
+  "gitHead": "5e16b05c55e2322fe0ba667904ec30c27df36acd",
+  "dependencies": {
+    "@photonhealth/sdk": "^0.0.1-alpha.5+5e16b05c"
+  }
+}

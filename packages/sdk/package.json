@@ -1,0 +1,48 @@
+{
+  "name": "@photonhealth/sdk",
+  "version": "0.0.1-alpha.5+5e16b05c",
+  "main": "src/lib.js",
+  "scripts": {
+    "build": "vite build",
+    "prepublish": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.18.9",
+    "@babel/preset-env": "^7.18.9",
+    "@rollup/plugin-typescript": "^8.3.4",
+    "@types/node": "^18.6.3",
+    "path": "^0.12.7",
+    "tslib": "^2.4.0",
+    "typescript": "^4.7.4",
+    "vite": "^3.0.4"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.6.9",
+    "@auth0/auth0-spa-js": "^1.22.2",
+    "@nanostores/react": "^0.3.0",
+    "nanostores": "^0.6.0"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/lib.mjs",
+      "require": "./dist/lib.js"
+    }
+  },
+  "types": "./dist/lib.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Photon-Health/photon-sdk-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Photon-Health/photon-sdk-js/issues"
+  },
+  "homepage": "https://github.com/Photon-Health/photon-sdk-js#readme",
+  "description": "",
+  "gitHead": "5e16b05c55e2322fe0ba667904ec30c27df36acd"
+}
