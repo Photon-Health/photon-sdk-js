@@ -1,6 +1,6 @@
 {
   "name": "@photonhealth/react",
-  "version": "0.0.1-alpha.5+5e16b05c",
+  "version": "0.0.1",
   "main": "index.js",
   "scripts": {
     "build": "vite build",
@@ -31,6 +31,6 @@
   "description": "",
   "gitHead": "5e16b05c55e2322fe0ba667904ec30c27df36acd",
   "dependencies": {
-    "@photonhealth/sdk": "^0.0.1-alpha.5+5e16b05c"
+    "@photonhealth/sdk": "^0.0.1"
   }
 }
