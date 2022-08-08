@@ -8,29 +8,63 @@ import { ORDER_FIELDS } from "../fragments";
 import { makeMutation, makeQuery } from "../utils";
 import { Maybe, Order } from "../types";
 
+/**
+ * GetOrders options
+ * @param patientId Filter order by patient id
+ * @param patientName Filter order by patient name
+ * @param after Paginated query after this cursor
+ * @param first Specify page size limit (default: 25)
+ * @param fragment Allows you to override the default query to request more fields
+ */
+export interface GetOrdersOptions {
+  patientId?: string;
+  patientName?: string;
+  after?: string;
+  first?: number;
+  fragment?: Record<string, DocumentNode>;
+}
+
+/**
+ * GetOrder options
+ * @param id The id of the order
+ * @param fragment Allows you to override the default query to request more fields
+ */
+export interface GetOrderOptions {
+  id?: string;
+  fragment?: Record<string, DocumentNode>;
+}
+
+/**
+ * CreateORder options
+ * @param fragment Allows you to override the default query to request more fields
+ */
+export interface CreateOrderOptions {
+  id?: string;
+  fragment?: Record<string, DocumentNode>;
+}
+
+/**
+ * Contains various methods for Photon Orders
+ */
 export class OrderQueryManager {
   private apollo: ApolloClient<undefined> | ApolloClient<NormalizedCacheObject>;
 
+  /**
+   * @param apollo - An Apollo client instance
+   */
   constructor(
     apollo: ApolloClient<undefined> | ApolloClient<NormalizedCacheObject>
   ) {
     this.apollo = apollo;
   }
 
+  /**
+   * Retrieves all orders in a paginated fashion, optionally filtered by patientId, patientName
+   * @param options - Query options
+   * @returns
+   */
   public async getOrders(
-    {
-      patientId,
-      patientName,
-      after,
-      first,
-      fragment,
-    }: {
-      patientId?: Maybe<string>;
-      patientName?: Maybe<string>;
-      after?: Maybe<string>;
-      first?: number;
-      fragment?: Record<string, DocumentNode>;
-    } = {
+    { patientId, patientName, after, first, fragment }: GetOrdersOptions = {
       first: 25,
       fragment: { OrderFields: ORDER_FIELDS },
     }
@@ -70,11 +104,13 @@ export class OrderQueryManager {
     });
   }
 
+  /**
+   * Retrieves order by id
+   * @param options - Query options
+   * @returns
+   */
   public async getOrder(
-    {
-      id,
-      fragment,
-    }: { id: string; fragment?: Record<string, DocumentNode> } = {
+    { id, fragment }: GetOrderOptions = {
       id: "",
       fragment: { OrderFields: ORDER_FIELDS },
     }
@@ -94,11 +130,12 @@ export class OrderQueryManager {
     return makeQuery<{ order: Order }>(this.apollo, GET_ORDER, { id: id });
   }
 
-  public createOrder({
-    fragment,
-  }: {
-    fragment?: Record<string, DocumentNode>;
-  }) {
+  /**
+   * Creates a new order
+   * @param options - Query options
+   * @returns
+   */
+  public createOrder({ fragment }: CreateOrderOptions) {
     if (!fragment) {
       fragment = { OrderFields: ORDER_FIELDS };
     }

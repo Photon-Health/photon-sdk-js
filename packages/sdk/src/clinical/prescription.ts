@@ -8,9 +8,53 @@ import { PRESCRIPTION_FIELDS } from "../fragments";
 import { Maybe, Prescription, PrescriptionState } from "../types";
 import { makeMutation, makeQuery } from "../utils";
 
+/**
+ * GetPrescriptionsOptions options
+ * @param patientId - Filter the result by patientId
+ * @param patientName - Filter the result by patientName
+ * @param prescriberId - Filter the result by prescriberId
+ * @param state - Filter the result by the state of the prescription (e.g. READY)
+ * @param after - Paginated query after this cursor
+ * @param first - Specify page size limit (default: 25)
+ * @param fragment - Allows you to override the default query to request more fields
+ */
+ export interface GetPrescriptionsOptions {
+  patientId?: string
+  patientName?: string
+  prescriberId?: string
+  state?: PrescriptionState
+  after?: string
+  first?: number
+  fragment?: Record<string, DocumentNode>;
+}
+
+/**
+ * GetPrescriptionOptions options
+ * @param id - The id of the prescription
+ * @param fragment - Allows you to override the default query to request more fields
+ */
+ export interface GetPrescriptionOptions {
+  id: string
+  fragment?: Record<string, DocumentNode>;
+}
+
+/**
+ * CreatePrescriptionOptions options
+ * @param fragment - Allows you to override the default query to request more fields
+ */
+ export interface CreatePrescriptionOptions {
+  fragment?: Record<string, DocumentNode>;
+}
+
+/**
+ * Contains various methods for Photon Prescriptions
+ */
 export class PrescriptionQueryManager {
   private apollo: ApolloClient<undefined> | ApolloClient<NormalizedCacheObject>;
 
+   /**
+   * @param apollo - An Apollo client instance
+   */
   constructor(
     apollo: ApolloClient<undefined> | ApolloClient<NormalizedCacheObject>
   ) {
@@ -26,15 +70,7 @@ export class PrescriptionQueryManager {
       after,
       first,
       fragment,
-    }: {
-      patientId?: Maybe<string>;
-      patientName?: Maybe<string>;
-      prescriberId?: Maybe<string>;
-      state?: Maybe<PrescriptionState>;
-      after?: Maybe<string>;
-      first?: Maybe<number>;
-      fragment?: Record<string, DocumentNode>;
-    } = {
+    }: GetPrescriptionsOptions = {
       first: 25,
       fragment: { PrescriptionFields: PRESCRIPTION_FIELDS },
     }
@@ -81,7 +117,7 @@ export class PrescriptionQueryManager {
     {
       id,
       fragment,
-    }: { id: string; fragment?: Record<string, DocumentNode> } = {
+    }: GetPrescriptionOptions = {
       id: "",
       fragment: { PrescriptionFields: PRESCRIPTION_FIELDS },
     }
@@ -109,9 +145,7 @@ export class PrescriptionQueryManager {
 
   public createPrescription({
     fragment,
-  }: {
-    fragment?: Record<string, DocumentNode>;
-  }) {
+  }: CreatePrescriptionOptions) {
     if (!fragment) {
       fragment = { PrescriptionFields: PRESCRIPTION_FIELDS };
     }

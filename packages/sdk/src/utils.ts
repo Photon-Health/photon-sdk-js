@@ -1,21 +1,23 @@
 import { ApolloClient, ApolloQueryResult, DocumentNode, FetchPolicy, FetchResult, NormalizedCacheObject } from "@apollo/client";
 
+export type MakeQueryReturn<T> = ApolloQueryResult<T> & {
+  refetch: (variables: object) => Promise<ApolloQueryResult<T>>;
+  fetchMore: ({
+    after,
+    first,
+  }: {
+    after?: string;
+    first?: string;
+  }) => Promise<ApolloQueryResult<T>>;
+}
+
 export async function makeQuery<T = any>(
     apollo: ApolloClient<undefined> | ApolloClient<NormalizedCacheObject>,
     query: DocumentNode,
     variables: object = {},
     fetchPolicy?: FetchPolicy,
   ): Promise<
-    ApolloQueryResult<T> & {
-      refetch: (variables: object) => Promise<ApolloQueryResult<T>>;
-      fetchMore: ({
-        after,
-        first,
-      }: {
-        after?: string;
-        first?: string;
-      }) => Promise<ApolloQueryResult<T>>;
-    }
+    MakeQueryReturn<T>
   > {
     let result = await apollo.query({
       query,
@@ -35,18 +37,20 @@ export async function makeQuery<T = any>(
     };
   }
 
+  export type MakeMutationReturnOptions = {
+    awaitRefetchQueries: boolean;
+    refetchQueries?: {
+      query: DocumentNode
+    }[],
+    variables: object
+  }
+
+  export type MakeMutationReturn<T> = (options: MakeMutationReturnOptions) => Promise<FetchResult<undefined | null | T>>
+
   export function makeMutation<T = any>(
     apollo: ApolloClient<undefined> | ApolloClient<NormalizedCacheObject>,
     mutation: DocumentNode
-  ): ({
-    variables,
-    refetchQueries,
-    awaitRefetchQueries,
-  }: {
-    variables: object;
-    refetchQueries?: { query: DocumentNode }[];
-    awaitRefetchQueries: boolean;
-  }) => Promise<FetchResult<T>> {
+  ): MakeMutationReturn<T> {
     return ({
       variables,
       refetchQueries,

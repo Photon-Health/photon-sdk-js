@@ -8,17 +8,44 @@ import { ORGANIZATION_FIELDS } from "../fragments";
 import { makeQuery } from "../utils";
 import { Organization } from "../types";
 
+/**
+ * GetOrganization options
+ * @param fragment Allows you to override the default query to request more fields
+ */
+ export interface GetOrganizationOptions {
+  fragment?: Record<string, DocumentNode>
+}
+
+/**
+ * GetOrganizations options
+ * @param fragment Allows you to override the default query to request more fields
+ */
+ export interface GetOrganizationsOptions {
+  fragment?: Record<string, DocumentNode>
+}
+
+/**
+  * Contains various methods for Photon Auth0 Organizations
+  */
 export class OrgQueryManager {
   private apollo: ApolloClient<undefined> | ApolloClient<NormalizedCacheObject>;
 
+  /**
+   * @param apollo - An Apollo client instance
+   */
   constructor(
     apollo: ApolloClient<undefined> | ApolloClient<NormalizedCacheObject>
   ) {
     this.apollo = apollo;
   }
 
+  /**
+   * Retrieves the organization associated with the authenticated user
+   * @param options - Query options
+   * @returns
+   */
   public async getOrganization(
-    { fragment }: { fragment?: Record<string, DocumentNode> } = {
+    { fragment }: GetOrganizationOptions = {
       fragment: { OrganizationFields: ORGANIZATION_FIELDS },
     }
   ) {
@@ -40,8 +67,13 @@ export class OrgQueryManager {
     );
   }
 
+  /**
+   * Retrieves all organizations associated with the auhenticated user
+   * @param options - Query options
+   * @returns
+   */
   public async getOrganizations(
-    { fragment }: { fragment?: Record<string, DocumentNode> } = {
+    { fragment }: GetOrganizationsOptions = {
       fragment: { OrganizationFields: ORGANIZATION_FIELDS },
     }
   ) {

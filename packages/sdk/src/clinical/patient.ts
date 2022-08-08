@@ -8,23 +8,63 @@ import { PATIENT_FIELDS } from "../fragments";
 import { makeMutation, makeQuery } from "../utils";
 import { Patient } from "../types";
 
+/**
+ * GetPatient options
+ * @param id The id of the patient
+ * @param fragment Allows you to override the default query to request more fields
+ */
+ export interface GetPatientOptions {
+  id?: string;
+  fragment?: Record<string, DocumentNode>;
+}
+
+/**
+ * GetPatients options
+ * @param after Paginated query after this cursor
+ * @param first Specify page size limit (default: 25)
+ * @param name Filter the result by patient name
+ * @param fragment Allows you to override the default query to request more fields
+ */
+ export interface GetPatientsOptions {
+  after?: string
+  first?: number
+  name?: string
+  fragment?: Record<string, DocumentNode>;
+}
+
+/**
+ * CreatePatient options
+ * @param fragment Allows you to override the default query to request more fields
+ */
+ export interface CreatePatientOptions {
+  fragment?: Record<string, DocumentNode>;
+}
+
+/**
+ * Contains various methods for Photon Patients
+ */
 export class PatientQueryManager {
   private apollo: ApolloClient<undefined> | ApolloClient<NormalizedCacheObject>;
 
+   /**
+   * @param apollo - An Apollo client instance
+   */
   constructor(
     apollo: ApolloClient<undefined> | ApolloClient<NormalizedCacheObject>
   ) {
     this.apollo = apollo;
   }
 
+  /**
+   * Retrieves patient by id
+   * @param options - Query options
+   * @returns
+   */
   public async getPatient(
     {
       id,
       fragment,
-    }: {
-      id: string;
-      fragment?: Record<string, DocumentNode>;
-    } = {
+    }: GetPatientOptions = {
       id: "",
       fragment: { PatientFields: PATIENT_FIELDS },
     }
@@ -44,18 +84,18 @@ export class PatientQueryManager {
     return makeQuery<{ patient: Patient }>(this.apollo, GET_PATIENT, { id });
   }
 
+  /**
+   * Retrieves all patients in a paginated fashion, optionally filtered by name
+   * @param options - Query options
+   * @returns
+   */
   public async getPatients(
     {
       after,
       first,
       name,
       fragment,
-    }: {
-      after?: string;
-      first?: number;
-      name?: string;
-      fragment?: Record<string, DocumentNode>;
-    } = { first: 25, fragment: { PatientFields: PATIENT_FIELDS } }
+    }: GetPatientsOptions = { first: 25, fragment: { PatientFields: PATIENT_FIELDS } }
   ) {
     if (!fragment) {
       fragment = { PatientFields: PATIENT_FIELDS };
@@ -79,11 +119,14 @@ export class PatientQueryManager {
     });
   }
 
+  /**
+   * Creates a new patient
+   * @param options - Query options
+   * @returns
+   */
   public createPatient({
     fragment,
-  }: {
-    fragment?: Record<string, DocumentNode>;
-  }) {
+  }: CreatePatientOptions) {
     if (!fragment) {
       fragment = { PatientFields: PATIENT_FIELDS };
     }

@@ -6,14 +6,38 @@ import { PatientQueryManager } from "./patient";
 import { PharmacyQueryManager } from "./pharmacy";
 import { PrescriptionQueryManager } from "./prescription";
 
+/**
+  * Contains various methods for Photon Clinical API
+  */
 export class ClinicalQueryManager {
+  /**
+   * Methods for interacting with Photon Catalogs
+   */
   public catalog: CatalogQueryManager;
+  /**
+   * Methods for interacting with Photon Medications
+   */
   public medication: MedicationQueryManager;
+  /**
+   * Methods for interacting with Photon Orders
+   */
   public order: OrderQueryManager;
+  /**
+   * Methods for interacting with Photon Patients
+   */
   public patient: PatientQueryManager;
+  /**
+   * Methods for interacting with Photon Pharmacies
+   */
   public pharmacy: PharmacyQueryManager;
+  /**
+   * Methods for interacting with Photon Prescriptions
+   */
   public prescription: PrescriptionQueryManager;
 
+  /**
+   * @param apollo - An Apollo client instance
+   */
   constructor(
     apollo: ApolloClient<undefined> | ApolloClient<NormalizedCacheObject>
   ) {

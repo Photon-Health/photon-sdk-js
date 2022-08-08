@@ -1,9 +1,10 @@
 {
   "name": "@photonhealth/sdk",
-  "version": "0.0.1-alpha.5+5e16b05c",
+  "version": "0.0.1",
   "main": "src/lib.js",
   "scripts": {
     "build": "vite build",
+    "docs": "find src -name \"*.ts\" | xargs npx typedoc --out docs",
     "prepublish": "npm run build"
   },
   "publishConfig": {
@@ -19,6 +20,7 @@
     "@types/node": "^18.6.3",
     "path": "^0.12.7",
     "tslib": "^2.4.0",
+    "typedoc": "^0.23.10",
     "typescript": "^4.7.4",
     "vite": "^3.0.4"
   },
@@ -44,5 +46,5 @@
   },
   "homepage": "https://github.com/Photon-Health/photon-sdk-js#readme",
   "description": "",
-  "gitHead": "5e16b05c55e2322fe0ba667904ec30c27df36acd"
+  "gitHead": "bcd49b4b71962a8e8cfadb8e14ce4b5e234c73ab"
 }

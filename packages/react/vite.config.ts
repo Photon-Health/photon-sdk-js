@@ -5,9 +5,12 @@ import dts from 'vite-plugin-dts';
 
 export default defineConfig({
     plugins: [
-        react(),
+        react({
+            exclude: ["examples"]
+        }),
         dts({
             insertTypesEntry: true,
+            exclude: ["examples"]
         }),
     ],
     build: {

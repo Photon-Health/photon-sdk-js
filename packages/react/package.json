@@ -1,6 +1,6 @@
 {
   "name": "@photonhealth/react",
-  "version": "0.0.1-alpha.5+5e16b05c",
+  "version": "0.0.1",
   "main": "index.js",
   "scripts": {
     "build": "vite build",
@@ -29,8 +29,9 @@
   },
   "homepage": "https://github.com/Photon-Health/photon-sdk-js#readme",
   "description": "",
-  "gitHead": "5e16b05c55e2322fe0ba667904ec30c27df36acd",
+  "gitHead": "bcd49b4b71962a8e8cfadb8e14ce4b5e234c73ab",
   "dependencies": {
-    "@photonhealth/sdk": "^0.0.1-alpha.5+5e16b05c"
+    "@photonhealth/react": "^0.0.2-alpha.0+bcd49b4",
+    "@photonhealth/sdk": "^0.0.2-alpha.0+bcd49b4"
   }
 }
