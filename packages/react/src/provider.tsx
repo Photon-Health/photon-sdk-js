@@ -2,7 +2,7 @@ import { ApolloError, DocumentNode } from "@apollo/client";
 import { useStore } from "@nanostores/react";
 import { GraphQLError } from "graphql";
 import { action, map } from "nanostores";
-import { PhotonSDK } from "@photonhealth/sdk";
+import { PhotonClient } from "@photonhealth/sdk";
 import {
   Catalog,
   Client,
@@ -73,22 +73,22 @@ export type GetCatalogReturn = {
   catalog: Catalog;
   loading: boolean;
   error?: ApolloError;
-  refetch: PhotonSDK["clinical"]["catalog"]["getCatalog"];
+  refetch: PhotonClient["clinical"]["catalog"]["getCatalog"];
 };
 
 export type GetMedicationReturn = {
   medications: Medication[];
   loading: boolean;
   error?: ApolloError;
-  refetch: PhotonSDK["clinical"]["medication"]["getMedications"];
+  refetch: PhotonClient["clinical"]["medication"]["getMedications"];
 };
 
-export interface PhotonSDKContextInterface {
+export interface PhotonClientContextInterface {
   getPatient: ({ id }: { id: string }) => {
     patient: Patient;
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["clinical"]["patient"]["getPatient"];
+    refetch: PhotonClient["clinical"]["patient"]["getPatient"];
   };
   getPatients: ({
     after,
@@ -102,7 +102,7 @@ export interface PhotonSDKContextInterface {
     patients: Patient[];
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["clinical"]["patient"]["getPatients"];
+    refetch: PhotonClient["clinical"]["patient"]["getPatients"];
   };
   createPatient: ({
     refetchQueries,
@@ -128,7 +128,7 @@ export interface PhotonSDKContextInterface {
     order: Order;
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["clinical"]["order"]["getOrder"];
+    refetch: PhotonClient["clinical"]["order"]["getOrder"];
   };
   getOrders: ({
     after,
@@ -144,7 +144,7 @@ export interface PhotonSDKContextInterface {
     orders: Order[];
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["clinical"]["order"]["getOrders"];
+    refetch: PhotonClient["clinical"]["order"]["getOrders"];
   };
   createOrder: ({
     refetchQueries,
@@ -170,7 +170,7 @@ export interface PhotonSDKContextInterface {
     prescription: Prescription;
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["clinical"]["prescription"]["getPrescription"];
+    refetch: PhotonClient["clinical"]["prescription"]["getPrescription"];
   };
   getPrescriptions: ({
     patientId,
@@ -190,7 +190,7 @@ export interface PhotonSDKContextInterface {
     prescriptions: Prescription[];
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["clinical"]["prescription"]["getPrescriptions"];
+    refetch: PhotonClient["clinical"]["prescription"]["getPrescriptions"];
   };
   createPrescription: ({
     refetchQueries,
@@ -223,7 +223,7 @@ export interface PhotonSDKContextInterface {
     catalogs: Catalog[];
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["clinical"]["catalog"]["getCatalogs"];
+    refetch: PhotonClient["clinical"]["catalog"]["getCatalogs"];
   };
   getMedications: ({
     name,
@@ -244,25 +244,25 @@ export interface PhotonSDKContextInterface {
     pharmacies: Pharmacy[];
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["clinical"]["pharmacy"]["getPharmacies"];
+    refetch: PhotonClient["clinical"]["pharmacy"]["getPharmacies"];
   };
   getOrganization: () => {
     organization: Organization;
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["management"]["organization"]["getOrganization"];
+    refetch: PhotonClient["management"]["organization"]["getOrganization"];
   };
   getOrganizations: () => {
     organizations: Organization[];
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["management"]["organization"]["getOrganizations"];
+    refetch: PhotonClient["management"]["organization"]["getOrganizations"];
   };
   getWebhooks: () => {
     webhooks: WebhookConfig[];
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["management"]["webhook"]["getWebhooks"];
+    refetch: PhotonClient["management"]["webhook"]["getWebhooks"];
   };
   createWebhook: ({
     refetchQueries,
@@ -308,7 +308,7 @@ export interface PhotonSDKContextInterface {
     clients: Client[];
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["management"]["client"]["getClients"];
+    refetch: PhotonClient["management"]["client"]["getClients"];
   };
   rotateSecret: ({
     refetchQueries,
@@ -330,11 +330,11 @@ export interface PhotonSDKContextInterface {
       loading: boolean;
     }
   ];
-  login: PhotonSDK["authentication"]["login"];
-  getToken: PhotonSDK["authentication"]["getAccessToken"];
+  login: PhotonClient["authentication"]["login"];
+  getToken: PhotonClient["authentication"]["getAccessToken"];
   hasAuthParams: (searchParams: string) => boolean;
-  handleRedirect: PhotonSDK["authentication"]["handleRedirect"];
-  logout: PhotonSDK["authentication"]["logout"];
+  handleRedirect: PhotonClient["authentication"]["handleRedirect"];
+  logout: PhotonClient["authentication"]["logout"];
   isLoading: boolean;
   isAuthenticated: boolean;
   user: any;
@@ -342,10 +342,10 @@ export interface PhotonSDKContextInterface {
 }
 
 const stub = (): never => {
-  throw new Error("You forgot to wrap your component in <PhotonSDKProvider>.");
+  throw new Error("You forgot to wrap your component in <PhotonProvider>.");
 };
 
-const PhotonSDKContext = createContext<PhotonSDKContextInterface>({
+const PhotonClientContext = createContext<PhotonClientContextInterface>({
   getPatients: stub,
   getPatient: stub,
   createPatient: stub,
@@ -381,15 +381,15 @@ export const hasAuthParams = (searchParams = window.location.search): boolean =>
   (CODE_RE.test(searchParams) || ERROR_RE.test(searchParams)) &&
   STATE_RE.test(searchParams);
 
-export const PhotonSDKProvider = (opts: {
+export const PhotonProvider = (opts: {
   children: any;
-  sdk: PhotonSDK;
-  searchParams: string;
+  client: PhotonClient;
+  searchParams?: string;
   onRedirectCallback?: any;
 }) => {
   const {
     children,
-    sdk,
+    client,
     onRedirectCallback = defaultOnRedirectCallback,
     searchParams,
   } = opts;
@@ -403,23 +403,23 @@ export const PhotonSDKProvider = (opts: {
   useEffect(() => {
     const initialize = async () => {
       if (hasAuthParams()) {
-        const { appState } = await sdk.authentication.handleRedirect();
+        const { appState } = await client.authentication.handleRedirect();
         onRedirectCallback(appState);
       }
-      await sdk.authentication.checkSession();
-      const user = await sdk.authentication.getUser();
+      await client.authentication.checkSession();
+      const user = await client.authentication.getUser();
       dispatch({ type: "INITIALISED", user });
     };
     initialize();
-  }, [sdk, onRedirectCallback]);
+  }, [client, onRedirectCallback]);
 
   /// Auth0
 
   const handleRedirect = async (url?: string) => {
-    await sdk.authentication.handleRedirect(url);
+    await client.authentication.handleRedirect(url);
     dispatch({
       type: "HANDLE_REDIRECT_COMPLETE",
-      user: await sdk.authentication.getUser(),
+      user: await client.authentication.getUser(),
     });
   };
 
@@ -438,17 +438,17 @@ export const PhotonSDKProvider = (opts: {
     invitation?: string;
     appState?: object;
   } = {}) => {
-    return sdk.authentication.login({ organizationId, invitation, appState });
+    return client.authentication.login({ organizationId, invitation, appState });
   };
 
   const logout = ({ returnTo }: { returnTo?: string }) =>
-    sdk.authentication.logout({ returnTo });
+    client.authentication.logout({ returnTo });
 
   const getToken = async ({ audience }: { audience?: string } = {}) => {
-    const token = await sdk.authentication.getAccessToken({ audience });
+    const token = await client.authentication.getAccessToken({ audience });
     dispatch({
       type: "GET_ACCESS_TOKEN_COMPLETE",
-      user: await sdk.authentication.getUser(),
+      user: await client.authentication.getUser(),
     });
     return token;
   };
@@ -503,7 +503,7 @@ export const PhotonSDKProvider = (opts: {
     "fetchPatient",
     async (store, { id }) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.patient.getPatient({
+      const { data, error } = await client.clinical.patient.getPatient({
         id,
       });
       store.setKey("patient", data?.patient || undefined);
@@ -524,7 +524,7 @@ export const PhotonSDKProvider = (opts: {
       loading,
       error,
       refetch: ({ id }: { id: string }) =>
-        sdk.clinical.patient.getPatient({ id }),
+        client.clinical.patient.getPatient({ id }),
     };
   };
 
@@ -543,7 +543,7 @@ export const PhotonSDKProvider = (opts: {
     "fetchPatients",
     async (store, args?: any) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.patient.getPatients({
+      const { data, error } = await client.clinical.patient.getPatients({
         after: args?.after,
         first: args?.first || 25,
         name: args?.name,
@@ -585,7 +585,7 @@ export const PhotonSDKProvider = (opts: {
           first?: number;
           name?: string;
         } = { first: 25 }
-      ) => sdk.clinical.patient.getPatients({ after, first, name }),
+      ) => client.clinical.patient.getPatients({ after, first, name }),
     };
   };
 
@@ -599,7 +599,7 @@ export const PhotonSDKProvider = (opts: {
     error: undefined,
   });
 
-  const createPatientMutation = sdk.clinical.patient.createPatient({});
+  const createPatientMutation = client.clinical.patient.createPatient({});
 
   const constructFetchCreatePatient = () =>
     action(
@@ -663,7 +663,7 @@ export const PhotonSDKProvider = (opts: {
     "fetchOrder",
     async (store, { id }) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.order.getOrder({
+      const { data, error } = await client.clinical.order.getOrder({
         id,
       });
       store.setKey("order", data?.order || undefined);
@@ -683,7 +683,7 @@ export const PhotonSDKProvider = (opts: {
       order,
       loading,
       error,
-      refetch: ({ id }: { id: string }) => sdk.clinical.order.getOrder({ id }),
+      refetch: ({ id }: { id: string }) => client.clinical.order.getOrder({ id }),
     };
   };
 
@@ -702,7 +702,7 @@ export const PhotonSDKProvider = (opts: {
     "fetchOrders",
     async (store, args?: any) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.order.getOrders({
+      const { data, error } = await client.clinical.order.getOrders({
         after: args?.after,
         first: args?.first || 25,
         patientName: args?.patientName,
@@ -750,7 +750,7 @@ export const PhotonSDKProvider = (opts: {
           patientName?: string;
         } = { first: 25 }
       ) =>
-        sdk.clinical.order.getOrders({
+        client.clinical.order.getOrders({
           after,
           first,
           patientId,
@@ -769,7 +769,7 @@ export const PhotonSDKProvider = (opts: {
     error: undefined,
   });
 
-  const createOrderMutation = sdk.clinical.order.createOrder({});
+  const createOrderMutation = client.clinical.order.createOrder({});
 
   const constructFetchCreateOrder = () =>
     action(
@@ -832,7 +832,7 @@ export const PhotonSDKProvider = (opts: {
     "fetchPrescription",
     async (store, { id }) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.prescription.getPrescription({
+      const { data, error } = await client.clinical.prescription.getPrescription({
         id,
       });
       store.setKey("prescription", data?.prescription || undefined);
@@ -853,7 +853,7 @@ export const PhotonSDKProvider = (opts: {
       loading,
       error,
       refetch: ({ id }: { id: string }) =>
-        sdk.clinical.prescription.getPrescription({ id }),
+        client.clinical.prescription.getPrescription({ id }),
     };
   };
 
@@ -872,7 +872,7 @@ export const PhotonSDKProvider = (opts: {
     "fetchOrders",
     async (store, args?: any) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.prescription.getPrescriptions({
+      const { data, error } = await client.clinical.prescription.getPrescriptions({
         after: args?.after,
         first: args?.first || 25,
         patientName: args?.patientName,
@@ -935,7 +935,7 @@ export const PhotonSDKProvider = (opts: {
           state?: PrescriptionState;
         } = { first: 25 }
       ) =>
-        sdk.clinical.prescription.getPrescriptions({
+        client.clinical.prescription.getPrescriptions({
           after,
           first,
           patientId,
@@ -955,7 +955,7 @@ export const PhotonSDKProvider = (opts: {
   });
 
   const createPrescriptionMutation =
-    sdk.clinical.prescription.createPrescription({});
+    client.clinical.prescription.createPrescription({});
 
   const constructFetchCreatePrescription = () =>
     action(
@@ -1021,7 +1021,7 @@ export const PhotonSDKProvider = (opts: {
     "fetchCatalog",
     async (store, { id, fragment }) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.catalog.getCatalog({
+      const { data, error } = await client.clinical.catalog.getCatalog({
         id,
         fragment,
       });
@@ -1055,7 +1055,7 @@ export const PhotonSDKProvider = (opts: {
       }: {
         id: string;
         fragment?: Record<string, DocumentNode>;
-      }) => sdk.clinical.catalog.getCatalog({ id, fragment }),
+      }) => client.clinical.catalog.getCatalog({ id, fragment }),
     };
   };
 
@@ -1074,7 +1074,7 @@ export const PhotonSDKProvider = (opts: {
     "fetchCatalogs",
     async (store) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.catalog.getCatalogs();
+      const { data, error } = await client.clinical.catalog.getCatalogs();
       store.setKey("catalogs", data?.catalogs || []);
       store.setKey("error", error);
       store.setKey("loading", false);
@@ -1092,7 +1092,7 @@ export const PhotonSDKProvider = (opts: {
       catalogs,
       loading,
       error,
-      refetch: () => sdk.clinical.catalog.getCatalogs(),
+      refetch: () => client.clinical.catalog.getCatalogs(),
     };
   };
 
@@ -1113,7 +1113,7 @@ export const PhotonSDKProvider = (opts: {
     "fetchMedications",
     async (store, { name, type, code }) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.medication.getMedications({
+      const { data, error } = await client.clinical.medication.getMedications({
         name,
         type,
         code,
@@ -1151,7 +1151,7 @@ export const PhotonSDKProvider = (opts: {
         name?: string;
         type?: MedicationType;
         code?: string;
-      }) => sdk.clinical.medication.getMedications({ name, type, code }),
+      }) => client.clinical.medication.getMedications({ name, type, code }),
     };
   };
 
@@ -1172,7 +1172,7 @@ export const PhotonSDKProvider = (opts: {
     "fetchPharmacies",
     async (store, { name, location }) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.pharmacy.getPharmacies({
+      const { data, error } = await client.clinical.pharmacy.getPharmacies({
         name,
         location,
       });
@@ -1205,7 +1205,7 @@ export const PhotonSDKProvider = (opts: {
       }: {
         name?: string;
         location?: LatLongSearch;
-      }) => sdk.clinical.pharmacy.getPharmacies({ name, location }),
+      }) => client.clinical.pharmacy.getPharmacies({ name, location }),
     };
   };
 
@@ -1227,7 +1227,7 @@ export const PhotonSDKProvider = (opts: {
     async (store) => {
       store.setKey("loading", true);
       const { data, error } =
-        await sdk.management.organization.getOrganization();
+        await client.management.organization.getOrganization();
       store.setKey("organization", data?.organization || undefined);
       store.setKey("error", error);
       store.setKey("loading", false);
@@ -1245,7 +1245,7 @@ export const PhotonSDKProvider = (opts: {
       organization,
       loading,
       error,
-      refetch: () => sdk.management.organization.getOrganization(),
+      refetch: () => client.management.organization.getOrganization(),
     };
   };
 
@@ -1265,7 +1265,7 @@ export const PhotonSDKProvider = (opts: {
     async (store) => {
       store.setKey("loading", true);
       const { data, error } =
-        await sdk.management.organization.getOrganizations();
+        await client.management.organization.getOrganizations();
       store.setKey("organizations", data?.organizations || []);
       store.setKey("error", error);
       store.setKey("loading", false);
@@ -1283,7 +1283,7 @@ export const PhotonSDKProvider = (opts: {
       organizations,
       loading,
       error,
-      refetch: () => sdk.management.organization.getOrganizations(),
+      refetch: () => client.management.organization.getOrganizations(),
     };
   };
 
@@ -1304,7 +1304,7 @@ export const PhotonSDKProvider = (opts: {
     "fetchWebhooks",
     async (store) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.management.webhook.getWebhooks();
+      const { data, error } = await client.management.webhook.getWebhooks();
       store.setKey("webhooks", data?.webhooks || []);
       store.setKey("error", error);
       store.setKey("loading", false);
@@ -1322,7 +1322,7 @@ export const PhotonSDKProvider = (opts: {
       webhooks,
       loading,
       error,
-      refetch: () => sdk.management.webhook.getWebhooks(),
+      refetch: () => client.management.webhook.getWebhooks(),
     };
   };
 
@@ -1336,7 +1336,7 @@ export const PhotonSDKProvider = (opts: {
     error: undefined,
   });
 
-  const createWebhookMutation = sdk.management.webhook.createWebhook({});
+  const createWebhookMutation = client.management.webhook.createWebhook({});
 
   const constructFetchCreateWebhook = () =>
     action(
@@ -1393,7 +1393,7 @@ export const PhotonSDKProvider = (opts: {
     error: undefined,
   });
 
-  const deleteWebhookMutation = sdk.management.webhook.deleteWebhook();
+  const deleteWebhookMutation = client.management.webhook.deleteWebhook();
 
   const constructFetchDeleteWebhook = () =>
     action(
@@ -1457,7 +1457,7 @@ export const PhotonSDKProvider = (opts: {
     "fetchClients",
     async (store) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.management.client.getClients();
+      const { data, error } = await client.management.client.getClients();
       store.setKey("clients", data?.clients || []);
       store.setKey("error", error);
       store.setKey("loading", false);
@@ -1475,7 +1475,7 @@ export const PhotonSDKProvider = (opts: {
       clients,
       loading,
       error,
-      refetch: () => sdk.management.client.getClients(),
+      refetch: () => client.management.client.getClients(),
     };
   };
 
@@ -1489,7 +1489,7 @@ export const PhotonSDKProvider = (opts: {
     error: undefined,
   });
 
-  const rotateSecretMutation = sdk.management.client.rotateSecret({});
+  const rotateSecretMutation = client.management.client.rotateSecret({});
 
   const constructFetchRotateSecret = () =>
     action(
@@ -1572,10 +1572,10 @@ export const PhotonSDKProvider = (opts: {
   };
 
   return (
-    <PhotonSDKContext.Provider value={contextValue}>
+    <PhotonClientContext.Provider value={contextValue}>
       {children}
-    </PhotonSDKContext.Provider>
+    </PhotonClientContext.Provider>
   );
 };
 
-export const usePhotonSDK = () => useContext(PhotonSDKContext);
+export const usePhoton = () => useContext(PhotonClientContext);
