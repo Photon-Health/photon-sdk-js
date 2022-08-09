@@ -11,8 +11,8 @@ import { AuthManager } from "./auth";
 import { ClinicalQueryManager } from "./clinical";
 import { ManagementQueryManager } from "./management";
 
-export * from "./types";
-export * from "./fragments";
+export * as types from "./types";
+export * as fragments from "./fragments";
 
 /**
  * Configuration options for Photon SDK
