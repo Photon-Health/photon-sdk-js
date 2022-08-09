@@ -23,7 +23,7 @@ export * from "./fragments";
  * @param audience The top-level domain of the Photon API
  * @param uri The GraphQL endpoint of the Photon API
  */
-export interface PhotonSDKOptions {
+export interface PhotonClientOptions {
   domain: string
   clientId: string
   redirectURI?: string
@@ -32,7 +32,7 @@ export interface PhotonSDKOptions {
     uri?: string;
 }
 
-export class PhotonSDK {
+export class PhotonClient {
   private organization?: string
 
   private audience?: string
@@ -68,7 +68,7 @@ export class PhotonSDK {
     organization,
     audience = "https://api.photon.health",
     uri = "https://api.photon.health/graphql",
-  }: PhotonSDKOptions) {
+  }: PhotonClientOptions) {
     this.auth0Client = new Auth0Client({
       domain,
       client_id: clientId,
