@@ -383,13 +383,13 @@ export const hasAuthParams = (searchParams = window.location.search): boolean =>
 
 export const PhotonProvider = (opts: {
   children: any;
-  sdk: PhotonClient;
-  searchParams: string;
+  client: PhotonClient;
+  searchParams?: string;
   onRedirectCallback?: any;
 }) => {
   const {
     children,
-    sdk,
+    client,
     onRedirectCallback = defaultOnRedirectCallback,
     searchParams,
   } = opts;
@@ -403,23 +403,23 @@ export const PhotonProvider = (opts: {
   useEffect(() => {
     const initialize = async () => {
       if (hasAuthParams()) {
-        const { appState } = await sdk.authentication.handleRedirect();
+        const { appState } = await client.authentication.handleRedirect();
         onRedirectCallback(appState);
       }
-      await sdk.authentication.checkSession();
-      const user = await sdk.authentication.getUser();
+      await client.authentication.checkSession();
+      const user = await client.authentication.getUser();
       dispatch({ type: "INITIALISED", user });
     };
     initialize();
-  }, [sdk, onRedirectCallback]);
+  }, [client, onRedirectCallback]);
 
   /// Auth0
 
   const handleRedirect = async (url?: string) => {
-    await sdk.authentication.handleRedirect(url);
+    await client.authentication.handleRedirect(url);
     dispatch({
       type: "HANDLE_REDIRECT_COMPLETE",
-      user: await sdk.authentication.getUser(),
+      user: await client.authentication.getUser(),
     });
   };
 
@@ -438,17 +438,17 @@ export const PhotonProvider = (opts: {
     invitation?: string;
     appState?: object;
   } = {}) => {
-    return sdk.authentication.login({ organizationId, invitation, appState });
+    return client.authentication.login({ organizationId, invitation, appState });
   };
 
   const logout = ({ returnTo }: { returnTo?: string }) =>
-    sdk.authentication.logout({ returnTo });
+    client.authentication.logout({ returnTo });
 
   const getToken = async ({ audience }: { audience?: string } = {}) => {
-    const token = await sdk.authentication.getAccessToken({ audience });
+    const token = await client.authentication.getAccessToken({ audience });
     dispatch({
       type: "GET_ACCESS_TOKEN_COMPLETE",
-      user: await sdk.authentication.getUser(),
+      user: await client.authentication.getUser(),
     });
     return token;
   };
@@ -503,7 +503,7 @@ export const PhotonProvider = (opts: {
     "fetchPatient",
     async (store, { id }) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.patient.getPatient({
+      const { data, error } = await client.clinical.patient.getPatient({
         id,
       });
       store.setKey("patient", data?.patient || undefined);
@@ -524,7 +524,7 @@ export const PhotonProvider = (opts: {
       loading,
       error,
       refetch: ({ id }: { id: string }) =>
-        sdk.clinical.patient.getPatient({ id }),
+        client.clinical.patient.getPatient({ id }),
     };
   };
 
@@ -543,7 +543,7 @@ export const PhotonProvider = (opts: {
     "fetchPatients",
     async (store, args?: any) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.patient.getPatients({
+      const { data, error } = await client.clinical.patient.getPatients({
         after: args?.after,
         first: args?.first || 25,
         name: args?.name,
@@ -585,7 +585,7 @@ export const PhotonProvider = (opts: {
           first?: number;
           name?: string;
         } = { first: 25 }
-      ) => sdk.clinical.patient.getPatients({ after, first, name }),
+      ) => client.clinical.patient.getPatients({ after, first, name }),
     };
   };
 
@@ -599,7 +599,7 @@ export const PhotonProvider = (opts: {
     error: undefined,
   });
 
-  const createPatientMutation = sdk.clinical.patient.createPatient({});
+  const createPatientMutation = client.clinical.patient.createPatient({});
 
   const constructFetchCreatePatient = () =>
     action(
@@ -663,7 +663,7 @@ export const PhotonProvider = (opts: {
     "fetchOrder",
     async (store, { id }) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.order.getOrder({
+      const { data, error } = await client.clinical.order.getOrder({
         id,
       });
       store.setKey("order", data?.order || undefined);
@@ -683,7 +683,7 @@ export const PhotonProvider = (opts: {
       order,
       loading,
       error,
-      refetch: ({ id }: { id: string }) => sdk.clinical.order.getOrder({ id }),
+      refetch: ({ id }: { id: string }) => client.clinical.order.getOrder({ id }),
     };
   };
 
@@ -702,7 +702,7 @@ export const PhotonProvider = (opts: {
     "fetchOrders",
     async (store, args?: any) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.order.getOrders({
+      const { data, error } = await client.clinical.order.getOrders({
         after: args?.after,
         first: args?.first || 25,
         patientName: args?.patientName,
@@ -750,7 +750,7 @@ export const PhotonProvider = (opts: {
           patientName?: string;
         } = { first: 25 }
       ) =>
-        sdk.clinical.order.getOrders({
+        client.clinical.order.getOrders({
           after,
           first,
           patientId,
@@ -769,7 +769,7 @@ export const PhotonProvider = (opts: {
     error: undefined,
   });
 
-  const createOrderMutation = sdk.clinical.order.createOrder({});
+  const createOrderMutation = client.clinical.order.createOrder({});
 
   const constructFetchCreateOrder = () =>
     action(
@@ -832,7 +832,7 @@ export const PhotonProvider = (opts: {
     "fetchPrescription",
     async (store, { id }) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.prescription.getPrescription({
+      const { data, error } = await client.clinical.prescription.getPrescription({
         id,
       });
       store.setKey("prescription", data?.prescription || undefined);
@@ -853,7 +853,7 @@ export const PhotonProvider = (opts: {
       loading,
       error,
       refetch: ({ id }: { id: string }) =>
-        sdk.clinical.prescription.getPrescription({ id }),
+        client.clinical.prescription.getPrescription({ id }),
     };
   };
 
@@ -872,7 +872,7 @@ export const PhotonProvider = (opts: {
     "fetchOrders",
     async (store, args?: any) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.prescription.getPrescriptions({
+      const { data, error } = await client.clinical.prescription.getPrescriptions({
         after: args?.after,
         first: args?.first || 25,
         patientName: args?.patientName,
@@ -935,7 +935,7 @@ export const PhotonProvider = (opts: {
           state?: PrescriptionState;
         } = { first: 25 }
       ) =>
-        sdk.clinical.prescription.getPrescriptions({
+        client.clinical.prescription.getPrescriptions({
           after,
           first,
           patientId,
@@ -955,7 +955,7 @@ export const PhotonProvider = (opts: {
   });
 
   const createPrescriptionMutation =
-    sdk.clinical.prescription.createPrescription({});
+    client.clinical.prescription.createPrescription({});
 
   const constructFetchCreatePrescription = () =>
     action(
@@ -1021,7 +1021,7 @@ export const PhotonProvider = (opts: {
     "fetchCatalog",
     async (store, { id, fragment }) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.catalog.getCatalog({
+      const { data, error } = await client.clinical.catalog.getCatalog({
         id,
         fragment,
       });
@@ -1055,7 +1055,7 @@ export const PhotonProvider = (opts: {
       }: {
         id: string;
         fragment?: Record<string, DocumentNode>;
-      }) => sdk.clinical.catalog.getCatalog({ id, fragment }),
+      }) => client.clinical.catalog.getCatalog({ id, fragment }),
     };
   };
 
@@ -1074,7 +1074,7 @@ export const PhotonProvider = (opts: {
     "fetchCatalogs",
     async (store) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.catalog.getCatalogs();
+      const { data, error } = await client.clinical.catalog.getCatalogs();
       store.setKey("catalogs", data?.catalogs || []);
       store.setKey("error", error);
       store.setKey("loading", false);
@@ -1092,7 +1092,7 @@ export const PhotonProvider = (opts: {
       catalogs,
       loading,
       error,
-      refetch: () => sdk.clinical.catalog.getCatalogs(),
+      refetch: () => client.clinical.catalog.getCatalogs(),
     };
   };
 
@@ -1113,7 +1113,7 @@ export const PhotonProvider = (opts: {
     "fetchMedications",
     async (store, { name, type, code }) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.medication.getMedications({
+      const { data, error } = await client.clinical.medication.getMedications({
         name,
         type,
         code,
@@ -1151,7 +1151,7 @@ export const PhotonProvider = (opts: {
         name?: string;
         type?: MedicationType;
         code?: string;
-      }) => sdk.clinical.medication.getMedications({ name, type, code }),
+      }) => client.clinical.medication.getMedications({ name, type, code }),
     };
   };
 
@@ -1172,7 +1172,7 @@ export const PhotonProvider = (opts: {
     "fetchPharmacies",
     async (store, { name, location }) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.clinical.pharmacy.getPharmacies({
+      const { data, error } = await client.clinical.pharmacy.getPharmacies({
         name,
         location,
       });
@@ -1205,7 +1205,7 @@ export const PhotonProvider = (opts: {
       }: {
         name?: string;
         location?: LatLongSearch;
-      }) => sdk.clinical.pharmacy.getPharmacies({ name, location }),
+      }) => client.clinical.pharmacy.getPharmacies({ name, location }),
     };
   };
 
@@ -1227,7 +1227,7 @@ export const PhotonProvider = (opts: {
     async (store) => {
       store.setKey("loading", true);
       const { data, error } =
-        await sdk.management.organization.getOrganization();
+        await client.management.organization.getOrganization();
       store.setKey("organization", data?.organization || undefined);
       store.setKey("error", error);
       store.setKey("loading", false);
@@ -1245,7 +1245,7 @@ export const PhotonProvider = (opts: {
       organization,
       loading,
       error,
-      refetch: () => sdk.management.organization.getOrganization(),
+      refetch: () => client.management.organization.getOrganization(),
     };
   };
 
@@ -1265,7 +1265,7 @@ export const PhotonProvider = (opts: {
     async (store) => {
       store.setKey("loading", true);
       const { data, error } =
-        await sdk.management.organization.getOrganizations();
+        await client.management.organization.getOrganizations();
       store.setKey("organizations", data?.organizations || []);
       store.setKey("error", error);
       store.setKey("loading", false);
@@ -1283,7 +1283,7 @@ export const PhotonProvider = (opts: {
       organizations,
       loading,
       error,
-      refetch: () => sdk.management.organization.getOrganizations(),
+      refetch: () => client.management.organization.getOrganizations(),
     };
   };
 
@@ -1304,7 +1304,7 @@ export const PhotonProvider = (opts: {
     "fetchWebhooks",
     async (store) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.management.webhook.getWebhooks();
+      const { data, error } = await client.management.webhook.getWebhooks();
       store.setKey("webhooks", data?.webhooks || []);
       store.setKey("error", error);
       store.setKey("loading", false);
@@ -1322,7 +1322,7 @@ export const PhotonProvider = (opts: {
       webhooks,
       loading,
       error,
-      refetch: () => sdk.management.webhook.getWebhooks(),
+      refetch: () => client.management.webhook.getWebhooks(),
     };
   };
 
@@ -1336,7 +1336,7 @@ export const PhotonProvider = (opts: {
     error: undefined,
   });
 
-  const createWebhookMutation = sdk.management.webhook.createWebhook({});
+  const createWebhookMutation = client.management.webhook.createWebhook({});
 
   const constructFetchCreateWebhook = () =>
     action(
@@ -1393,7 +1393,7 @@ export const PhotonProvider = (opts: {
     error: undefined,
   });
 
-  const deleteWebhookMutation = sdk.management.webhook.deleteWebhook();
+  const deleteWebhookMutation = client.management.webhook.deleteWebhook();
 
   const constructFetchDeleteWebhook = () =>
     action(
@@ -1457,7 +1457,7 @@ export const PhotonProvider = (opts: {
     "fetchClients",
     async (store) => {
       store.setKey("loading", true);
-      const { data, error } = await sdk.management.client.getClients();
+      const { data, error } = await client.management.client.getClients();
       store.setKey("clients", data?.clients || []);
       store.setKey("error", error);
       store.setKey("loading", false);
@@ -1475,7 +1475,7 @@ export const PhotonProvider = (opts: {
       clients,
       loading,
       error,
-      refetch: () => sdk.management.client.getClients(),
+      refetch: () => client.management.client.getClients(),
     };
   };
 
@@ -1489,7 +1489,7 @@ export const PhotonProvider = (opts: {
     error: undefined,
   });
 
-  const rotateSecretMutation = sdk.management.client.rotateSecret({});
+  const rotateSecretMutation = client.management.client.rotateSecret({});
 
   const constructFetchRotateSecret = () =>
     action(
