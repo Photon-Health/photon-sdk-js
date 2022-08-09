@@ -113,11 +113,9 @@ export class AuthManager {
    * @returns
    */
   public async getAccessToken(
-    { audience }: { audience?: string } = {
-      audience: this.audience,
-    }
+    { audience }: { audience?: string }
   ): Promise<string> {
-    return this.authentication.getTokenSilently({ audience });
+    return this.authentication.getTokenSilently({ audience: audience || this.audience });
   }
 
   /**
