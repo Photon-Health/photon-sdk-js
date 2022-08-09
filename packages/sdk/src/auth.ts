@@ -74,14 +74,12 @@ export class AuthManager {
       organizationId,
       invitation,
       appState,
-    }: LoginOptions = {
-      organizationId: this.organization,
-    }
+    }: LoginOptions
   ): Promise<void> {
     let opts: RedirectLoginOptions<any> = { redirectMethod: "assign" };
 
-    if (organizationId) {
-      opts = Object.assign(opts, { organization: organizationId });
+    if (organizationId || this.organization) {
+      opts = Object.assign(opts, { organization: organizationId || this.organization });
     }
     if (invitation) {
       opts = Object.assign(opts, { invitation });
