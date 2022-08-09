@@ -12,7 +12,8 @@ const sdk = new PhotonSDK({
   clientId: process.env.REACT_APP_CLIENT_ID,
   redirectURI: window.location.origin,
   audience: "https://api.boson.health",
-  uri: "https://api.boson.health/graphql"
+  uri: "https://api.boson.health/graphql",
+  organization: "org_KzSVZBQixLRkqj5d"
 });
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

@@ -37,7 +37,7 @@ const Login = () => {
       </Stack>
       <Button
         colorScheme="blue"
-        onClick={() => login({ organizationId: "org_KzSVZBQixLRkqj5d" })}
+        onClick={() => login({})}
       >
         Login
       </Button>
