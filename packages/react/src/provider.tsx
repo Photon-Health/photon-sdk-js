@@ -2,7 +2,7 @@ import { ApolloError, DocumentNode } from "@apollo/client";
 import { useStore } from "@nanostores/react";
 import { GraphQLError } from "graphql";
 import { action, map } from "nanostores";
-import { PhotonSDK } from "@photonhealth/sdk";
+import { PhotonClient } from "@photonhealth/sdk";
 import {
   Catalog,
   Client,
@@ -73,22 +73,22 @@ export type GetCatalogReturn = {
   catalog: Catalog;
   loading: boolean;
   error?: ApolloError;
-  refetch: PhotonSDK["clinical"]["catalog"]["getCatalog"];
+  refetch: PhotonClient["clinical"]["catalog"]["getCatalog"];
 };
 
 export type GetMedicationReturn = {
   medications: Medication[];
   loading: boolean;
   error?: ApolloError;
-  refetch: PhotonSDK["clinical"]["medication"]["getMedications"];
+  refetch: PhotonClient["clinical"]["medication"]["getMedications"];
 };
 
-export interface PhotonSDKContextInterface {
+export interface PhotonClientContextInterface {
   getPatient: ({ id }: { id: string }) => {
     patient: Patient;
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["clinical"]["patient"]["getPatient"];
+    refetch: PhotonClient["clinical"]["patient"]["getPatient"];
   };
   getPatients: ({
     after,
@@ -102,7 +102,7 @@ export interface PhotonSDKContextInterface {
     patients: Patient[];
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["clinical"]["patient"]["getPatients"];
+    refetch: PhotonClient["clinical"]["patient"]["getPatients"];
   };
   createPatient: ({
     refetchQueries,
@@ -128,7 +128,7 @@ export interface PhotonSDKContextInterface {
     order: Order;
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["clinical"]["order"]["getOrder"];
+    refetch: PhotonClient["clinical"]["order"]["getOrder"];
   };
   getOrders: ({
     after,
@@ -144,7 +144,7 @@ export interface PhotonSDKContextInterface {
     orders: Order[];
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["clinical"]["order"]["getOrders"];
+    refetch: PhotonClient["clinical"]["order"]["getOrders"];
   };
   createOrder: ({
     refetchQueries,
@@ -170,7 +170,7 @@ export interface PhotonSDKContextInterface {
     prescription: Prescription;
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["clinical"]["prescription"]["getPrescription"];
+    refetch: PhotonClient["clinical"]["prescription"]["getPrescription"];
   };
   getPrescriptions: ({
     patientId,
@@ -190,7 +190,7 @@ export interface PhotonSDKContextInterface {
     prescriptions: Prescription[];
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["clinical"]["prescription"]["getPrescriptions"];
+    refetch: PhotonClient["clinical"]["prescription"]["getPrescriptions"];
   };
   createPrescription: ({
     refetchQueries,
@@ -223,7 +223,7 @@ export interface PhotonSDKContextInterface {
     catalogs: Catalog[];
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["clinical"]["catalog"]["getCatalogs"];
+    refetch: PhotonClient["clinical"]["catalog"]["getCatalogs"];
   };
   getMedications: ({
     name,
@@ -244,25 +244,25 @@ export interface PhotonSDKContextInterface {
     pharmacies: Pharmacy[];
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["clinical"]["pharmacy"]["getPharmacies"];
+    refetch: PhotonClient["clinical"]["pharmacy"]["getPharmacies"];
   };
   getOrganization: () => {
     organization: Organization;
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["management"]["organization"]["getOrganization"];
+    refetch: PhotonClient["management"]["organization"]["getOrganization"];
   };
   getOrganizations: () => {
     organizations: Organization[];
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["management"]["organization"]["getOrganizations"];
+    refetch: PhotonClient["management"]["organization"]["getOrganizations"];
   };
   getWebhooks: () => {
     webhooks: WebhookConfig[];
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["management"]["webhook"]["getWebhooks"];
+    refetch: PhotonClient["management"]["webhook"]["getWebhooks"];
   };
   createWebhook: ({
     refetchQueries,
@@ -308,7 +308,7 @@ export interface PhotonSDKContextInterface {
     clients: Client[];
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonSDK["management"]["client"]["getClients"];
+    refetch: PhotonClient["management"]["client"]["getClients"];
   };
   rotateSecret: ({
     refetchQueries,
@@ -330,11 +330,11 @@ export interface PhotonSDKContextInterface {
       loading: boolean;
     }
   ];
-  login: PhotonSDK["authentication"]["login"];
-  getToken: PhotonSDK["authentication"]["getAccessToken"];
+  login: PhotonClient["authentication"]["login"];
+  getToken: PhotonClient["authentication"]["getAccessToken"];
   hasAuthParams: (searchParams: string) => boolean;
-  handleRedirect: PhotonSDK["authentication"]["handleRedirect"];
-  logout: PhotonSDK["authentication"]["logout"];
+  handleRedirect: PhotonClient["authentication"]["handleRedirect"];
+  logout: PhotonClient["authentication"]["logout"];
   isLoading: boolean;
   isAuthenticated: boolean;
   user: any;
@@ -342,10 +342,10 @@ export interface PhotonSDKContextInterface {
 }
 
 const stub = (): never => {
-  throw new Error("You forgot to wrap your component in <PhotonSDKProvider>.");
+  throw new Error("You forgot to wrap your component in <PhotonProvider>.");
 };
 
-const PhotonSDKContext = createContext<PhotonSDKContextInterface>({
+const PhotonClientContext = createContext<PhotonClientContextInterface>({
   getPatients: stub,
   getPatient: stub,
   createPatient: stub,
@@ -381,9 +381,9 @@ export const hasAuthParams = (searchParams = window.location.search): boolean =>
   (CODE_RE.test(searchParams) || ERROR_RE.test(searchParams)) &&
   STATE_RE.test(searchParams);
 
-export const PhotonSDKProvider = (opts: {
+export const PhotonProvider = (opts: {
   children: any;
-  sdk: PhotonSDK;
+  sdk: PhotonClient;
   searchParams: string;
   onRedirectCallback?: any;
 }) => {
@@ -1572,10 +1572,10 @@ export const PhotonSDKProvider = (opts: {
   };
 
   return (
-    <PhotonSDKContext.Provider value={contextValue}>
+    <PhotonClientContext.Provider value={contextValue}>
       {children}
-    </PhotonSDKContext.Provider>
+    </PhotonClientContext.Provider>
   );
 };
 
-export const usePhotonSDK = () => useContext(PhotonSDKContext);
+export const usePhoton = () => useContext(PhotonClientContext);
