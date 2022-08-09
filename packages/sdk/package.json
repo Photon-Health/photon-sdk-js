@@ -1,6 +1,6 @@
 {
   "name": "@photonhealth/sdk",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "main": "src/lib.js",
   "scripts": {
     "build": "vite build",
