@@ -1,2 +1,2 @@
 export { usePhoton, PhotonProvider } from "./provider"
-export { PhotonClient } from "@photonhealth/sdk"
+export * from "@photonhealth/sdk"
