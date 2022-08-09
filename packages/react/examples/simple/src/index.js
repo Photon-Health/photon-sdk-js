@@ -4,10 +4,9 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { ChakraProvider } from "@chakra-ui/react";
-import { PhotonSDK } from "@photonhealth/sdk";
-import { PhotonSDKProvider } from "@photonhealth/react";
+import { PhotonClient, PhotonProvider } from "@photonhealth/react";
 
-const sdk = new PhotonSDK({
+const client = new PhotonClient({
   domain: process.env.REACT_APP_DOMAIN,
   clientId: process.env.REACT_APP_CLIENT_ID,
   redirectURI: window.location.origin,
@@ -18,9 +17,9 @@ const sdk = new PhotonSDK({
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <ChakraProvider>
-    <PhotonSDKProvider sdk={sdk}>
+    <PhotonProvider client={client}>
       <App />
-    </PhotonSDKProvider>
+    </PhotonProvider>
   </ChakraProvider>
 );
 

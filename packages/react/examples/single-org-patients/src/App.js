@@ -15,14 +15,14 @@ import {
   Button,
   Input,
 } from "@chakra-ui/react";
-import { usePhotonSDK } from "@photonhealth/react";
+import { usePhoton } from "@photonhealth/react";
 import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { ThreeDots } from "react-loader-spinner";
 
 const Login = () => {
-  const { login } = usePhotonSDK();
+  const { login } = usePhoton();
 
   return (
     <Stack spacing="8">
@@ -46,7 +46,7 @@ const Login = () => {
 };
 
 const PatientTable = () => {
-  const { getPatients, logout } = usePhotonSDK();
+  const { getPatients, logout } = usePhoton();
   const [filterText, setFilterText] = useState("");
   const [rows, setRows] = useState([]);
   const [finished, setFinished] = useState(false);
@@ -175,7 +175,7 @@ const PatientTable = () => {
 };
 
 function App() {
-  const { isAuthenticated, isLoading } = usePhotonSDK();
+  const { isAuthenticated, isLoading } = usePhoton();
   return (
     <Flex direction={"column"} justify={"center"}>
       <Container>

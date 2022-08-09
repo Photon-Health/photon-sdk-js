@@ -1,4 +1,4 @@
-import { usePhotonSDK } from "@photonhealth/react";
+import { usePhoton } from "@photonhealth/react";
 import {
   Container,
   Flex,
@@ -10,7 +10,7 @@ import {
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 
 const OrgList = ({ user }) => {
-  const { getOrganizations, login } = usePhotonSDK();
+  const { getOrganizations, login } = usePhoton();
   const { organizations, loading } = getOrganizations();
   return !loading ? (
     <List>
@@ -43,7 +43,7 @@ const OrgList = ({ user }) => {
 
 function App() {
   const { isAuthenticated, login, logout, user, isLoading } =
-    usePhotonSDK();
+    usePhoton();
 
   return !isLoading ? (
     <Flex direction={"column"} justify={"center"}>
