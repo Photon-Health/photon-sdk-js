@@ -19,6 +19,17 @@ export const PATIENT_FIELDS = gql`
     gender
     email
     phone
+    address {
+      name {
+        full
+      }
+      city
+      country
+      postalCode
+      state
+      street1
+      street2
+    }
   }
 `
 
