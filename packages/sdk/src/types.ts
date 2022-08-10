@@ -172,7 +172,7 @@ export type MutationAddToCatalogArgs = {
 
 
 export type MutationCreateOrderArgs = {
-  address: AddressInput;
+  address?: InputMaybe<AddressInput>;
   externalId?: InputMaybe<Scalars['ID']>;
   fills: Array<FillInput>;
   patientId: Scalars['ID'];
@@ -181,6 +181,7 @@ export type MutationCreateOrderArgs = {
 
 
 export type MutationCreatePatientArgs = {
+  address?: InputMaybe<AddressInput>;
   allergies?: InputMaybe<Array<InputMaybe<ConceptInput>>>;
   dateOfBirth: Scalars['AWSDate'];
   email?: InputMaybe<Scalars['AWSEmail']>;
@@ -311,6 +312,7 @@ export type Organization = {
 
 export type Patient = {
   __typename?: 'Patient';
+  address?: Maybe<Address>;
   allergies?: Maybe<Array<Maybe<Allergy>>>;
   dateOfBirth: Scalars['AWSDate'];
   email?: Maybe<Scalars['AWSEmail']>;
