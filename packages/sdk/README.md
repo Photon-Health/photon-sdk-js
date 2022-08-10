@@ -1,11 +1,22 @@
 # `@photonhealth/sdk`
 
-> TODO: description
+> Photon JavaScript SDK
+
+## Installation
+
+```
+npm instal @photonhealth/sdk
+```
 
 ## Usage
 
 ```
-const sdk = require('@photonhealth/sdk');
+import { PhotonClient } from "@photonhealth/sdk";
 
-// TODO: DEMONSTRATE API
+const client = new PhotonClient({
+  domain: "auth.photon.health",
+  clientId: "YOUR_CLIENT_ID_SECRET",
+  redirectURI: window.location.origin,
+  organization: "org_XXX"
+});
 ```
