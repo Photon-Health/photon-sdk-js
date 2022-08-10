@@ -5,7 +5,7 @@
 ## Installation
 
 ```
-npm instal @photonhealth/sdk
+npm install @photonhealth/sdk
 ```
 
 ## Usage
