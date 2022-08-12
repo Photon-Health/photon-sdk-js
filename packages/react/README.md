@@ -16,9 +16,9 @@ import { PhotonClient, PhotonProvider } from "@photonhealth/react";
 
 const client = new PhotonClient({
   domain: "auth.photon.health",
-  clientId: "YOUR_CLIENT_ID_SECRET",
+  clientId: "YOUR_CLIENT_ID",
   redirectURI: window.location.origin,
-  organization: "org_XXX"
+  organization: "YOUR_ORG_ID"
 });
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
