@@ -10,7 +10,9 @@
   "publishConfig": {
     "access": "public"
   },
-  "keywords": [],
+  "keywords": [
+    "react"
+  ],
   "author": "",
   "license": "ISC",
   "exports": {
