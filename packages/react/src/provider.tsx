@@ -403,8 +403,17 @@ export const PhotonProvider = (opts: {
   useEffect(() => {
     const initialize = async () => {
       if (hasAuthParams()) {
-        const { appState } = await client.authentication.handleRedirect();
-        onRedirectCallback(appState);
+        try {
+          const { appState } = await client.authentication.handleRedirect();
+          onRedirectCallback(appState);
+        } catch (e) {
+          let message = (e as Error).message;
+          if (message.includes("invitation not found or already used")) {
+            console.warn(message);
+            window.location.href = window.location.origin;
+             // await logout({});
+          }
+        }
       }
       await client.authentication.checkSession();
       const user = await client.authentication.getUser();
@@ -416,7 +425,15 @@ export const PhotonProvider = (opts: {
   /// Auth0
 
   const handleRedirect = async (url?: string) => {
-    await client.authentication.handleRedirect(url);
+    try {
+      await client.authentication.handleRedirect(url);
+    } catch (e) {
+      let message = (e as Error).message;
+      if (message.includes("invitation not found or already used")) {
+        console.warn(message);
+        window.location.replace(window.location.origin);
+      }
+    }
     dispatch({
       type: "HANDLE_REDIRECT_COMPLETE",
       user: await client.authentication.getUser(),
@@ -438,7 +455,11 @@ export const PhotonProvider = (opts: {
     invitation?: string;
     appState?: object;
   } = {}) => {
-    return client.authentication.login({ organizationId, invitation, appState });
+    return client.authentication.login({
+      organizationId,
+      invitation,
+      appState,
+    });
   };
 
   const logout = ({ returnTo }: { returnTo?: string }) =>
@@ -683,7 +704,8 @@ export const PhotonProvider = (opts: {
       order,
       loading,
       error,
-      refetch: ({ id }: { id: string }) => client.clinical.order.getOrder({ id }),
+      refetch: ({ id }: { id: string }) =>
+        client.clinical.order.getOrder({ id }),
     };
   };
 
@@ -832,9 +854,10 @@ export const PhotonProvider = (opts: {
     "fetchPrescription",
     async (store, { id }) => {
       store.setKey("loading", true);
-      const { data, error } = await client.clinical.prescription.getPrescription({
-        id,
-      });
+      const { data, error } =
+        await client.clinical.prescription.getPrescription({
+          id,
+        });
       store.setKey("prescription", data?.prescription || undefined);
       store.setKey("error", error);
       store.setKey("loading", false);
@@ -872,14 +895,15 @@ export const PhotonProvider = (opts: {
     "fetchOrders",
     async (store, args?: any) => {
       store.setKey("loading", true);
-      const { data, error } = await client.clinical.prescription.getPrescriptions({
-        after: args?.after,
-        first: args?.first || 25,
-        patientName: args?.patientName,
-        patientId: args?.patientId,
-        prescriberId: args?.prescriberId,
-        state: args?.state,
-      });
+      const { data, error } =
+        await client.clinical.prescription.getPrescriptions({
+          after: args?.after,
+          first: args?.first || 25,
+          patientName: args?.patientName,
+          patientId: args?.patientId,
+          prescriberId: args?.prescriberId,
+          state: args?.state,
+        });
       store.setKey("prescriptions", data?.prescriptions || []);
       store.setKey("error", error);
       store.setKey("loading", false);
