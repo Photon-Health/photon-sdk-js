@@ -1,6 +1,6 @@
 {
   "name": "@photonhealth/react",
-  "version": "0.0.13-alpha.10+7628ac2",
+  "version": "0.0.13-alpha.11+aca5425",
   "main": "./dist/react.cjs.js",
   "scripts": {
     "build": "vite build",
@@ -29,5 +29,5 @@
   },
   "homepage": "https://github.com/Photon-Health/photon-sdk-js#readme",
   "description": "",
-  "gitHead": "7628ac2264ad19b2b5f8a90fdce7914401ce5627"
+  "gitHead": "aca5425a7c4b57b6c88777cdbd31bcac6b1810b3"
 }
