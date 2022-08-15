@@ -1,6 +1,6 @@
 {
   "name": "@photonhealth/react",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "main": "./dist/react.cjs.js",
   "scripts": {
     "build": "vite build",
