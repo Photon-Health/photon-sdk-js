@@ -31,5 +31,8 @@
   },
   "homepage": "https://github.com/Photon-Health/photon-sdk-js#readme",
   "description": "",
-  "gitHead": "aca5425a7c4b57b6c88777cdbd31bcac6b1810b3"
+  "gitHead": "3cb2faa4d3fe669b2e742a6bd3adb93ba37175e0",
+  "dependencies": {
+    "@photonhealth/sdk": "^0.0.16"
+  }
 }

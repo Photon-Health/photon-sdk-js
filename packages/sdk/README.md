@@ -20,5 +20,3 @@ const client = new PhotonClient({
   organization: "YOUR_ORG_ID"
 });
 ```
-
-
