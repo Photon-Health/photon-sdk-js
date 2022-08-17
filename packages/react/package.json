@@ -34,5 +34,8 @@
   "gitHead": "3cb2faa4d3fe669b2e742a6bd3adb93ba37175e0",
   "dependencies": {
     "@photonhealth/sdk": "^0.0.17"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^2.0.1"
   }
 }
