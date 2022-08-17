@@ -5,6 +5,7 @@
     "packages/*"
   ],
   "devDependencies": {
+    "json": "^11.0.0",
     "lerna": "^5.3.0"
   }
 }
