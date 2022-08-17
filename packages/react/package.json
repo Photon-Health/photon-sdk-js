@@ -1,6 +1,6 @@
 {
   "name": "@photonhealth/react",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "main": "./dist/react.cjs.js",
   "scripts": {
     "build": "vite build",
@@ -33,7 +33,7 @@
   "description": "",
   "gitHead": "146da4da52ebc21cd46d9db4dd3831ff72b2c666",
   "dependencies": {
-    "@photonhealth/sdk": "^0.0.18"
+    "@photonhealth/sdk": "^0.0.19"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^2.0.1",
