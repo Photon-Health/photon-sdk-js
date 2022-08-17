@@ -408,11 +408,7 @@ export const PhotonProvider = (opts: {
           onRedirectCallback(appState);
         } catch (e) {
           let message = (e as Error).message;
-          if (message.includes("invitation not found or already used")) {
-            console.warn(message);
-            window.location.href = window.location.origin;
-             // await logout({});
-          }
+          dispatch({ type: "ERROR", error: message});
         }
       }
       await client.authentication.checkSession();
@@ -429,10 +425,7 @@ export const PhotonProvider = (opts: {
       await client.authentication.handleRedirect(url);
     } catch (e) {
       let message = (e as Error).message;
-      if (message.includes("invitation not found or already used")) {
-        console.warn(message);
-        window.location.replace(window.location.origin);
-      }
+      dispatch({ type: "ERROR", error: message});
     }
     dispatch({
       type: "HANDLE_REDIRECT_COMPLETE",
