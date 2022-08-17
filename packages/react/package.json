@@ -36,6 +36,7 @@
     "@photonhealth/sdk": "^0.0.17"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^2.0.1"
+    "@vitejs/plugin-react": "^2.0.1",
+    "vite-plugin-dts": "^1.4.1"
   }
 }
