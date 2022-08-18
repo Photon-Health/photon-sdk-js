@@ -54,6 +54,11 @@ const reducer = (state: any, action: any) => {
         isLoading: false,
         error: action.error,
       };
+    case "CLEAR_ERROR":
+      return {
+        ...state,
+        error: undefined
+      }
   }
 };
 
@@ -330,6 +335,7 @@ export interface PhotonClientContextInterface {
       loading: boolean;
     }
   ];
+  clearError: () => void;
   login: PhotonClient["authentication"]["login"];
   getToken: PhotonClient["authentication"]["getAccessToken"];
   hasAuthParams: (searchParams: string) => boolean;
@@ -370,6 +376,7 @@ const PhotonClientContext = createContext<PhotonClientContextInterface>({
   hasAuthParams: stub,
   handleRedirect: stub,
   logout: stub,
+  clearError: stub,
   getToken: stub,
   isLoading: true,
   isAuthenticated: false,
@@ -454,6 +461,12 @@ export const PhotonProvider = (opts: {
       appState,
     });
   };
+
+  const clearError = () => {
+    dispatch({ 
+      type: "CLEAR_ERROR"
+    })
+  }
 
   const logout = ({ returnTo }: { returnTo?: string }) =>
     client.authentication.logout({ returnTo });
@@ -1586,6 +1599,7 @@ export const PhotonProvider = (opts: {
     getPharmacies,
     getClients,
     rotateSecret,
+    clearError
   };
 
   return (

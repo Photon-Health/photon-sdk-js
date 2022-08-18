@@ -4,8 +4,7 @@
   "main": "./dist/react.cjs.js",
   "scripts": {
     "build": "vite build",
-    "prepublish": "npm run build",
-    "prepack": "npx json -f package.json -I -e \"delete this.devDependencies; delete this.dependencies\""
+    "prepublish": "npm run build"
   },
   "publishConfig": {
     "access": "public"
@@ -31,5 +30,9 @@
   },
   "homepage": "https://github.com/Photon-Health/photon-sdk-js#readme",
   "description": "",
-  "gitHead": "79f1d5190d045c963a27375448db8d1691f30503"
+  "gitHead": "79f1d5190d045c963a27375448db8d1691f30503",
+  "devDependencies": {
+    "@vitejs/plugin-react": "^2.0.1",
+    "vite-plugin-dts": "^1.4.1"
+  }
 }
