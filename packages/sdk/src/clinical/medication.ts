@@ -60,8 +60,8 @@ export class MedicationQueryManager {
     let [fName, fValue] = Object.entries(fragment)[0];
     const GET_MEDICATIONS = gql`
       ${fValue}
-      query medications($filter: MedicationFilter, after: ID, first: Int) {
-        medications(filter: $filter) {
+      query medications(filter: MedicationFilter, after: ID, first: Int) {
+        medications(filter: $filter, after: $after, first: $first) {
           ...${fName}
     }
   }
