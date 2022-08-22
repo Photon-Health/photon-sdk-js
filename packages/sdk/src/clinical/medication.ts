@@ -6,7 +6,9 @@ import {
 } from "@apollo/client";
 import { MEDICATION_FIELDS } from "../fragments";
 import { makeQuery } from "../utils";
-import { Medication } from "../types";
+import { Medication, MedicationFilter } from "../types";
+
+
 
 /**
  * GetMedications options
@@ -16,9 +18,9 @@ import { Medication } from "../types";
  * @param fragment Allows you to override the default query to request more fields
  */
  export interface GetMedicationsOptions {
-  name?: string
-  type?: string
-  code?: string
+  filter?: MedicationFilter,
+  after?: String,
+  first?: Number,
   fragment?: Record<string, DocumentNode>
 }
 
@@ -44,10 +46,10 @@ export class MedicationQueryManager {
    */
   public async getMedications(
     {
-      name,
-      type,
-      code,
-      fragment,
+      filter,
+      after,
+      first,
+      fragment
     }: GetMedicationsOptions = {
       fragment: { MedicationFields: MEDICATION_FIELDS },
     }
@@ -58,8 +60,8 @@ export class MedicationQueryManager {
     let [fName, fValue] = Object.entries(fragment)[0];
     const GET_MEDICATIONS = gql`
       ${fValue}
-      query medications($name: String, $type: MedicationType, $code: String) {
-        medications(filter: { name: $name, type: $type, code: $code }) {
+      query medications(filter: MedicationFilter, after: ID, first: Int) {
+        medications(filter: $filter, after: $after, first: $first) {
           ...${fName}
     }
   }
@@ -68,9 +70,9 @@ export class MedicationQueryManager {
       this.apollo,
       GET_MEDICATIONS,
       {
-        name,
-        type,
-        code,
+        filter,
+        after,
+        first
       }
     );
   }

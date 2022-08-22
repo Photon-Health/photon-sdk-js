@@ -9,6 +9,7 @@ import {
   LatLongSearch,
   Maybe,
   Medication,
+  MedicationFilter,
   MedicationType,
   Order,
   Organization,
@@ -57,8 +58,8 @@ const reducer = (state: any, action: any) => {
     case "CLEAR_ERROR":
       return {
         ...state,
-        error: undefined
-      }
+        error: undefined,
+      };
   }
 };
 
@@ -231,13 +232,13 @@ export interface PhotonClientContextInterface {
     refetch: PhotonClient["clinical"]["catalog"]["getCatalogs"];
   };
   getMedications: ({
-    name,
-    type,
-    code,
+    filter,
+    first,
+    after,
   }: {
-    name?: Maybe<string>;
-    type?: Maybe<MedicationType>;
-    code?: Maybe<string>;
+    filter?: MedicationFilter;
+    first?: Number;
+    after?: String;
   }) => GetMedicationReturn;
   getPharmacies: ({
     name,
@@ -415,7 +416,7 @@ export const PhotonProvider = (opts: {
           onRedirectCallback(appState);
         } catch (e) {
           let message = (e as Error).message;
-          dispatch({ type: "ERROR", error: message});
+          dispatch({ type: "ERROR", error: message });
         }
       }
       await client.authentication.checkSession();
@@ -432,7 +433,7 @@ export const PhotonProvider = (opts: {
       await client.authentication.handleRedirect(url);
     } catch (e) {
       let message = (e as Error).message;
-      dispatch({ type: "ERROR", error: message});
+      dispatch({ type: "ERROR", error: message });
     }
     dispatch({
       type: "HANDLE_REDIRECT_COMPLETE",
@@ -463,10 +464,10 @@ export const PhotonProvider = (opts: {
   };
 
   const clearError = () => {
-    dispatch({ 
-      type: "CLEAR_ERROR"
-    })
-  }
+    dispatch({
+      type: "CLEAR_ERROR",
+    });
+  };
 
   const logout = ({ returnTo }: { returnTo?: string }) =>
     client.authentication.logout({ returnTo });
@@ -1141,12 +1142,12 @@ export const PhotonProvider = (opts: {
   const fetchMedications = action(
     getMedicationsStore,
     "fetchMedications",
-    async (store, { name, type, code }) => {
+    async (store, { filter, first, after }) => {
       store.setKey("loading", true);
       const { data, error } = await client.clinical.medication.getMedications({
-        name,
-        type,
-        code,
+        filter,
+        first,
+        after,
       });
       store.setKey("medications", data?.medications || []);
       store.setKey("error", error);
@@ -1155,33 +1156,33 @@ export const PhotonProvider = (opts: {
   );
 
   const getMedications = ({
-    name,
-    type,
-    code,
+    filter,
+    first,
+    after,
   }: {
-    name?: string;
-    type?: MedicationType;
-    code?: string;
+    filter?: MedicationFilter;
+    first?: number;
+    after?: string;
   }) => {
     const { medications, loading, error } = useStore(getMedicationsStore);
 
     useEffect(() => {
-      fetchMedications({ name, type, code });
-    }, [name, type, code]);
+      fetchMedications({ filter, first, after });
+    }, [filter, first, after]);
 
     return {
       medications,
       loading,
       error,
       refetch: ({
-        name,
-        type,
-        code,
+        filter,
+        first,
+        after,
       }: {
-        name?: string;
-        type?: MedicationType;
-        code?: string;
-      }) => client.clinical.medication.getMedications({ name, type, code }),
+        filter?: MedicationFilter;
+        first?: number;
+        after?: string;
+      }) => client.clinical.medication.getMedications({ filter, first, after }),
     };
   };
 
@@ -1599,7 +1600,7 @@ export const PhotonProvider = (opts: {
     getPharmacies,
     getClients,
     rotateSecret,
-    clearError
+    clearError,
   };
 
   return (

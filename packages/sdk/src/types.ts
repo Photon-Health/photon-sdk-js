@@ -1,8 +1,14 @@
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type Exact<T extends { [key: string]: unknown }> = {
+  [K in keyof T]: T[K];
+};
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]?: Maybe<T[SubKey]>;
+};
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]: Maybe<T[SubKey]>;
+};
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -66,6 +72,12 @@ export type ConceptInput = {
   rxcui: Scalars['ID'];
 };
 
+export enum ConceptType {
+  Drug = 'DRUG',
+  Package = 'PACKAGE',
+  Product = 'PRODUCT',
+}
+
 export type Diagnosis = {
   __typename?: 'Diagnosis';
   code: Scalars['String'];
@@ -74,7 +86,7 @@ export type Diagnosis = {
 };
 
 export enum DiagnosisType {
-  Icd10 = 'ICD10'
+  Icd10 = 'ICD10',
 }
 
 export enum DispenseUnit {
@@ -83,8 +95,13 @@ export enum DispenseUnit {
   /** Grams */
   Gr = 'GR',
   /** Milliliters */
-  Ml = 'ML'
+  Ml = 'ML',
 }
+
+export type DrugFilter = {
+  code?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+};
 
 export type Fill = {
   __typename?: 'Fill';
@@ -109,7 +126,7 @@ export enum FillState {
   New = 'NEW',
   Processing = 'PROCESSING',
   Received = 'RECEIVED',
-  Sent = 'SENT'
+  Sent = 'SENT',
 }
 
 export type LatLongSearch = {
@@ -123,6 +140,7 @@ export type Medication = Treatment & {
   __typename?: 'Medication';
   brandName?: Maybe<Scalars['String']>;
   codes: TreatmentCodes;
+  concept: ConceptType;
   description?: Maybe<Scalars['String']>;
   form?: Maybe<Scalars['String']>;
   genericName?: Maybe<Scalars['String']>;
@@ -130,20 +148,21 @@ export type Medication = Treatment & {
   manufacturer?: Maybe<Scalars['String']>;
   name: Scalars['String'];
   strength?: Maybe<Scalars['String']>;
-  type: MedicationType;
+  /** Null implies a medication cant be prescribed */
+  type?: Maybe<MedicationType>;
 };
 
 export type MedicationFilter = {
-  code?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
-  type?: InputMaybe<MedicationType>;
+  drug?: InputMaybe<DrugFilter>;
+  package?: InputMaybe<PackageFilter>;
+  product?: InputMaybe<ProductFilter>;
 };
 
 export enum MedicationType {
   /** Over-the-Counter */
   Otc = 'OTC',
   /** Prescription */
-  Rx = 'RX'
+  Rx = 'RX',
 }
 
 export type Mutation = {
@@ -163,22 +182,19 @@ export type Mutation = {
   updateWebhookConfig: WebhookConfig;
 };
 
-
 export type MutationAddToCatalogArgs = {
   catalogId: Scalars['ID'];
   medicationId?: InputMaybe<Scalars['ID']>;
   ndc?: InputMaybe<Scalars['String']>;
 };
 
-
 export type MutationCreateOrderArgs = {
-  address?: InputMaybe<AddressInput>;
+  address: AddressInput;
   externalId?: InputMaybe<Scalars['ID']>;
   fills: Array<FillInput>;
   patientId: Scalars['ID'];
   pharmacyId?: InputMaybe<Scalars['ID']>;
 };
-
 
 export type MutationCreatePatientArgs = {
   address?: InputMaybe<AddressInput>;
@@ -192,7 +208,6 @@ export type MutationCreatePatientArgs = {
   phone: Scalars['AWSPhone'];
   sex: SexType;
 };
-
 
 export type MutationCreatePrescriptionArgs = {
   daysSupply: Scalars['Int'];
@@ -209,7 +224,6 @@ export type MutationCreatePrescriptionArgs = {
   refillsAllowed: Scalars['Int'];
 };
 
-
 export type MutationCreateWebhookConfigArgs = {
   filters?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   name?: InputMaybe<Scalars['String']>;
@@ -217,16 +231,13 @@ export type MutationCreateWebhookConfigArgs = {
   url: Scalars['String'];
 };
 
-
 export type MutationDeleteWebhookConfigArgs = {
   id: Scalars['String'];
 };
 
-
 export type MutationRotateSecretArgs = {
   id: Scalars['ID'];
 };
-
 
 export type MutationUpdatePatientArgs = {
   allergies?: InputMaybe<Array<InputMaybe<ConceptInput>>>;
@@ -238,7 +249,6 @@ export type MutationUpdatePatientArgs = {
   name?: InputMaybe<NameInput>;
   phone?: InputMaybe<Scalars['AWSPhone']>;
 };
-
 
 export type MutationUpdateWebhookConfigArgs = {
   filters?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
@@ -290,12 +300,12 @@ export enum OrderState {
   Error = 'ERROR',
   New = 'NEW',
   Processing = 'PROCESSING',
-  Ready = 'READY'
+  Ready = 'READY',
 }
 
 export enum OrgType {
   Pharmacy = 'PHARMACY',
-  Prescriber = 'PRESCRIBER'
+  Prescriber = 'PRESCRIBER',
 }
 
 export type Organization = {
@@ -308,6 +318,13 @@ export type Organization = {
   name: Scalars['String'];
   phone?: Maybe<Scalars['AWSPhone']>;
   type?: Maybe<OrgType>;
+};
+
+export type PackageFilter = {
+  code?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+  product: Scalars['ID'];
+  type?: InputMaybe<MedicationType>;
 };
 
 export type Patient = {
@@ -327,13 +344,11 @@ export type Patient = {
   sex: SexType;
 };
 
-
 export type PatientOrdersArgs = {
   after?: InputMaybe<Scalars['ID']>;
   filter?: InputMaybe<PatientOrderFilter>;
   first?: InputMaybe<Scalars['Int']>;
 };
-
 
 export type PatientPrescriptionsArgs = {
   after?: InputMaybe<Scalars['ID']>;
@@ -401,7 +416,7 @@ export enum PrescriptionState {
   Error = 'ERROR',
   Expired = 'EXPIRED',
   Processing = 'PROCESSING',
-  Ready = 'READY'
+  Ready = 'READY',
 }
 
 export type PrescriptionTemplate = {
@@ -413,6 +428,13 @@ export type PrescriptionTemplate = {
   medication: Medication;
   notes?: Maybe<Scalars['String']>;
   refillsAllowed: Scalars['Int'];
+};
+
+export type ProductFilter = {
+  code?: InputMaybe<Scalars['String']>;
+  drug: Scalars['ID'];
+  name?: InputMaybe<Scalars['String']>;
+  type?: InputMaybe<MedicationType>;
 };
 
 export type Provider = {
@@ -465,21 +487,17 @@ export type Query = {
   webhooks?: Maybe<Array<Maybe<WebhookConfig>>>;
 };
 
-
 export type QueryAllergiesArgs = {
   filter?: InputMaybe<Scalars['String']>;
 };
-
 
 export type QueryCatalogArgs = {
   id?: InputMaybe<Scalars['ID']>;
 };
 
-
 export type QueryFillArgs = {
   id: Scalars['ID'];
 };
-
 
 export type QueryMedicationsArgs = {
   after?: InputMaybe<Scalars['ID']>;
@@ -487,11 +505,9 @@ export type QueryMedicationsArgs = {
   first?: InputMaybe<Scalars['Int']>;
 };
 
-
 export type QueryOrderArgs = {
   id: Scalars['ID'];
 };
-
 
 export type QueryOrdersArgs = {
   after?: InputMaybe<Scalars['ID']>;
@@ -499,18 +515,15 @@ export type QueryOrdersArgs = {
   first?: InputMaybe<Scalars['Int']>;
 };
 
-
 export type QueryPatientArgs = {
   id: Scalars['ID'];
 };
-
 
 export type QueryPatientsArgs = {
   after?: InputMaybe<Scalars['ID']>;
   filter?: InputMaybe<PatientFilter>;
   first?: InputMaybe<Scalars['Int']>;
 };
-
 
 export type QueryPharmaciesArgs = {
   after?: InputMaybe<Scalars['ID']>;
@@ -519,16 +532,13 @@ export type QueryPharmaciesArgs = {
   name?: InputMaybe<Scalars['String']>;
 };
 
-
 export type QueryPharmacyArgs = {
   id: Scalars['ID'];
 };
 
-
 export type QueryPrescriptionArgs = {
   id: Scalars['ID'];
 };
-
 
 export type QueryPrescriptionsArgs = {
   after?: InputMaybe<Scalars['ID']>;
@@ -545,7 +555,7 @@ export type Role = {
 
 export enum SexType {
   Female = 'FEMALE',
-  Male = 'MALE'
+  Male = 'MALE',
 }
 
 export type Treatment = {
