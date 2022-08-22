@@ -1168,7 +1168,20 @@ export const PhotonProvider = (opts: {
 
     useEffect(() => {
       fetchMedications({ filter, first, after });
-    }, [filter?.drug?.name, first, after]);
+    }, [
+      filter?.drug?.name,
+      filter?.drug?.code,
+      filter?.product?.name,
+      filter?.product?.drug,
+      filter?.product?.code,
+      filter?.product?.type,
+      filter?.package?.name,
+      filter?.package?.product,
+      filter?.package?.code,
+      filter?.package?.type,
+      first,
+      after,
+    ]);
 
     return {
       medications,
