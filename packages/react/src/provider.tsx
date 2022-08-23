@@ -1043,7 +1043,7 @@ export const PhotonProvider = (opts: {
     error?: ApolloError;
   }>({
     catalog: undefined,
-    loading: true,
+    loading: false,
     error: undefined,
   });
 
