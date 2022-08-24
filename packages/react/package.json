@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/Photon-Health/photon-sdk-js#readme",
   "description": "",
-  "gitHead": "79f1d5190d045c963a27375448db8d1691f30503",
+  "gitHead": "b5ccb86ff986b892919f0e14379c265e7ac44da4",
   "devDependencies": {
     "@types/react": "^18.0.17",
     "@vitejs/plugin-react": "^2.0.1",
