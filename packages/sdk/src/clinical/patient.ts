@@ -143,7 +143,7 @@ export class PatientQueryManager {
         $phone: AWSPhone!
         $address: AddressInput
         $allergies: [ConceptInput]
-        $medicationHistory: [ConceptInput]
+        $medicationHistory: [MedHistoryInput]
       ) {
         createPatient(
           externalId: $externalId
