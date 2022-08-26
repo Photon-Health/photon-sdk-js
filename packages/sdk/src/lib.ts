@@ -94,7 +94,7 @@ export class PhotonClient {
           if ((error as Error).message.includes("Consent required") {
             token = await this.authentication.getAccessTokenWithConsent();
           }
-          console.log(error);
+          throw error;
         }
 
         if (!token) {
