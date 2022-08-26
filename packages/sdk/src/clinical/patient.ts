@@ -41,6 +41,22 @@ import { Patient } from "../types";
 }
 
 /**
+ * UpdatePatient options
+ * @param fragment Allows you to override the default query to request more fields
+ */
+ export interface UpdatePatientOptions {
+  fragment?: Record<string, DocumentNode>;
+}
+
+/**
+ * removePatientAllergy options
+ * @param fragment Allows you to override the default query to request more fields
+ */
+ export interface RemovePatientAllergyOptions {
+  fragment?: Record<string, DocumentNode>;
+}
+
+/**
  * Contains various methods for Photon Patients
  */
 export class PatientQueryManager {
@@ -142,7 +158,7 @@ export class PatientQueryManager {
         $email: AWSEmail
         $phone: AWSPhone!
         $address: AddressInput
-        $allergies: [ConceptInput]
+        $allergies: [AllergenInput]
         $medicationHistory: [MedHistoryInput]
       ) {
         createPatient(
@@ -163,6 +179,80 @@ export class PatientQueryManager {
     return makeMutation<{ createPatient: Patient } | undefined | null>(
       this.apollo,
       CREATE_PATIENT
+    );
+  }
+
+  /**
+   * Updates an existing patient
+   * @param options - Query options
+   * @returns
+   */
+   public updatePatient({
+    fragment,
+  }: UpdatePatientOptions) {
+    if (!fragment) {
+      fragment = { PatientFields: PATIENT_FIELDS };
+    }
+    let [fName, fValue] = Object.entries(fragment)[0];
+    const UPDATE_PATIENT = gql`
+      ${fValue}
+      mutation updatePatient(
+        $id: ID
+        $externalId: ID
+        $name: NameInput
+        $gender: String
+        $email: AWSEmail
+        $phone: AWSPhone!
+        $allergies: [AllergenInput]
+        $medicationHistory: [MedHistoryInput]
+      ) {
+        updatePatient(
+          id: $id
+          externalId: $externalId
+          name: $name
+          gender: $gender
+          email: $email
+          phone: $phone
+          allergies: $allergies
+          medicationHistory: $medicationHistory
+        ) {
+          ...${fName}
+        }
+      }`;
+    return makeMutation<{ updatePatient: Patient } | undefined | null>(
+      this.apollo,
+      UPDATE_PATIENT
+    );
+  }
+
+  /**
+   * Removes an allergen from a patient
+   * @param options - Query options
+   * @returns
+   */
+   public removePatientAllergy({
+    fragment,
+  }: RemovePatientAllergyOptions) {
+    if (!fragment) {
+      fragment = { PatientFields: PATIENT_FIELDS };
+    }
+    let [fName, fValue] = Object.entries(fragment)[0];
+    const REMOVE_PATIENT_ALLERGY = gql`
+      ${fValue}
+      mutation removePatientAllergy(
+        $id: ID
+        $allergenId: ID
+      ) {
+        updatePatient(
+          id: $id
+          allergenId: $allergenId
+        ) {
+          ...${fName}
+        }
+      }`;
+    return makeMutation<{ removePatientAllergy: Patient } | undefined | null>(
+      this.apollo,
+      REMOVE_PATIENT_ALLERGY
     );
   }
 }
