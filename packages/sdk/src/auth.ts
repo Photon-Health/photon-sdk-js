@@ -117,7 +117,11 @@ export class AuthManager {
       audience: this.audience,
     }
   ): Promise<string> {
-    return this.authentication.getTokenSilently({ audience: audience || this.audience || undefined });
+    try {
+      return this.authentication.getTokenSilently({ audience: audience || this.audience || undefined });
+    } catch (e) {
+      return this.authentication.getTokenWithPopup({ audience })
+    }
   }
 
   /**
