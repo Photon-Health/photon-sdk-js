@@ -1,6 +1,6 @@
 {
   "name": "@photonhealth/sdk",
-  "version": "0.0.32",
+  "version": "0.0.33-alpha.4+1049364",
   "main": "src/lib.js",
   "scripts": {
     "build": "vite build",
@@ -46,5 +46,5 @@
   },
   "homepage": "https://github.com/Photon-Health/photon-sdk-js#readme",
   "description": "",
-  "gitHead": "b5ccb86ff986b892919f0e14379c265e7ac44da4"
+  "gitHead": "104936473acffb64451273caa56c5582419daa46"
 }
