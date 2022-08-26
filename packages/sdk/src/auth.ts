@@ -130,7 +130,7 @@ export class AuthManager {
       audience: this.audience,
     }
   ): Promise<string> {
-    return this.authentication.getTokenWithPopup({ audience: audience || this.audience || undefined });
+    return this.authentication.getTokenWithPopup({ audience: audience || this.audience || undefined, organization: this.organization });
   }
 
   /**
