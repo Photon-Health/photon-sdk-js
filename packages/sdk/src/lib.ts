@@ -75,6 +75,7 @@ export class PhotonClient {
       redirect_uri: redirectURI,
       cacheLocation: "memory",
     });
+    this.organization = organization;
     this.authentication = new AuthManager({ authentication: this.auth0Client, organization, audience });
     this.uri = uri;
     let apollo = this.constructApolloClient();
