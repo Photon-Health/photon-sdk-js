@@ -475,22 +475,25 @@ export const PhotonProvider = (opts: {
   const getToken = async ({ audience }: { audience?: string } = {}) => {
     try {
       const token = await client.authentication.getAccessToken({ audience });
-    dispatch({
-      type: "GET_ACCESS_TOKEN_COMPLETE",
-      user: await client.authentication.getUser(),
-    });
-    return token;
-  } catch (e) {
-    if ((e as Error).message.includes("Consent required")) {
-      const token = await client.authentication.getAccessTokenWithConsent({ audience });
       dispatch({
         type: "GET_ACCESS_TOKEN_COMPLETE",
         user: await client.authentication.getUser(),
       });
       return token;
+    } catch (e) {
+      if ((e as Error).message.includes("Consent required")) {
+        const token = await client.authentication.getAccessTokenWithConsent({
+          audience,
+        });
+        dispatch({
+          type: "GET_ACCESS_TOKEN_COMPLETE",
+          user: await client.authentication.getUser(),
+        });
+        return token;
+      } else {
+        throw e;
+      }
     }
-    throw e;
-  }
   };
   /// Utilities
 
