@@ -4,13 +4,14 @@ import { GraphQLError } from "graphql";
 import { action, map } from "nanostores";
 import { PhotonClient } from "@photonhealth/sdk";
 import {
+  Allergen,
+  AllergenFilter,
   Catalog,
   Client,
   LatLongSearch,
   Maybe,
   Medication,
   MedicationFilter,
-  MedicationType,
   Order,
   Organization,
   Patient,
@@ -89,6 +90,13 @@ export type GetMedicationReturn = {
   refetch: PhotonClient["clinical"]["medication"]["getMedications"];
 };
 
+export type GetAllergensReturn = {
+  allergens: Allergen[];
+  loading: boolean;
+  error?: ApolloError;
+  refetch: PhotonClient["clinical"]["allergens"]["getAllergens"];
+};
+
 export interface PhotonClientContextInterface {
   getPatient: ({ id }: { id: string }) => {
     patient: Patient;
@@ -126,6 +134,46 @@ export interface PhotonClientContextInterface {
     }) => Promise<void>,
     {
       data: { createPatient: Patient } | undefined | null;
+      error: GraphQLError;
+      loading: boolean;
+    }
+  ];
+  updatePatient: ({
+    refetchQueries,
+    awaitRefetchQueries,
+  }: {
+    refetchQueries: string[];
+    awaitRefetchQueries?: boolean;
+  }) => [
+    ({
+      variables,
+      onCompleted,
+    }: {
+      variables: object;
+      onCompleted?: (data: any) => void | undefined;
+    }) => Promise<void>,
+    {
+      data: { updatePatient: Patient } | undefined | null;
+      error: GraphQLError;
+      loading: boolean;
+    }
+  ];
+  removePatientAllergy: ({
+    refetchQueries,
+    awaitRefetchQueries,
+  }: {
+    refetchQueries: string[];
+    awaitRefetchQueries?: boolean;
+  }) => [
+    ({
+      variables,
+      onCompleted,
+    }: {
+      variables: object;
+      onCompleted?: (data: any) => void | undefined;
+    }) => Promise<void>,
+    {
+      data: { removePatientAllergy: Patient } | undefined | null;
       error: GraphQLError;
       loading: boolean;
     }
@@ -240,6 +288,11 @@ export interface PhotonClientContextInterface {
     first?: Number;
     after?: String;
   }) => GetMedicationReturn;
+  getAllergens: ({
+    filter,
+  }: {
+    filter?: AllergenFilter;
+  }) => GetAllergensReturn;
   getPharmacies: ({
     name,
     location,
@@ -353,9 +406,12 @@ const stub = (): never => {
 };
 
 const PhotonClientContext = createContext<PhotonClientContextInterface>({
+  getAllergens: stub,
   getPatients: stub,
   getPatient: stub,
   createPatient: stub,
+  updatePatient: stub,
+  removePatientAllergy: stub,
   createOrder: stub,
   getClients: stub,
   getPharmacies: stub,
@@ -668,6 +724,120 @@ export const PhotonProvider = (opts: {
       constructFetchCreatePatient(),
       {
         createPatient,
+        loading,
+        error,
+      },
+    ];
+  };
+
+  const updatePatientStore = map<{
+    updatePatient?: Patient;
+    loading: boolean;
+    error?: GraphQLError;
+  }>({
+    updatePatient: undefined,
+    loading: false,
+    error: undefined,
+  });
+
+  const updatePatientMutation = client.clinical.patient.updatePatient({});
+
+  const constructFetchUpdatePatient = () =>
+    action(
+      updatePatientStore,
+      "updatePatientMutation",
+      async (store, { variables, onCompleted }) => {
+        store.setKey("loading", true);
+
+        const { data, errors } = await updatePatientMutation({
+          variables,
+          refetchQueries: [],
+          awaitRefetchQueries: false,
+        });
+
+        store.setKey("updatePatient", data?.updatePatient);
+        store.setKey("error", errors?.[0]);
+        store.setKey("loading", false);
+        if (onCompleted) {
+          onCompleted(data);
+        }
+      }
+    );
+
+  const updatePatient = ({
+    refetchQueries = undefined,
+    awaitRefetchQueries = false,
+  }: {
+    refetchQueries?: string[];
+    awaitRefetchQueries?: boolean;
+  }) => {
+    const { updatePatient, loading, error } = useStore(updatePatientStore);
+
+    if (refetchQueries && refetchQueries.length > 0) {
+      runRefetch(updatePatient, refetchQueries, awaitRefetchQueries);
+    }
+
+    return [
+      constructFetchUpdatePatient(),
+      {
+        updatePatient,
+        loading,
+        error,
+      },
+    ];
+  };
+
+  const removePatientAllergyStore = map<{
+    removePatientAllergy?: Patient;
+    loading: boolean;
+    error?: GraphQLError;
+  }>({
+    removePatientAllergy: undefined,
+    loading: false,
+    error: undefined,
+  });
+
+  const removePatientAllergyMutation = client.clinical.patient.removePatientAllergy({});
+
+  const constructFetchRemovePatientAllergy = () =>
+    action(
+      removePatientAllergyStore,
+      "removePatientAllergyMutation",
+      async (store, { variables, onCompleted }) => {
+        store.setKey("loading", true);
+
+        const { data, errors } = await removePatientAllergyMutation({
+          variables,
+          refetchQueries: [],
+          awaitRefetchQueries: false,
+        });
+
+        store.setKey("removePatientAllergy", data?.removePatientAllergy);
+        store.setKey("error", errors?.[0]);
+        store.setKey("loading", false);
+        if (onCompleted) {
+          onCompleted(data);
+        }
+      }
+    );
+
+  const removePatientAllergy = ({
+    refetchQueries = undefined,
+    awaitRefetchQueries = false,
+  }: {
+    refetchQueries?: string[];
+    awaitRefetchQueries?: boolean;
+  }) => {
+    const { removePatientAllergy, loading, error } = useStore(removePatientAllergyStore);
+
+    if (refetchQueries && refetchQueries.length > 0) {
+      runRefetch(removePatientAllergy, refetchQueries, awaitRefetchQueries);
+    }
+
+    return [
+      constructFetchRemovePatientAllergy(),
+      {
+        removePatientAllergy,
         loading,
         error,
       },
@@ -1124,6 +1294,57 @@ export const PhotonProvider = (opts: {
       loading,
       error,
       refetch: () => client.clinical.catalog.getCatalogs(),
+    };
+  };
+
+  /// Allergens
+
+  const getAllergensStore = map<{
+    allergens: Allergen[];
+    loading: boolean;
+    error?: ApolloError;
+  }>({
+    allergens: [],
+    loading: true,
+    error: undefined,
+  });
+
+  const fetchAllergens = action(
+    getAllergensStore,
+    "fetchAllergens",
+    async (store, { filter }) => {
+      store.setKey("loading", true);
+      const { data, error } = await client.clinical.allergens.getAllergens({
+        filter,
+      });
+      store.setKey("allergens", data?.allergens || []);
+      store.setKey("error", error);
+      store.setKey("loading", false);
+    }
+  );
+
+  const getAllergens = ({
+    filter
+  }: {
+    filter?: AllergenFilter;
+  }) => {
+    const { allergens, loading, error } = useStore(getAllergensStore);
+
+    useEffect(() => {
+      fetchAllergens({ filter });
+    }, [
+      filter?.name
+    ]);
+
+    return {
+      allergens,
+      loading,
+      error,
+      refetch: ({
+        filter,
+      }: {
+        filter?: AllergenFilter;
+      }) => client.clinical.allergens.getAllergens({ filter }),
     };
   };
 
@@ -1614,6 +1835,9 @@ export const PhotonProvider = (opts: {
     getClients,
     rotateSecret,
     clearError,
+    updatePatient,
+    getAllergens,
+    removePatientAllergy
   };
 
   return (
