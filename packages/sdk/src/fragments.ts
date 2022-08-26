@@ -33,6 +33,14 @@ export const PATIENT_FIELDS = gql`
   }
 `
 
+export const ALLERGEN_FIELDS = gql`
+  fragment AllergenFields on Allergen {
+    id
+    name
+    rxcui
+  }
+`
+
 export const CATALOG_FIELDS = gql`
   fragment CatalogFields on Catalog {
     id

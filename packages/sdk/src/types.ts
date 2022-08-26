@@ -41,10 +41,21 @@ export type AddressInput = {
   street2?: InputMaybe<Scalars['String']>;
 };
 
-export type Allergy = {
-  __typename?: 'Allergy';
+export type Allergen = {
+  __typename?: 'Allergen';
+  id: Scalars['ID'];
   name: Scalars['String'];
-  rxcui: Scalars['ID'];
+  rxcui?: Maybe<Scalars['ID']>;
+};
+
+export type AllergenFilter = {
+  name?: InputMaybe<Scalars['String']>;
+};
+
+export type AllergenInput = {
+  allergenId: Scalars['ID'];
+  comment?: InputMaybe<Scalars['String']>;
+  onset?: InputMaybe<Scalars['AWSDate']>;
 };
 
 export type Catalog = {
@@ -60,10 +71,6 @@ export type Client = {
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
   secret?: Maybe<Scalars['String']>;
-};
-
-export type ConceptInput = {
-  rxcui: Scalars['ID'];
 };
 
 export enum ConceptType {
@@ -176,6 +183,7 @@ export type Mutation = {
   createPrescription: Prescription;
   createWebhookConfig: WebhookConfig;
   deleteWebhookConfig?: Maybe<Scalars['Boolean']>;
+  removePatientAllergy: Patient;
   rotateSecret: Client;
   /** Update an existing `Patient` record */
   updatePatient: Patient;
@@ -201,7 +209,7 @@ export type MutationCreateOrderArgs = {
 
 export type MutationCreatePatientArgs = {
   address?: InputMaybe<AddressInput>;
-  allergies?: InputMaybe<Array<InputMaybe<ConceptInput>>>;
+  allergies?: InputMaybe<Array<InputMaybe<AllergenInput>>>;
   dateOfBirth: Scalars['AWSDate'];
   email?: InputMaybe<Scalars['AWSEmail']>;
   externalId?: InputMaybe<Scalars['ID']>;
@@ -242,13 +250,19 @@ export type MutationDeleteWebhookConfigArgs = {
 };
 
 
+export type MutationRemovePatientAllergyArgs = {
+  allergenId: Scalars['ID'];
+  id: Scalars['ID'];
+};
+
+
 export type MutationRotateSecretArgs = {
   id: Scalars['ID'];
 };
 
 
 export type MutationUpdatePatientArgs = {
-  allergies?: InputMaybe<Array<InputMaybe<ConceptInput>>>;
+  allergies?: InputMaybe<Array<InputMaybe<AllergenInput>>>;
   email?: InputMaybe<Scalars['AWSEmail']>;
   externalId?: InputMaybe<Scalars['ID']>;
   gender?: InputMaybe<Scalars['String']>;
@@ -339,7 +353,7 @@ export type PackageFilter = {
 export type Patient = {
   __typename?: 'Patient';
   address?: Maybe<Address>;
-  allergies?: Maybe<Array<Maybe<Allergy>>>;
+  allergies?: Maybe<Array<Maybe<PatientAllergy>>>;
   dateOfBirth: Scalars['AWSDate'];
   email?: Maybe<Scalars['AWSEmail']>;
   externalId?: Maybe<Scalars['ID']>;
@@ -365,6 +379,13 @@ export type PatientPrescriptionsArgs = {
   after?: InputMaybe<Scalars['ID']>;
   filter?: InputMaybe<PatientPrescriptionFilter>;
   first?: InputMaybe<Scalars['Int']>;
+};
+
+export type PatientAllergy = {
+  __typename?: 'PatientAllergy';
+  allergen: Allergen;
+  comment?: Maybe<Scalars['String']>;
+  onset?: Maybe<Scalars['AWSDate']>;
 };
 
 export type PatientFilter = {
@@ -471,8 +492,8 @@ export type Provider = {
 
 export type Query = {
   __typename?: 'Query';
-  /** Get a list of allergies identified by RxCUI */
-  allergies: Array<Maybe<Allergy>>;
+  /** Get list of allergens, filtered optionally by name (fuzzy search) */
+  allergens?: Maybe<Array<Maybe<Allergen>>>;
   /** Get a catalog by id */
   catalog?: Maybe<Catalog>;
   /** Get `Medication` catalogs associated with caller's organization */
@@ -507,8 +528,8 @@ export type Query = {
 };
 
 
-export type QueryAllergiesArgs = {
-  filter?: InputMaybe<Scalars['String']>;
+export type QueryAllergensArgs = {
+  filter?: InputMaybe<AllergenFilter>;
 };
 
 
