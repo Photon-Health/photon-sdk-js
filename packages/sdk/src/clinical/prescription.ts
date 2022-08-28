@@ -155,12 +155,12 @@ export class PrescriptionQueryManager {
       mutation createPrescription(
         $externalId: ID
         $patientId: ID!
-        $medicationId: ID!
-        $dispenseAsWritten: Boolean!
+        $treatmentId: ID!
+        $dispenseAsWritten: Boolean
         $dispenseQuantity: Int!
         $dispenseUnit: DispenseUnit!
         $refillsAllowed: Int!
-        $daysSupply: Int!
+        $daysSupply: Int
         $instructions: String!
         $notes: String
         $effectiveDate: AWSDate
@@ -169,7 +169,7 @@ export class PrescriptionQueryManager {
         createPrescription(
           externalId: $externalId
           patientId: $patientId
-          medicationId: $medicationId
+          treatmentId: $treatmentId
           dispenseAsWritten: $dispenseAsWritten
           dispenseQuantity: $dispenseQuantity
           dispenseUnit: $dispenseUnit
