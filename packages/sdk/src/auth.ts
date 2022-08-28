@@ -121,6 +121,19 @@ export class AuthManager {
   }
 
   /**
+   * Retrieves a valid access token
+   * @param config - getAccessToken configuration
+   * @returns
+   */
+   public async getAccessTokenWithConsent(
+    { audience }: { audience?: string } = {
+      audience: this.audience,
+    }
+  ): Promise<string> {
+    return this.authentication.getTokenWithPopup({ audience: audience || this.audience || undefined, organization: this.organization });
+  }
+
+  /**
    * Silently performs a getAccessToken and pre-populates the token and user information caches
    * @returns
    */
