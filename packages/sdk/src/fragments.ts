@@ -72,7 +72,7 @@ export const CATALOG_TREATMENT_FIELDS = gql`
 `
 
 export const PRESCRIPTION_FIELDS = gql`
-  ${MEDICATION_FIELDS}
+  ${TREATMENT_FIELDS}
   fragment PrescriptionFields on Prescription {
     id
     externalId
