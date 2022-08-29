@@ -55,13 +55,6 @@ export const MEDICATION_FIELDS = gql`
   }
 `
 
-export const TREATMENT_FIELDS = gql`
-  fragment TreatmentFields on Treatment {
-    id
-    name
-  }
-`
-
 export const CATALOG_TREATMENT_FIELDS = gql`
   fragment CatalogTreatmentFields on Catalog {
     treatments {
@@ -72,7 +65,6 @@ export const CATALOG_TREATMENT_FIELDS = gql`
 `
 
 export const PRESCRIPTION_FIELDS = gql`
-  ${TREATMENT_FIELDS}
   fragment PrescriptionFields on Prescription {
     id
     externalId
@@ -90,7 +82,14 @@ export const PRESCRIPTION_FIELDS = gql`
     }
     state
     treatment {
-      ...TreatmentFields
+      ... on Medication {
+        id
+        name
+      }
+      ... on MedicalEquipment {
+        id
+        name
+      }
     }
     dispenseAsWritten
     dispenseQuantity
