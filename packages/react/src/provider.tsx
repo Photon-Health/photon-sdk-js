@@ -10,6 +10,7 @@ import {
   Client,
   LatLongSearch,
   Maybe,
+  MedicalEquipment,
   Medication,
   MedicationFilter,
   Order,
@@ -88,6 +89,13 @@ export type GetMedicationReturn = {
   loading: boolean;
   error?: ApolloError;
   refetch: PhotonClient["clinical"]["medication"]["getMedications"];
+};
+
+export type GetMedicalEquipmentReturn = {
+  medicalEquipment: MedicalEquipment[];
+  loading: boolean;
+  error?: ApolloError;
+  refetch: PhotonClient["clinical"]["medicalEquipment"]["getMedicalEquipment"];
 };
 
 export type GetAllergensReturn = {
@@ -288,6 +296,15 @@ export interface PhotonClientContextInterface {
     first?: Number;
     after?: String;
   }) => GetMedicationReturn;
+  getMedicalEquipment: ({
+    name,
+    first,
+    after,
+  }: {
+    name?: String;
+    first?: Number;
+    after?: String;
+  }) => GetMedicalEquipmentReturn;
   getAllergens: ({
     filter,
   }: {
@@ -416,6 +433,7 @@ const PhotonClientContext = createContext<PhotonClientContextInterface>({
   getClients: stub,
   getPharmacies: stub,
   getMedications: stub,
+  getMedicalEquipment: stub,
   getCatalog: stub,
   getCatalogs: stub,
   getWebhooks: stub,
@@ -1435,6 +1453,69 @@ export const PhotonProvider = (opts: {
     };
   };
 
+  /// Medical Equipment
+
+  const getMedicalEquipmentStore = map<{
+    medicalEquipment: MedicalEquipment[];
+    loading: boolean;
+    error?: ApolloError;
+  }>({
+    medicalEquipment: [],
+    loading: true,
+    error: undefined,
+  });
+
+  const fetchMedicalEquipment = action(
+    getMedicalEquipmentStore,
+    "fetchMedicalEquipment",
+    async (store, { name, first, after }) => {
+      store.setKey("loading", true);
+      const { data, error } = await client.clinical.medicalEquipment.getMedicalEquipment({
+        name,
+        first,
+        after,
+      });
+      store.setKey("medicalEquipment", data?.medicalEquipment || []);
+      store.setKey("error", error);
+      store.setKey("loading", false);
+    }
+  );
+
+  const getMedicalEquipment = ({
+    name,
+    first,
+    after,
+  }: {
+    name?: string;
+    first?: number;
+    after?: string;
+  }) => {
+    const { medicalEquipment, loading, error } = useStore(getMedicalEquipmentStore);
+
+    useEffect(() => {
+      fetchMedicalEquipment({ name, first, after });
+    }, [
+      name,
+      first,
+      after,
+    ]);
+
+    return {
+      medicalEquipment,
+      loading,
+      error,
+      refetch: ({
+        name,
+        first,
+        after,
+      }: {
+        name?: string;
+        first?: number;
+        after?: string;
+      }) => client.clinical.medicalEquipment.getMedicalEquipment({ name, first, after }),
+    };
+  };
+
   /// Pharmacy
 
   const getPharmaciesStore = map<{
@@ -1841,6 +1922,7 @@ export const PhotonProvider = (opts: {
     getCatalog,
     getCatalogs,
     getMedications,
+    getMedicalEquipment,
     getOrganizations,
     getOrganization,
     getWebhooks,

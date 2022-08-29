@@ -55,6 +55,13 @@ export const MEDICATION_FIELDS = gql`
   }
 `
 
+export const MEDICAL_EQUIPMENT_FIELDS = gql`
+  fragment MedicalEquipmentFields on MedicalEquipment {
+    id
+    name
+  }
+`
+
 export const CATALOG_TREATMENT_FIELDS = gql`
   fragment CatalogTreatmentFields on Catalog {
     treatments {
