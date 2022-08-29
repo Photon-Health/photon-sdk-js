@@ -1,6 +1,7 @@
 import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
 import { CatalogQueryManager } from "./catalog";
 import { MedicationQueryManager } from "./medication";
+import { MedicalEquipmentQueryManager } from "./medicalEquipment";
 import { OrderQueryManager } from "./order";
 import { PatientQueryManager } from "./patient";
 import { PharmacyQueryManager } from "./pharmacy";
@@ -19,6 +20,10 @@ export class ClinicalQueryManager {
    * Methods for interacting with Photon Medications
    */
   public medication: MedicationQueryManager;
+  /**
+   * Methods for interacting with Photon Medical Equipment
+   */
+  public medicalEquipment: MedicalEquipmentQueryManager;
   /**
    * Methods for interacting with Photon Orders
    */
@@ -48,6 +53,7 @@ export class ClinicalQueryManager {
   ) {
     this.catalog = new CatalogQueryManager(apollo);
     this.medication = new MedicationQueryManager(apollo);
+    this.medicalEquipment = new MedicalEquipmentQueryManager(apollo);
     this.order = new OrderQueryManager(apollo);
     this.patient = new PatientQueryManager(apollo);
     this.pharmacy = new PharmacyQueryManager(apollo);
