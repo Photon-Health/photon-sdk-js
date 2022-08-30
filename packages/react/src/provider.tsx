@@ -305,11 +305,7 @@ export interface PhotonClientContextInterface {
     first?: Number;
     after?: String;
   }) => GetMedicalEquipmentReturn;
-  getAllergens: ({
-    filter,
-  }: {
-    filter?: AllergenFilter;
-  }) => GetAllergensReturn;
+  getAllergens: ({ filter }: { filter?: AllergenFilter }) => GetAllergensReturn;
   getPharmacies: ({
     name,
     location,
@@ -725,20 +721,22 @@ export const PhotonProvider = (opts: {
       async (store, { variables, onCompleted }) => {
         store.setKey("loading", true);
 
-        const { data, errors } = await createPatientMutation({
-          variables,
-          refetchQueries: [],
-          awaitRefetchQueries: false,
-        }).catch((err: any) => {
-          store.setKey("error", err)
-        })
-
-        store.setKey("createPatient", data?.createPatient);
-        store.setKey("error", errors?.[0]);
-        store.setKey("loading", false);
-        if (onCompleted) {
-          onCompleted(data);
+        try {
+          const { data, errors } = await createPatientMutation({
+            variables,
+            refetchQueries: [],
+            awaitRefetchQueries: false,
+          });
+          store.setKey("createPatient", data?.createPatient);
+          store.setKey("error", errors?.[0]);
+          if (onCompleted) {
+            onCompleted(data);
+          }
+        } catch (err) {
+          store.setKey("error", err);
         }
+
+        store.setKey("loading", false);
       }
     );
 
@@ -784,20 +782,22 @@ export const PhotonProvider = (opts: {
       async (store, { variables, onCompleted }) => {
         store.setKey("loading", true);
 
-        const { data, errors } = await updatePatientMutation({
-          variables,
-          refetchQueries: [],
-          awaitRefetchQueries: false,
-        }).catch((err: any) => {
-          store.setKey("error", err)
-        })
-
-        store.setKey("updatePatient", data?.updatePatient);
-        store.setKey("error", errors?.[0]);
-        store.setKey("loading", false);
-        if (onCompleted) {
-          onCompleted(data);
+        try {
+          const { data, errors } = await updatePatientMutation({
+            variables,
+            refetchQueries: [],
+            awaitRefetchQueries: false,
+          });
+          store.setKey("updatePatient", data?.updatePatient);
+          store.setKey("error", errors?.[0]);
+          if (onCompleted) {
+            onCompleted(data);
+          }
+        } catch (err) {
+          store.setKey("error", err);
         }
+
+        store.setKey("loading", false);
       }
     );
 
@@ -834,7 +834,8 @@ export const PhotonProvider = (opts: {
     error: undefined,
   });
 
-  const removePatientAllergyMutation = client.clinical.patient.removePatientAllergy({});
+  const removePatientAllergyMutation =
+    client.clinical.patient.removePatientAllergy({});
 
   const constructFetchRemovePatientAllergy = () =>
     action(
@@ -843,20 +844,22 @@ export const PhotonProvider = (opts: {
       async (store, { variables, onCompleted }) => {
         store.setKey("loading", true);
 
-        const { data, errors } = await removePatientAllergyMutation({
-          variables,
-          refetchQueries: [],
-          awaitRefetchQueries: false,
-        }).catch((err: any) => {
-          store.setKey("error", err)
-        })
-
-        store.setKey("removePatientAllergy", data?.removePatientAllergy);
-        store.setKey("error", errors?.[0]);
-        store.setKey("loading", false);
-        if (onCompleted) {
-          onCompleted(data);
+        try {
+          const { data, errors } = await removePatientAllergyMutation({
+            variables,
+            refetchQueries: [],
+            awaitRefetchQueries: false,
+          });
+          store.setKey("removePatientAllergy", data?.removePatientAllergy);
+          store.setKey("error", errors?.[0]);
+          if (onCompleted) {
+            onCompleted(data);
+          }
+        } catch (err) {
+          store.setKey("error", err);
         }
+
+        store.setKey("loading", false);
       }
     );
 
@@ -867,7 +870,9 @@ export const PhotonProvider = (opts: {
     refetchQueries?: string[];
     awaitRefetchQueries?: boolean;
   }) => {
-    const { removePatientAllergy, loading, error } = useStore(removePatientAllergyStore);
+    const { removePatientAllergy, loading, error } = useStore(
+      removePatientAllergyStore
+    );
 
     if (refetchQueries && refetchQueries.length > 0) {
       runRefetch(removePatientAllergy, refetchQueries, awaitRefetchQueries);
@@ -1016,20 +1021,22 @@ export const PhotonProvider = (opts: {
       async (store, { variables, onCompleted }) => {
         store.setKey("loading", true);
 
-        const { data, errors } = await createOrderMutation({
-          variables,
-          refetchQueries: [],
-          awaitRefetchQueries: false,
-        }).catch((err: any) => {
-          store.setKey("error", err)
-        })
-
-        store.setKey("createOrder", data?.createOrder);
-        store.setKey("error", errors?.[0]);
-        store.setKey("loading", false);
-        if (onCompleted) {
-          onCompleted(data);
+        try {
+          const { data, errors } = await createOrderMutation({
+            variables,
+            refetchQueries: [],
+            awaitRefetchQueries: false,
+          });
+          store.setKey("createOrder", data?.createOrder);
+          store.setKey("error", errors?.[0]);
+          if (onCompleted) {
+            onCompleted(data);
+          }
+        } catch (err) {
+          store.setKey("error", err);
         }
+
+        store.setKey("loading", false);
       }
     );
 
@@ -1206,20 +1213,22 @@ export const PhotonProvider = (opts: {
       async (store, { variables, onCompleted }) => {
         store.setKey("loading", true);
 
-        const { data, errors } = await createPrescriptionMutation({
-          variables,
-          refetchQueries: [],
-          awaitRefetchQueries: false,
-        }).catch((err: any) => {
-          store.setKey("error", err)
-        })
-
-        store.setKey("createPrescription", data?.createPrescription);
-        store.setKey("error", errors?.[0]);
-        store.setKey("loading", false);
-        if (onCompleted) {
-          onCompleted(data);
+        try {
+          const { data, errors } = await createPrescriptionMutation({
+            variables,
+            refetchQueries: [],
+            awaitRefetchQueries: false,
+          });
+          store.setKey("createPrescription", data?.createPrescription);
+          store.setKey("error", errors?.[0]);
+          if (onCompleted) {
+            onCompleted(data);
+          }
+        } catch (err) {
+          store.setKey("error", err);
         }
+
+        store.setKey("loading", false);
       }
     );
 
@@ -1366,28 +1375,19 @@ export const PhotonProvider = (opts: {
     }
   );
 
-  const getAllergens = ({
-    filter
-  }: {
-    filter?: AllergenFilter;
-  }) => {
+  const getAllergens = ({ filter }: { filter?: AllergenFilter }) => {
     const { allergens, loading, error } = useStore(getAllergensStore);
 
     useEffect(() => {
       fetchAllergens({ filter });
-    }, [
-      filter?.name
-    ]);
+    }, [filter?.name]);
 
     return {
       allergens,
       loading,
       error,
-      refetch: ({
-        filter,
-      }: {
-        filter?: AllergenFilter;
-      }) => client.clinical.allergens.getAllergens({ filter }),
+      refetch: ({ filter }: { filter?: AllergenFilter }) =>
+        client.clinical.allergens.getAllergens({ filter }),
     };
   };
 
@@ -1480,11 +1480,12 @@ export const PhotonProvider = (opts: {
     "fetchMedicalEquipment",
     async (store, { name, first, after }) => {
       store.setKey("loading", true);
-      const { data, error } = await client.clinical.medicalEquipment.getMedicalEquipment({
-        name,
-        first,
-        after,
-      });
+      const { data, error } =
+        await client.clinical.medicalEquipment.getMedicalEquipment({
+          name,
+          first,
+          after,
+        });
       store.setKey("medicalEquipment", data?.medicalEquipment || []);
       store.setKey("error", error);
       store.setKey("loading", false);
@@ -1500,15 +1501,13 @@ export const PhotonProvider = (opts: {
     first?: number;
     after?: string;
   }) => {
-    const { medicalEquipment, loading, error } = useStore(getMedicalEquipmentStore);
+    const { medicalEquipment, loading, error } = useStore(
+      getMedicalEquipmentStore
+    );
 
     useEffect(() => {
       fetchMedicalEquipment({ name, first, after });
-    }, [
-      name,
-      first,
-      after,
-    ]);
+    }, [name, first, after]);
 
     return {
       medicalEquipment,
@@ -1522,7 +1521,12 @@ export const PhotonProvider = (opts: {
         name?: string;
         first?: number;
         after?: string;
-      }) => client.clinical.medicalEquipment.getMedicalEquipment({ name, first, after }),
+      }) =>
+        client.clinical.medicalEquipment.getMedicalEquipment({
+          name,
+          first,
+          after,
+        }),
     };
   };
 
@@ -1716,20 +1720,22 @@ export const PhotonProvider = (opts: {
       async (store, { variables, onCompleted }) => {
         store.setKey("loading", true);
 
-        const { data, errors } = await createWebhookMutation({
-          variables,
-          refetchQueries: [],
-          awaitRefetchQueries: false,
-        }).catch((err: any) => {
-          store.setKey("error", err)
-        })
-
-        store.setKey("createWebhook", data?.createWebhookConfig);
-        store.setKey("error", errors?.[0]);
-        store.setKey("loading", false);
-        if (onCompleted) {
-          onCompleted(data);
+        try {
+          const { data, errors } = await createWebhookMutation({
+            variables,
+            refetchQueries: [],
+            awaitRefetchQueries: false,
+          });
+          store.setKey("createWebhook", data?.createWebhookConfig);
+          store.setKey("error", errors?.[0]);
+          if (onCompleted) {
+            onCompleted(data);
+          }
+        } catch (err) {
+          store.setKey("error", err);
         }
+
+        store.setKey("loading", false);
       }
     );
 
@@ -1775,20 +1781,22 @@ export const PhotonProvider = (opts: {
       async (store, { variables, onCompleted }) => {
         store.setKey("loading", true);
 
-        const { data, errors } = await deleteWebhookMutation({
-          variables,
-          refetchQueries: [],
-          awaitRefetchQueries: false,
-        }).catch((err: any) => {
-          store.setKey("error", err)
-        })
-
-        store.setKey("deleteWebhook", data?.deleteWebhookConfig);
-        store.setKey("error", errors?.[0]);
-        store.setKey("loading", false);
-        if (onCompleted) {
-          onCompleted(data);
+        try {
+          const { data, errors } = await deleteWebhookMutation({
+            variables,
+            refetchQueries: [],
+            awaitRefetchQueries: false,
+          });
+          store.setKey("deleteWebhook", data?.deleteWebhookConfig);
+          store.setKey("error", errors?.[0]);
+          if (onCompleted) {
+            onCompleted(data);
+          }
+        } catch (err) {
+          store.setKey("error", err);
         }
+
+        store.setKey("loading", false);
       }
     );
 
@@ -1873,20 +1881,22 @@ export const PhotonProvider = (opts: {
       async (store, { variables, onCompleted }) => {
         store.setKey("loading", true);
 
-        const { data, errors } = await rotateSecretMutation({
-          variables,
-          refetchQueries: [],
-          awaitRefetchQueries: false,
-        }).catch((err: any) => {
-          store.setKey("error", err)
-        })
-
-        store.setKey("rotateSecret", data?.rotateSecret);
-        store.setKey("error", errors?.[0]);
-        store.setKey("loading", false);
-        if (onCompleted) {
-          onCompleted(data);
+        try {
+          const { data, errors } = await rotateSecretMutation({
+            variables,
+            refetchQueries: [],
+            awaitRefetchQueries: false,
+          });
+          store.setKey("rotateSecret", data?.rotateSecret);
+          store.setKey("error", errors?.[0]);
+          if (onCompleted) {
+            onCompleted(data);
+          }
+        } catch (err) {
+          store.setKey("error", err);
         }
+
+        store.setKey("loading", false);
       }
     );
 
@@ -1950,7 +1960,7 @@ export const PhotonProvider = (opts: {
     clearError,
     updatePatient,
     getAllergens,
-    removePatientAllergy
+    removePatientAllergy,
   };
 
   return (
