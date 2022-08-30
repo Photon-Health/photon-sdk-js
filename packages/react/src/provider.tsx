@@ -711,7 +711,9 @@ export const PhotonProvider = (opts: {
           variables,
           refetchQueries: [],
           awaitRefetchQueries: false,
-        });
+        }).catch((err: any) => {
+          store.setKey("error", err)
+        })
 
         store.setKey("createPatient", data?.createPatient);
         store.setKey("error", errors?.[0]);
@@ -768,7 +770,9 @@ export const PhotonProvider = (opts: {
           variables,
           refetchQueries: [],
           awaitRefetchQueries: false,
-        });
+        }).catch((err: any) => {
+          store.setKey("error", err)
+        })
 
         store.setKey("updatePatient", data?.updatePatient);
         store.setKey("error", errors?.[0]);
@@ -825,7 +829,9 @@ export const PhotonProvider = (opts: {
           variables,
           refetchQueries: [],
           awaitRefetchQueries: false,
-        });
+        }).catch((err: any) => {
+          store.setKey("error", err)
+        })
 
         store.setKey("removePatientAllergy", data?.removePatientAllergy);
         store.setKey("error", errors?.[0]);
@@ -996,7 +1002,9 @@ export const PhotonProvider = (opts: {
           variables,
           refetchQueries: [],
           awaitRefetchQueries: false,
-        });
+        }).catch((err: any) => {
+          store.setKey("error", err)
+        })
 
         store.setKey("createOrder", data?.createOrder);
         store.setKey("error", errors?.[0]);
@@ -1184,7 +1192,9 @@ export const PhotonProvider = (opts: {
           variables,
           refetchQueries: [],
           awaitRefetchQueries: false,
-        });
+        }).catch((err: any) => {
+          store.setKey("error", err)
+        })
 
         store.setKey("createPrescription", data?.createPrescription);
         store.setKey("error", errors?.[0]);
@@ -1629,7 +1639,9 @@ export const PhotonProvider = (opts: {
           variables,
           refetchQueries: [],
           awaitRefetchQueries: false,
-        });
+        }).catch((err: any) => {
+          store.setKey("error", err)
+        })
 
         store.setKey("createWebhook", data?.createWebhookConfig);
         store.setKey("error", errors?.[0]);
@@ -1686,7 +1698,9 @@ export const PhotonProvider = (opts: {
           variables,
           refetchQueries: [],
           awaitRefetchQueries: false,
-        });
+        }).catch((err: any) => {
+          store.setKey("error", err)
+        })
 
         store.setKey("deleteWebhook", data?.deleteWebhookConfig);
         store.setKey("error", errors?.[0]);
@@ -1782,7 +1796,9 @@ export const PhotonProvider = (opts: {
           variables,
           refetchQueries: [],
           awaitRefetchQueries: false,
-        });
+        }).catch((err: any) => {
+          store.setKey("error", err)
+        })
 
         store.setKey("rotateSecret", data?.rotateSecret);
         store.setKey("error", errors?.[0]);
