@@ -733,6 +733,7 @@ export const PhotonProvider = (opts: {
             onCompleted(data);
           }
         } catch (err) {
+          store.setKey("createPatient", undefined);
           store.setKey("error", err);
         }
 
@@ -794,6 +795,7 @@ export const PhotonProvider = (opts: {
             onCompleted(data);
           }
         } catch (err) {
+          store.setKey("updatePatient", undefined);
           store.setKey("error", err);
         }
 
@@ -856,6 +858,7 @@ export const PhotonProvider = (opts: {
             onCompleted(data);
           }
         } catch (err) {
+          store.setKey("removePatientAllergy", undefined);
           store.setKey("error", err);
         }
 
@@ -1033,6 +1036,7 @@ export const PhotonProvider = (opts: {
             onCompleted(data);
           }
         } catch (err) {
+          store.setKey("createOrder", undefined);
           store.setKey("error", err);
         }
 
@@ -1225,6 +1229,7 @@ export const PhotonProvider = (opts: {
             onCompleted(data);
           }
         } catch (err) {
+          store.setKey("createPrescription", undefined);
           store.setKey("error", err);
         }
 
@@ -1732,6 +1737,7 @@ export const PhotonProvider = (opts: {
             onCompleted(data);
           }
         } catch (err) {
+          store.setKey("createWebhook", undefined);
           store.setKey("error", err);
         }
 
@@ -1793,6 +1799,7 @@ export const PhotonProvider = (opts: {
             onCompleted(data);
           }
         } catch (err) {
+          store.setKey("deleteWebhook", undefined);
           store.setKey("error", err);
         }
 
@@ -1893,6 +1900,7 @@ export const PhotonProvider = (opts: {
             onCompleted(data);
           }
         } catch (err) {
+          store.setKey("rotateSecret", undefined);
           store.setKey("error", err);
         }
 
