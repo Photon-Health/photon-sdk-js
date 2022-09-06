@@ -197,12 +197,12 @@ export class PatientQueryManager {
     const UPDATE_PATIENT = gql`
       ${fValue}
       mutation updatePatient(
-        $id: ID
+        $id: ID!
         $externalId: ID
         $name: NameInput
         $gender: String
         $email: AWSEmail
-        $phone: AWSPhone!
+        $phone: AWSPhone
         $allergies: [AllergenInput]
         $medicationHistory: [MedHistoryInput]
       ) {
@@ -240,8 +240,8 @@ export class PatientQueryManager {
     const REMOVE_PATIENT_ALLERGY = gql`
       ${fValue}
       mutation removePatientAllergy(
-        $id: ID
-        $allergenId: ID
+        $id: ID!
+        $allergenId: ID!
       ) {
         updatePatient(
           id: $id
