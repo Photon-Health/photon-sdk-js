@@ -233,7 +233,7 @@ export type MutationCreatePrescriptionArgs = {
   daysSupply?: InputMaybe<Scalars['Int']>;
   diagnoses?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
   dispenseAsWritten?: InputMaybe<Scalars['Boolean']>;
-  dispenseQuantity: Scalars['Int'];
+  dispenseQuantity: Scalars['Float'];
   dispenseUnit: DispenseUnit;
   effectiveDate?: InputMaybe<Scalars['AWSDate']>;
   externalId?: InputMaybe<Scalars['ID']>;
@@ -433,7 +433,7 @@ export type Prescription = {
   daysSupply?: Maybe<Scalars['Int']>;
   diagnoses?: Maybe<Array<Maybe<Diagnosis>>>;
   dispenseAsWritten?: Maybe<Scalars['Boolean']>;
-  dispenseQuantity: Scalars['Int'];
+  dispenseQuantity: Scalars['Float'];
   dispenseUnit: DispenseUnit;
   effectiveDate: Scalars['AWSDate'];
   expirationDate: Scalars['AWSDate'];
