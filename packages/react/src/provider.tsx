@@ -1206,7 +1206,6 @@ export const PhotonProvider = (opts: {
     loading: false,
     error: undefined,
   });
-
   const createPrescriptionMutation =
     client.clinical.prescription.createPrescription({});
 

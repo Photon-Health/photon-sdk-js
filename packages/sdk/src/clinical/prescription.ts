@@ -158,7 +158,7 @@ export class PrescriptionQueryManager {
         $treatmentId: ID!
         $dispenseAsWritten: Boolean
         $dispenseQuantity: Float!
-        $dispenseUnit: DispenseUnit!
+        $dispenseUnit: String!
         $refillsAllowed: Int!
         $daysSupply: Int
         $instructions: String!

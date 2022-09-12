@@ -90,15 +90,6 @@ export enum DiagnosisType {
   Icd10 = 'ICD10'
 }
 
-export enum DispenseUnit {
-  /** Each */
-  Ea = 'EA',
-  /** Grams */
-  Gr = 'GR',
-  /** Milliliters */
-  Ml = 'ML'
-}
-
 export type DrugFilter = {
   code?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
@@ -234,7 +225,7 @@ export type MutationCreatePrescriptionArgs = {
   diagnoses?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
   dispenseAsWritten?: InputMaybe<Scalars['Boolean']>;
   dispenseQuantity: Scalars['Float'];
-  dispenseUnit: DispenseUnit;
+  dispenseUnit: Scalars['String'];
   effectiveDate?: InputMaybe<Scalars['AWSDate']>;
   externalId?: InputMaybe<Scalars['ID']>;
   instructions: Scalars['String'];
@@ -434,7 +425,7 @@ export type Prescription = {
   diagnoses?: Maybe<Array<Maybe<Diagnosis>>>;
   dispenseAsWritten?: Maybe<Scalars['Boolean']>;
   dispenseQuantity: Scalars['Float'];
-  dispenseUnit: DispenseUnit;
+  dispenseUnit: Scalars['String'];
   effectiveDate: Scalars['AWSDate'];
   expirationDate: Scalars['AWSDate'];
   externalId?: Maybe<Scalars['ID']>;
