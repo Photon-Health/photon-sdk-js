@@ -90,6 +90,11 @@ export enum DiagnosisType {
   Icd10 = 'ICD10'
 }
 
+export type DispenseUnit = {
+  __typename?: 'DispenseUnit';
+  name: Scalars['String'];
+};
+
 export type DrugFilter = {
   code?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
@@ -487,6 +492,8 @@ export type Query = {
   /** Get catalogs associated with caller's organization */
   catalogs: Array<Maybe<Catalog>>;
   clients: Array<Maybe<Client>>;
+  /** Get list of Dispense Units for use in creating a prescription */
+  dispenseUnits: Array<Maybe<DispenseUnit>>;
   /** Get a fill */
   fill?: Maybe<Fill>;
   /** Get list of Medical Equipment */

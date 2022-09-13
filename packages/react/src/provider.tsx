@@ -8,6 +8,7 @@ import {
   AllergenFilter,
   Catalog,
   Client,
+  DispenseUnit,
   LatLongSearch,
   Maybe,
   MedicalEquipment,
@@ -112,6 +113,12 @@ export interface PhotonClientContextInterface {
     error?: ApolloError;
     refetch: PhotonClient["clinical"]["patient"]["getPatient"];
   };
+  getDispenseUnits: () => {
+    dispenseUnits: DispenseUnit[];
+    loading: boolean;
+    error?: ApolloError;
+    refetch: PhotonClient["clinical"]["prescription"]["getDispenseUnits"]
+  }
   getPatients: ({
     after,
     first,
@@ -421,6 +428,7 @@ const stub = (): never => {
 const PhotonClientContext = createContext<PhotonClientContextInterface>({
   getAllergens: stub,
   getPatients: stub,
+  getDispenseUnits: stub,
   getPatient: stub,
   createPatient: stub,
   updatePatient: stub,
@@ -734,7 +742,7 @@ export const PhotonProvider = (opts: {
           }
         } catch (err) {
           store.setKey("createPatient", undefined);
-          store.setKey("error", err);
+          store.setKey("error", err as GraphQLError);
         }
 
         store.setKey("loading", false);
@@ -796,7 +804,7 @@ export const PhotonProvider = (opts: {
           }
         } catch (err) {
           store.setKey("updatePatient", undefined);
-          store.setKey("error", err);
+          store.setKey("error", err as GraphQLError);
         }
 
         store.setKey("loading", false);
@@ -859,7 +867,7 @@ export const PhotonProvider = (opts: {
           }
         } catch (err) {
           store.setKey("removePatientAllergy", undefined);
-          store.setKey("error", err);
+          store.setKey("error", err as GraphQLError);
         }
 
         store.setKey("loading", false);
@@ -1037,7 +1045,7 @@ export const PhotonProvider = (opts: {
           }
         } catch (err) {
           store.setKey("createOrder", undefined);
-          store.setKey("error", err);
+          store.setKey("error", err as GraphQLError);
         }
 
         store.setKey("loading", false);
@@ -1064,6 +1072,47 @@ export const PhotonProvider = (opts: {
         error,
       },
     ];
+  };
+
+  /// DispenseUnits
+
+  const getDispenseUnitsStore = map<{
+    dispenseUnits?: DispenseUnit[];
+    loading: boolean;
+    error?: ApolloError;
+  }>({
+    dispenseUnits: undefined,
+    loading: true,
+    error: undefined,
+  });
+
+  const fetchDispenseUnits = action(
+    getDispenseUnitsStore,
+    "fetchDispenseUnits",
+    async (store, { id }) => {
+      store.setKey("loading", true);
+      const { data, error } =
+        await client.clinical.prescription.getDispenseUnits({});
+      store.setKey("dispenseUnits", data?.dispenseUnits || undefined);
+      store.setKey("error", error);
+      store.setKey("loading", false);
+    }
+  );
+
+  const getDispenseUnits = () => {
+    const { dispenseUnits, loading, error } = useStore(getDispenseUnitsStore);
+
+    useEffect(() => {
+      fetchDispenseUnits({});
+    }, []);
+
+    return {
+      dispenseUnits,
+      loading,
+      error,
+      refetch: ({ id }: { id: string }) =>
+        client.clinical.prescription.getPrescription({ id }),
+    };
   };
 
   /// Prescription
@@ -1229,7 +1278,7 @@ export const PhotonProvider = (opts: {
           }
         } catch (err) {
           store.setKey("createPrescription", undefined);
-          store.setKey("error", err);
+          store.setKey("error", err as GraphQLError);
         }
 
         store.setKey("loading", false);
@@ -1737,7 +1786,7 @@ export const PhotonProvider = (opts: {
           }
         } catch (err) {
           store.setKey("createWebhook", undefined);
-          store.setKey("error", err);
+          store.setKey("error", err as GraphQLError);
         }
 
         store.setKey("loading", false);
@@ -1799,7 +1848,7 @@ export const PhotonProvider = (opts: {
           }
         } catch (err) {
           store.setKey("deleteWebhook", undefined);
-          store.setKey("error", err);
+          store.setKey("error", err as GraphQLError);
         }
 
         store.setKey("loading", false);
@@ -1900,7 +1949,7 @@ export const PhotonProvider = (opts: {
           }
         } catch (err) {
           store.setKey("rotateSecret", undefined);
-          store.setKey("error", err);
+          store.setKey("error", err as GraphQLError);
         }
 
         store.setKey("loading", false);
@@ -1968,6 +2017,7 @@ export const PhotonProvider = (opts: {
     updatePatient,
     getAllergens,
     removePatientAllergy,
+    getDispenseUnits
   };
 
   return (

@@ -4,8 +4,8 @@ import {
   gql,
   NormalizedCacheObject,
 } from "@apollo/client";
-import { PRESCRIPTION_FIELDS } from "../fragments";
-import { Maybe, Prescription, PrescriptionState } from "../types";
+import { DISPENSE_UNIT_FIELDS, PRESCRIPTION_FIELDS } from "../fragments";
+import { DispenseUnit, Maybe, Prescription, PrescriptionState } from "../types";
 import { makeMutation, makeQuery } from "../utils";
 
 /**
@@ -18,13 +18,13 @@ import { makeMutation, makeQuery } from "../utils";
  * @param first - Specify page size limit (default: 25)
  * @param fragment - Allows you to override the default query to request more fields
  */
- export interface GetPrescriptionsOptions {
-  patientId?: string
-  patientName?: string
-  prescriberId?: string
-  state?: PrescriptionState
-  after?: string
-  first?: number
+export interface GetPrescriptionsOptions {
+  patientId?: string;
+  patientName?: string;
+  prescriberId?: string;
+  state?: PrescriptionState;
+  after?: string;
+  first?: number;
   fragment?: Record<string, DocumentNode>;
 }
 
@@ -33,8 +33,16 @@ import { makeMutation, makeQuery } from "../utils";
  * @param id - The id of the prescription
  * @param fragment - Allows you to override the default query to request more fields
  */
- export interface GetPrescriptionOptions {
-  id: string
+export interface GetPrescriptionOptions {
+  id: string;
+  fragment?: Record<string, DocumentNode>;
+}
+
+/**
+ * GetDispenseUnitOptions options
+ * @param fragment - Allows you to override the default query to request more fields
+ */
+export interface GetDispenseUnitOptions {
   fragment?: Record<string, DocumentNode>;
 }
 
@@ -42,7 +50,7 @@ import { makeMutation, makeQuery } from "../utils";
  * CreatePrescriptionOptions options
  * @param fragment - Allows you to override the default query to request more fields
  */
- export interface CreatePrescriptionOptions {
+export interface CreatePrescriptionOptions {
   fragment?: Record<string, DocumentNode>;
 }
 
@@ -52,7 +60,7 @@ import { makeMutation, makeQuery } from "../utils";
 export class PrescriptionQueryManager {
   private apollo: ApolloClient<undefined> | ApolloClient<NormalizedCacheObject>;
 
-   /**
+  /**
    * @param apollo - An Apollo client instance
    */
   constructor(
@@ -114,10 +122,7 @@ export class PrescriptionQueryManager {
   }
 
   public async getPrescription(
-    {
-      id,
-      fragment,
-    }: GetPrescriptionOptions = {
+    { id, fragment }: GetPrescriptionOptions = {
       id: "",
       fragment: { PrescriptionFields: PRESCRIPTION_FIELDS },
     }
@@ -143,9 +148,31 @@ export class PrescriptionQueryManager {
     );
   }
 
-  public createPrescription({
-    fragment,
-  }: CreatePrescriptionOptions) {
+  public async getDispenseUnits(
+    { fragment }: GetDispenseUnitOptions = {
+      fragment: { DispenseUnitFields: DISPENSE_UNIT_FIELDS },
+    }
+  ) {
+    if (!fragment) {
+      fragment = { DispenseUnitFields: DISPENSE_UNIT_FIELDS };
+    }
+    let [fName, fValue] = Object.entries(fragment)[0];
+    const GET_DISPENSE_UNITS = gql`
+          ${fValue}
+          query dispenseUnits {
+            dispenseUnits {
+              ...${fName}
+            }
+          }
+        `;
+    return makeQuery<{ dispenseUnits: DispenseUnit[] }>(
+      this.apollo,
+      GET_DISPENSE_UNITS,
+      {}
+    );
+  }
+
+  public createPrescription({ fragment }: CreatePrescriptionOptions) {
     if (!fragment) {
       fragment = { PrescriptionFields: PRESCRIPTION_FIELDS };
     }
@@ -183,9 +210,8 @@ export class PrescriptionQueryManager {
           ...${fName}
         }
       }`;
-    return makeMutation<{ createPrescription: Prescription } | undefined | null>(
-      this.apollo,
-      CREATE_PRESCRIPTION
-    );
+    return makeMutation<
+      { createPrescription: Prescription } | undefined | null
+    >(this.apollo, CREATE_PRESCRIPTION);
   }
 }
