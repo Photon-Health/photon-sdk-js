@@ -71,6 +71,12 @@ export const CATALOG_TREATMENT_FIELDS = gql`
   }
 `
 
+export const DISPENSE_UNIT_FIELDS = gql`
+  fragment DispenseUnitFields on DispenseUnit {
+    name
+  }
+`
+
 export const PRESCRIPTION_FIELDS = gql`
   fragment PrescriptionFields on Prescription {
     id
