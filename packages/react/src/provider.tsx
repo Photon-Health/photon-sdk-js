@@ -1110,8 +1110,8 @@ export const PhotonProvider = (opts: {
       dispenseUnits,
       loading,
       error,
-      refetch: ({ id }: { id: string }) =>
-        client.clinical.prescription.getPrescription({ id }),
+      refetch: () =>
+        client.clinical.prescription.getDispenseUnits()
     };
   };
 
