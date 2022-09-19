@@ -1170,7 +1170,7 @@ export const PhotonProvider = (opts: {
 
   const fetchPrescriptions = action(
     getPrescriptionsStore,
-    "fetchOrders",
+    "fetchPrescriptions",
     async (store, args?: any) => {
       store.setKey("loading", true);
       const { data, error } =
@@ -1228,6 +1228,8 @@ export const PhotonProvider = (opts: {
           first,
           patientId,
           patientName,
+          prescriberId,
+          state
         }: {
           after?: string;
           first?: number;
@@ -1242,6 +1244,8 @@ export const PhotonProvider = (opts: {
           first,
           patientId,
           patientName,
+          prescriberId,
+          state
         }),
     };
   };
