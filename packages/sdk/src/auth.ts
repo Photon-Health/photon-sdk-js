@@ -1,4 +1,14 @@
-import { Auth0Client, LogoutOptions as Auth0LogoutOptions, RedirectLoginOptions, RedirectLoginResult, User } from "@auth0/auth0-spa-js";
+import {
+  Auth0Client,
+  LogoutOptions as Auth0LogoutOptions,
+  RedirectLoginOptions,
+  RedirectLoginResult,
+  User,
+} from "@auth0/auth0-spa-js";
+
+const CODE_RE = /[?&]code=[^&]+/;
+const STATE_RE = /[?&]state=[^&]+/;
+const ERROR_RE = /[?&]error=[^&]+/;
 
 /**
  * Configuration options for AuthManager
@@ -7,9 +17,9 @@ import { Auth0Client, LogoutOptions as Auth0LogoutOptions, RedirectLoginOptions,
  * @param audience The top-level domain of the Photon API
  */
 export interface AuthManagerOptions {
-  authentication: Auth0Client
-  organization?: string
-  audience?: string
+  authentication: Auth0Client;
+  organization?: string;
+  audience?: string;
 }
 
 /**
@@ -18,31 +28,31 @@ export interface AuthManagerOptions {
  * @param invitation An Auth0 invitation string
  * @param appState State to pass Auth0, which will be restored on redirect. Useful for redirecting back to the same page after login
  */
- export interface LoginOptions {
-  organizationId?: string
-  invitation?: string
-  appState?: object
+export interface LoginOptions {
+  organizationId?: string;
+  invitation?: string;
+  appState?: object;
 }
 
 /**
  * Configuration options for logout
  * @param returnTo Where to redirect after logging out
  */
- export interface LogoutOptions {
-  returnTo?: string
+export interface LogoutOptions {
+  returnTo?: string;
 }
 
 /**
  * Configuration options for getAccessToken
  * @param audience Audience to specify on the retrieved access token
  */
- export interface GetAccessTokenOptions {
-  audience?: string
+export interface GetAccessTokenOptions {
+  audience?: string;
 }
 
 /**
-  * Contains various methods for authentication (Auth0)
-  */
+ * Contains various methods for authentication (Auth0)
+ */
 export class AuthManager {
   private authentication: Auth0Client;
 
@@ -66,20 +76,20 @@ export class AuthManager {
 
   /**
    * Performs a login against the specified Auth0 domain
-   * @param config - Login configuration 
+   * @param config - Login configuration
    * @returns
    */
-  public async login(
-    {
-      organizationId,
-      invitation,
-      appState,
-    }: LoginOptions
-  ): Promise<void> {
+  public async login({
+    organizationId,
+    invitation,
+    appState,
+  }: LoginOptions): Promise<void> {
     let opts: RedirectLoginOptions<any> = { redirectMethod: "assign" };
 
     if (organizationId || this.organization) {
-      opts = Object.assign(opts, { organization: organizationId || this.organization });
+      opts = Object.assign(opts, {
+        organization: organizationId || this.organization,
+      });
     }
     if (invitation) {
       opts = Object.assign(opts, { invitation });
@@ -94,7 +104,7 @@ export class AuthManager {
 
   /**
    * Performs a logout against the specified Auth0 domain
-   * @param config - Logout configuration 
+   * @param config - Logout configuration
    * @returns
    */
   public async logout({ returnTo }: LogoutOptions): Promise<void> {
@@ -108,6 +118,15 @@ export class AuthManager {
   }
 
   /**
+   * Determines if URL has Auth0 parameters
+   * @returns boolean
+   */
+  public hasAuthParams(searchParams = window.location.search): boolean {
+    return (CODE_RE.test(searchParams) || ERROR_RE.test(searchParams)) &&
+      STATE_RE.test(searchParams);
+  }
+
+  /**
    * Retrieves a valid access token
    * @param config - getAccessToken configuration
    * @returns
@@ -117,7 +136,9 @@ export class AuthManager {
       audience: this.audience,
     }
   ): Promise<string> {
-    return this.authentication.getTokenSilently({ audience: audience || this.audience || undefined });
+    return this.authentication.getTokenSilently({
+      audience: audience || this.audience || undefined,
+    });
   }
 
   /**
@@ -125,12 +146,15 @@ export class AuthManager {
    * @param config - getAccessToken configuration
    * @returns
    */
-   public async getAccessTokenWithConsent(
+  public async getAccessTokenWithConsent(
     { audience }: { audience?: string } = {
       audience: this.audience,
     }
   ): Promise<string> {
-    return this.authentication.getTokenWithPopup({ audience: audience || this.audience || undefined, organization: this.organization });
+    return this.authentication.getTokenWithPopup({
+      audience: audience || this.audience || undefined,
+      organization: this.organization,
+    });
   }
 
   /**
