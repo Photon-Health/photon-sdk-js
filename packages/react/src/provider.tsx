@@ -74,10 +74,6 @@ const defaultOnRedirectCallback = (appState?: any): void => {
   );
 };
 
-const CODE_RE = /[?&]code=[^&]+/;
-const STATE_RE = /[?&]state=[^&]+/;
-const ERROR_RE = /[?&]error=[^&]+/;
-
 export type GetCatalogReturn = {
   catalog: Catalog;
   loading: boolean;
@@ -412,7 +408,6 @@ export interface PhotonClientContextInterface {
   clearError: () => void;
   login: PhotonClient["authentication"]["login"];
   getToken: PhotonClient["authentication"]["getAccessToken"];
-  hasAuthParams: (searchParams: string) => boolean;
   handleRedirect: PhotonClient["authentication"]["handleRedirect"];
   logout: PhotonClient["authentication"]["logout"];
   isLoading: boolean;
@@ -452,7 +447,6 @@ const PhotonClientContext = createContext<PhotonClientContextInterface>({
   deleteWebhook: stub,
   login: stub,
   rotateSecret: stub,
-  hasAuthParams: stub,
   handleRedirect: stub,
   logout: stub,
   clearError: stub,
@@ -462,10 +456,6 @@ const PhotonClientContext = createContext<PhotonClientContextInterface>({
   user: undefined,
   error: undefined,
 });
-
-export const hasAuthParams = (searchParams = window.location.search): boolean =>
-  (CODE_RE.test(searchParams) || ERROR_RE.test(searchParams)) &&
-  STATE_RE.test(searchParams);
 
 export const PhotonProvider = (opts: {
   children: any;
@@ -488,7 +478,7 @@ export const PhotonProvider = (opts: {
 
   useEffect(() => {
     const initialize = async () => {
-      if (hasAuthParams()) {
+      if (client.authentication.hasAuthParams()) {
         try {
           const { appState } = await client.authentication.handleRedirect();
           onRedirectCallback(appState);
@@ -520,7 +510,7 @@ export const PhotonProvider = (opts: {
   };
 
   useEffect(() => {
-    if (hasAuthParams(searchParams)) {
+    if (client.authentication.hasAuthParams(searchParams)) {
       handleRedirect();
     }
   }, [searchParams]);
@@ -1994,7 +1984,6 @@ export const PhotonProvider = (opts: {
     login,
     logout,
     getToken,
-    hasAuthParams,
     handleRedirect,
     getPatient,
     getPatients,
