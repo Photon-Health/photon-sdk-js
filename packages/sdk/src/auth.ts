@@ -1,5 +1,7 @@
 import {
   Auth0Client,
+  GetTokenSilentlyOptions,
+  GetTokenWithPopupOptions,
   LogoutOptions as Auth0LogoutOptions,
   RedirectLoginOptions,
   RedirectLoginResult,
@@ -139,9 +141,14 @@ export class AuthManager {
       audience: this.audience,
     }
   ): Promise<string> {
-    return this.authentication.getTokenSilently({
-      audience: audience || this.audience || undefined,
-    });
+    let opts: GetTokenSilentlyOptions = { audience: audience || this.audience || undefined };
+
+    if (this.organization) {
+      opts = Object.assign(opts, {
+        organization: this.organization,
+      });
+    }
+    return this.authentication.getTokenSilently(opts);
   }
 
   /**
@@ -154,10 +161,14 @@ export class AuthManager {
       audience: this.audience,
     }
   ): Promise<string> {
-    return this.authentication.getTokenWithPopup({
-      audience: audience || this.audience || undefined,
-      organization: this.organization,
-    });
+    let opts: GetTokenWithPopupOptions = { audience: audience || this.audience || undefined };
+
+    if (this.organization) {
+      opts = Object.assign(opts, {
+        organization: this.organization,
+      });
+    }
+    return this.authentication.getTokenWithPopup(opts);
   }
 
   /**
