@@ -72,6 +72,7 @@ export class AuthManager {
     this.authentication = authentication;
     this.organization = organization;
     this.audience = audience;
+    console.log("AUTH MANAGER: ", this);
   }
 
   /**
@@ -98,6 +99,8 @@ export class AuthManager {
     if (appState) {
       opts = Object.assign(opts, { appState });
     }
+
+    console.log("AUTH OPTS", opts);
 
     return this.authentication.loginWithRedirect(opts);
   }
