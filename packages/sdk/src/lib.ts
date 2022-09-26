@@ -138,4 +138,14 @@ export class PhotonClient {
     this.management = new ManagementQueryManager(apollo);
     return this;
   }
+
+  /**
+   * Sets the organization ID to use
+   * @returns PhotonSDK
+   */
+   public setOrganization(organizationId: string) {
+    this.organization = organizationId;
+    this.authentication = new AuthManager({ authentication: this.auth0Client, organization: organizationId, audience: this.audience });
+    return this;
+  }
 }
