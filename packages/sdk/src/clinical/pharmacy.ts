@@ -17,6 +17,8 @@ import { LatLongSearch, Pharmacy } from "../types";
  export interface GetPharmaciesOptions {
   name?: string
   location?: LatLongSearch
+  after?: number,
+  first?: number,
   fragment?: Record<string, DocumentNode>;
 }
 
@@ -44,19 +46,25 @@ export class PharmacyQueryManager {
     {
       name,
       location,
+      after,
+      first,
       fragment,
     }: GetPharmaciesOptions = {
+      first: 25,
       fragment: { PharmacyFields: PHARMACY_FIELDS },
     }
   ) {
+    if (!first) {
+      first = 25;
+    }
     if (!fragment) {
       fragment = { PharmacyFields: PHARMACY_FIELDS };
     }
     let [fName, fValue] = Object.entries(fragment!)[0];
     const GET_PHARMACIES = gql`
       ${fValue}
-      query pharmacies($name: String, $location: LatLongSearch) {
-        pharmacies(name: $name, location: $location) {
+      query pharmacies($name: String, $location: LatLongSearch, $after: Int, $first: Int) {
+        pharmacies(name: $name, location: $location, after: $after, first: $first) {
           ...${fName}
         }
       }
@@ -64,6 +72,8 @@ export class PharmacyQueryManager {
     return makeQuery<{ pharmacies: Pharmacy[] }>(this.apollo, GET_PHARMACIES, {
       name,
       location,
+      after,
+      first
     });
   }
 }

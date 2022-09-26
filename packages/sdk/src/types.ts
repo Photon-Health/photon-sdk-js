@@ -579,7 +579,7 @@ export type QueryPatientsArgs = {
 
 
 export type QueryPharmaciesArgs = {
-  after?: InputMaybe<Scalars['ID']>;
+  after?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
   location?: InputMaybe<LatLongSearch>;
   name?: InputMaybe<Scalars['String']>;
