@@ -414,6 +414,7 @@ export interface PhotonClientContextInterface {
   isAuthenticated: boolean;
   user: any;
   error: any;
+  setOrganization: (organizationId: string) => void;
 }
 
 const stub = (): never => {
@@ -455,6 +456,7 @@ const PhotonClientContext = createContext<PhotonClientContextInterface>({
   isAuthenticated: false,
   user: undefined,
   error: undefined,
+  setOrganization: stub
 });
 
 export const PhotonProvider = (opts: {
@@ -1979,6 +1981,10 @@ export const PhotonProvider = (opts: {
   functionLookup.getPrescriptions = fetchPrescriptions;
   functionLookup.getClients = fetchClients;
 
+  const setOrganization = (organizationId: string) => {
+    client.setOrganization(organizationId);
+  }
+
   const contextValue = {
     ...state,
     login,
@@ -2010,7 +2016,8 @@ export const PhotonProvider = (opts: {
     updatePatient,
     getAllergens,
     removePatientAllergy,
-    getDispenseUnits
+    getDispenseUnits,
+    setOrganization
   };
 
   return (
