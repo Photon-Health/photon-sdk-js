@@ -540,9 +540,9 @@ export const PhotonProvider = (opts: {
   const logout = ({ returnTo }: { returnTo?: string }) =>
     client.authentication.logout({ returnTo });
 
-  const getToken = async ({ audience, organizationId }: { audience?: string, organizationId?: string } = {}) => {
+  const getToken = async ({ audience }: { audience?: string } = {}) => {
     try {
-      const token = await client.authentication.getAccessToken({ audience, organizationId });
+      const token = await client.authentication.getAccessToken({ audience });
       dispatch({
         type: "GET_ACCESS_TOKEN_COMPLETE",
         user: await client.authentication.getUser(),
@@ -552,7 +552,6 @@ export const PhotonProvider = (opts: {
       if ((e as Error).message.includes("Consent required")) {
         const token = await client.authentication.getAccessTokenWithConsent({
           audience,
-          organizationId
         });
         dispatch({
           type: "GET_ACCESS_TOKEN_COMPLETE",
