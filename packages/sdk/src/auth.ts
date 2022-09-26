@@ -124,10 +124,8 @@ export class AuthManager {
    * @returns boolean
    */
   public hasAuthParams(searchParams = window.location.search): boolean {
-    return (
-      (CODE_RE.test(searchParams) || ERROR_RE.test(searchParams)) &&
-      STATE_RE.test(searchParams)
-    );
+    return (CODE_RE.test(searchParams) || ERROR_RE.test(searchParams)) &&
+      STATE_RE.test(searchParams);
   }
 
   /**
@@ -136,20 +134,15 @@ export class AuthManager {
    * @returns
    */
   public async getAccessToken(
-    {
-      audience,
-      organizationId,
-    }: { audience?: string; organizationId?: string } = {
+    { audience }: { audience?: string } = {
       audience: this.audience,
     }
   ): Promise<string> {
-    let opts: GetTokenSilentlyOptions = {
-      audience: audience || this.audience || undefined,
-    };
+    let opts: GetTokenSilentlyOptions = { audience: audience || this.audience || undefined };
 
-    if (organizationId || this.organization) {
+    if (this.organization) {
       opts = Object.assign(opts, {
-        organization: organizationId || this.organization,
+        organization: this.organization,
       });
     }
     return this.authentication.getTokenSilently(opts);
@@ -161,20 +154,15 @@ export class AuthManager {
    * @returns
    */
   public async getAccessTokenWithConsent(
-    {
-      audience,
-      organizationId,
-    }: { audience?: string; organizationId?: string } = {
+    { audience }: { audience?: string } = {
       audience: this.audience,
     }
   ): Promise<string> {
-    let opts: GetTokenWithPopupOptions = {
-      audience: audience || this.audience || undefined,
-    };
+    let opts: GetTokenWithPopupOptions = { audience: audience || this.audience || undefined };
 
-    if (organizationId || this.organization) {
+    if (this.organization) {
       opts = Object.assign(opts, {
-        organization: organizationId || this.organization,
+        organization: this.organization,
       });
     }
     return this.authentication.getTokenWithPopup(opts);
