@@ -24,15 +24,16 @@ export * as fragments from "./fragments";
  * @param uri The GraphQL endpoint of the Photon API
  */
 export interface PhotonClientOptions {
-  domain: string
+  domain?: string
   clientId: string
   redirectURI?: string
   organization?: string;
   audience?: string;
-    uri?: string;
+  uri?: string;
+  developmentMode?: boolean;
 }
 
-export class PhotonClient {
+export class PhotonClient {  
   private organization?: string
 
   private audience?: string
@@ -68,16 +69,22 @@ export class PhotonClient {
     organization,
     audience = "https://api.photon.health",
     uri = "https://api.photon.health/graphql",
+    developmentMode = false
   }: PhotonClientOptions) {
     this.auth0Client = new Auth0Client({
-      domain,
+      domain: domain ? domain : developmentMode ? "auth.neutron.health" : "auth.photon.health",
       client_id: clientId,
       redirect_uri: redirectURI,
       cacheLocation: "memory",
     });
+    this.audience = audience
+    this.uri = uri
+    if (developmentMode) {
+      this.audience = "https://api.neutron.health"
+      this.uri = "https://api.neutron.health/graphql"
+    }
     this.organization = organization;
-    this.authentication = new AuthManager({ authentication: this.auth0Client, organization, audience });
-    this.uri = uri;
+    this.authentication = new AuthManager({ authentication: this.auth0Client, organization: this.organization, audience: this.audience });
     let apollo = this.constructApolloClient();
     this.clinical = new ClinicalQueryManager(apollo);
     this.management = new ManagementQueryManager(apollo);
@@ -123,20 +130,6 @@ export class PhotonClient {
       cache: new InMemoryCache(),
     });
     return apollo
-  }
-
-  /**
-   * Sets the SDK to operate in development mode, using the Neutron (sandbox) environment
-   * @returns PhotonSDK
-   */
-  public setDevelopment() {
-    this.audience = "https://api.neutron.health"
-    this.uri = "https://api.neutron.health/graphql"
-    this.authentication = new AuthManager({ authentication: this.auth0Client, organization: this.organization, audience: this.audience });
-    let apollo = this.constructApolloClient();
-    this.clinical = new ClinicalQueryManager(apollo);
-    this.management = new ManagementQueryManager(apollo);
-    return this;
   }
 
   /**
