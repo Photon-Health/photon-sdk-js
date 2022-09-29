@@ -52,6 +52,8 @@ export const MEDICATION_FIELDS = gql`
   fragment MedicationFields on Medication {
     id
     name
+    schedule
+    controlled
   }
 `
 
