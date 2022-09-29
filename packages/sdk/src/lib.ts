@@ -29,7 +29,8 @@ export interface PhotonClientOptions {
   redirectURI?: string
   organization?: string;
   audience?: string;
-    uri?: string;
+  uri?: string;
+  developmentMode?: boolean;
 }
 
 export class PhotonClient {
@@ -74,19 +75,25 @@ export class PhotonClient {
     organization,
     audience = "https://api.photon.health",
     uri = "https://api.photon.health/graphql",
+    developmentMode = false
   }: PhotonClientOptions) {
     this.domain = domain;
     this.clientId = clientId;
     this.redirectURI = redirectURI;
     this.auth0Client = new Auth0Client({
-      domain: this.domain || "auth.photon.health",
+      domain: this.domain || developmentMode ? "auth.photon.health" : "auth.neutron.health",
       client_id: this.clientId,
       redirect_uri: this.redirectURI,
       cacheLocation: "memory",
     });
+    this.audience = audience
+    this.uri = uri
+    if (developmentMode) {
+      this.audience = "https://api.neutron.health"
+      this.uri = "https://api.neutron.health/graphql"
+    }
     this.organization = organization;
-    this.authentication = new AuthManager({ authentication: this.auth0Client, organization, audience });
-    this.uri = uri;
+    this.authentication = new AuthManager({ authentication: this.auth0Client, organization: this.organization, audience: this.audience });
     let apollo = this.constructApolloClient();
     this.clinical = new ClinicalQueryManager(apollo);
     this.management = new ManagementQueryManager(apollo);
@@ -132,28 +139,6 @@ export class PhotonClient {
       cache: new InMemoryCache(),
     });
     return apollo
-  }
-
-  /**
-   * Sets the SDK to operate in development mode, using the Neutron (sandbox) environment
-   * @returns PhotonSDK
-   */
-  public setDevelopment() {
-    if (!this.domain) {
-      this.auth0Client = new Auth0Client({
-        domain: "auth.neutron.health",
-        client_id: this.clientId,
-        redirect_uri: this.redirectURI,
-        cacheLocation: "memory",
-      });
-    }
-    this.audience = "https://api.neutron.health"
-    this.uri = "https://api.neutron.health/graphql"
-    this.authentication = new AuthManager({ authentication: this.auth0Client, organization: this.organization, audience: this.audience });
-    let apollo = this.constructApolloClient();
-    this.clinical = new ClinicalQueryManager(apollo);
-    this.management = new ManagementQueryManager(apollo);
-    return this;
   }
 
   /**
