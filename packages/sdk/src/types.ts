@@ -1,8 +1,14 @@
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type Exact<T extends { [key: string]: unknown }> = {
+  [K in keyof T]: T[K];
+};
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]?: Maybe<T[SubKey]>;
+};
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]: Maybe<T[SubKey]>;
+};
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -76,7 +82,7 @@ export type Client = {
 export enum ConceptType {
   Drug = 'DRUG',
   Package = 'PACKAGE',
-  Product = 'PRODUCT'
+  Product = 'PRODUCT',
 }
 
 export type Diagnosis = {
@@ -87,7 +93,7 @@ export type Diagnosis = {
 };
 
 export enum DiagnosisType {
-  Icd10 = 'ICD10'
+  Icd10 = 'ICD10',
 }
 
 export type DispenseUnit = {
@@ -123,7 +129,7 @@ export enum FillState {
   New = 'NEW',
   Processing = 'PROCESSING',
   Received = 'RECEIVED',
-  Sent = 'SENT'
+  Sent = 'SENT',
 }
 
 export type LatLongSearch = {
@@ -152,12 +158,14 @@ export type Medication = Treatment & {
   brandName?: Maybe<Scalars['String']>;
   codes: TreatmentCodes;
   concept: ConceptType;
+  controlled: Scalars['Boolean'];
   description?: Maybe<Scalars['String']>;
   form?: Maybe<Scalars['String']>;
   genericName?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   manufacturer?: Maybe<Scalars['String']>;
   name: Scalars['String'];
+  schedule?: Maybe<ScheduleType>;
   strength?: Maybe<Scalars['String']>;
   /** Null implies a medication cant be prescribed */
   type?: Maybe<MedicationType>;
@@ -173,7 +181,7 @@ export enum MedicationType {
   /** Over-the-Counter */
   Otc = 'OTC',
   /** Prescription */
-  Rx = 'RX'
+  Rx = 'RX',
 }
 
 export type Mutation = {
@@ -194,13 +202,11 @@ export type Mutation = {
   updateWebhookConfig: WebhookConfig;
 };
 
-
 export type MutationAddToCatalogArgs = {
   catalogId: Scalars['ID'];
   ndc?: InputMaybe<Scalars['String']>;
   treatmentId?: InputMaybe<Scalars['ID']>;
 };
-
 
 export type MutationCreateOrderArgs = {
   address: AddressInput;
@@ -209,7 +215,6 @@ export type MutationCreateOrderArgs = {
   patientId: Scalars['ID'];
   pharmacyId?: InputMaybe<Scalars['ID']>;
 };
-
 
 export type MutationCreatePatientArgs = {
   address?: InputMaybe<AddressInput>;
@@ -223,7 +228,6 @@ export type MutationCreatePatientArgs = {
   phone: Scalars['AWSPhone'];
   sex: SexType;
 };
-
 
 export type MutationCreatePrescriptionArgs = {
   daysSupply?: InputMaybe<Scalars['Int']>;
@@ -240,7 +244,6 @@ export type MutationCreatePrescriptionArgs = {
   treatmentId: Scalars['ID'];
 };
 
-
 export type MutationCreateWebhookConfigArgs = {
   filters?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   name?: InputMaybe<Scalars['String']>;
@@ -248,22 +251,18 @@ export type MutationCreateWebhookConfigArgs = {
   url: Scalars['String'];
 };
 
-
 export type MutationDeleteWebhookConfigArgs = {
   id: Scalars['String'];
 };
-
 
 export type MutationRemovePatientAllergyArgs = {
   allergenId: Scalars['ID'];
   id: Scalars['ID'];
 };
 
-
 export type MutationRotateSecretArgs = {
   id: Scalars['ID'];
 };
-
 
 export type MutationUpdatePatientArgs = {
   allergies?: InputMaybe<Array<InputMaybe<AllergenInput>>>;
@@ -275,7 +274,6 @@ export type MutationUpdatePatientArgs = {
   name?: InputMaybe<NameInput>;
   phone?: InputMaybe<Scalars['AWSPhone']>;
 };
-
 
 export type MutationUpdateWebhookConfigArgs = {
   filters?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
@@ -327,12 +325,12 @@ export enum OrderState {
   Error = 'ERROR',
   New = 'NEW',
   Processing = 'PROCESSING',
-  Ready = 'READY'
+  Ready = 'READY',
 }
 
 export enum OrgType {
   Pharmacy = 'PHARMACY',
-  Prescriber = 'PRESCRIBER'
+  Prescriber = 'PRESCRIBER',
 }
 
 export type Organization = {
@@ -371,13 +369,11 @@ export type Patient = {
   sex: SexType;
 };
 
-
 export type PatientOrdersArgs = {
   after?: InputMaybe<Scalars['ID']>;
   filter?: InputMaybe<PatientOrderFilter>;
   first?: InputMaybe<Scalars['Int']>;
 };
-
 
 export type PatientPrescriptionsArgs = {
   after?: InputMaybe<Scalars['ID']>;
@@ -460,7 +456,7 @@ export enum PrescriptionState {
   Error = 'ERROR',
   Expired = 'EXPIRED',
   Processing = 'PROCESSING',
-  Ready = 'READY'
+  Ready = 'READY',
 }
 
 export type ProductFilter = {
@@ -524,21 +520,17 @@ export type Query = {
   webhooks?: Maybe<Array<Maybe<WebhookConfig>>>;
 };
 
-
 export type QueryAllergensArgs = {
   filter?: InputMaybe<AllergenFilter>;
 };
-
 
 export type QueryCatalogArgs = {
   id?: InputMaybe<Scalars['ID']>;
 };
 
-
 export type QueryFillArgs = {
   id: Scalars['ID'];
 };
-
 
 export type QueryMedicalEquipmentArgs = {
   after?: InputMaybe<Scalars['ID']>;
@@ -546,18 +538,15 @@ export type QueryMedicalEquipmentArgs = {
   name?: InputMaybe<Scalars['String']>;
 };
 
-
 export type QueryMedicationsArgs = {
   after?: InputMaybe<Scalars['ID']>;
   filter?: InputMaybe<MedicationFilter>;
   first?: InputMaybe<Scalars['Int']>;
 };
 
-
 export type QueryOrderArgs = {
   id: Scalars['ID'];
 };
-
 
 export type QueryOrdersArgs = {
   after?: InputMaybe<Scalars['ID']>;
@@ -565,18 +554,15 @@ export type QueryOrdersArgs = {
   first?: InputMaybe<Scalars['Int']>;
 };
 
-
 export type QueryPatientArgs = {
   id: Scalars['ID'];
 };
-
 
 export type QueryPatientsArgs = {
   after?: InputMaybe<Scalars['ID']>;
   filter?: InputMaybe<PatientFilter>;
   first?: InputMaybe<Scalars['Int']>;
 };
-
 
 export type QueryPharmaciesArgs = {
   after?: InputMaybe<Scalars['Int']>;
@@ -585,16 +571,13 @@ export type QueryPharmaciesArgs = {
   name?: InputMaybe<Scalars['String']>;
 };
 
-
 export type QueryPharmacyArgs = {
   id: Scalars['ID'];
 };
 
-
 export type QueryPrescriptionArgs = {
   id: Scalars['ID'];
 };
-
 
 export type QueryPrescriptionsArgs = {
   after?: InputMaybe<Scalars['ID']>;
@@ -609,9 +592,17 @@ export type Role = {
   name?: Maybe<Scalars['String']>;
 };
 
+export enum ScheduleType {
+  I = 'I',
+  II = 'II',
+  III = 'III',
+  IV = 'IV',
+  V = 'V',
+}
+
 export enum SexType {
   Female = 'FEMALE',
-  Male = 'MALE'
+  Male = 'MALE',
 }
 
 export type Treatment = {
