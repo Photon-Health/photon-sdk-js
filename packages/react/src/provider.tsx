@@ -113,8 +113,8 @@ export interface PhotonClientContextInterface {
     dispenseUnits: DispenseUnit[];
     loading: boolean;
     error?: ApolloError;
-    refetch: PhotonClient["clinical"]["prescription"]["getDispenseUnits"]
-  }
+    refetch: PhotonClient["clinical"]["prescription"]["getDispenseUnits"];
+  };
   getPatients: ({
     after,
     first,
@@ -1102,8 +1102,7 @@ export const PhotonProvider = (opts: {
       dispenseUnits,
       loading,
       error,
-      refetch: () =>
-        client.clinical.prescription.getDispenseUnits()
+      refetch: () => client.clinical.prescription.getDispenseUnits(),
     };
   };
 
@@ -1221,7 +1220,7 @@ export const PhotonProvider = (opts: {
           patientId,
           patientName,
           prescriberId,
-          state
+          state,
         }: {
           after?: string;
           first?: number;
@@ -1237,7 +1236,7 @@ export const PhotonProvider = (opts: {
           patientId,
           patientName,
           prescriberId,
-          state
+          state,
         }),
     };
   };
@@ -1609,14 +1608,18 @@ export const PhotonProvider = (opts: {
   const getPharmacies = ({
     name,
     location,
+    after,
+    first,
   }: {
     name?: string;
     location?: LatLongSearch;
+    after?: number;
+    first?: number;
   }) => {
     const { pharmacies, loading, error } = useStore(getPharmaciesStore);
 
     useEffect(() => {
-      fetchPharmacies({ name, location });
+      fetchPharmacies({ name, location, after, first });
     }, [name, location]);
 
     return {
@@ -1626,10 +1629,20 @@ export const PhotonProvider = (opts: {
       refetch: ({
         name,
         location,
+        after, 
+        first
       }: {
         name?: string;
         location?: LatLongSearch;
-      }) => client.clinical.pharmacy.getPharmacies({ name, location }),
+        after?: number;
+        first?: number;
+      }) =>
+        client.clinical.pharmacy.getPharmacies({
+          name,
+          location,
+          after,
+          first,
+        }),
     };
   };
 
