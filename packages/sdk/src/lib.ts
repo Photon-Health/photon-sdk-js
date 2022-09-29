@@ -33,13 +33,7 @@ export interface PhotonClientOptions {
   developmentMode?: boolean;
 }
 
-export class PhotonClient {
-  private domain?: string
-  
-  private clientId: string
-  
-  private redirectURI?: string
-
+export class PhotonClient {  
   private organization?: string
 
   private audience?: string
@@ -77,13 +71,10 @@ export class PhotonClient {
     uri = "https://api.photon.health/graphql",
     developmentMode = false
   }: PhotonClientOptions) {
-    this.domain = domain;
-    this.clientId = clientId;
-    this.redirectURI = redirectURI;
     this.auth0Client = new Auth0Client({
-      domain: this.domain || developmentMode ? "auth.photon.health" : "auth.neutron.health",
-      client_id: this.clientId,
-      redirect_uri: this.redirectURI,
+      domain: domain ? domain : developmentMode ? "auth.neutron.health" : "auth.photon.health",
+      client_id: clientId,
+      redirect_uri: redirectURI,
       cacheLocation: "memory",
     });
     this.audience = audience
