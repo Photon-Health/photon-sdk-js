@@ -24,7 +24,7 @@ export * as fragments from "./fragments";
  * @param uri The GraphQL endpoint of the Photon API
  */
 export interface PhotonClientOptions {
-  domain: string
+  domain?: string
   clientId: string
   redirectURI?: string
   organization?: string;
@@ -33,6 +33,12 @@ export interface PhotonClientOptions {
 }
 
 export class PhotonClient {
+  private domain?: string
+  
+  private clientId: string
+  
+  private redirectURI?: string
+
   private organization?: string
 
   private audience?: string
@@ -69,10 +75,13 @@ export class PhotonClient {
     audience = "https://api.photon.health",
     uri = "https://api.photon.health/graphql",
   }: PhotonClientOptions) {
+    this.domain = domain;
+    this.clientId = clientId;
+    this.redirectURI = redirectURI;
     this.auth0Client = new Auth0Client({
-      domain,
-      client_id: clientId,
-      redirect_uri: redirectURI,
+      domain: this.domain || "auth.photon.health",
+      client_id: this.clientId,
+      redirect_uri: this.redirectURI,
       cacheLocation: "memory",
     });
     this.organization = organization;
@@ -130,6 +139,14 @@ export class PhotonClient {
    * @returns PhotonSDK
    */
   public setDevelopment() {
+    if (!this.domain) {
+      this.auth0Client = new Auth0Client({
+        domain: "auth.neutron.health",
+        client_id: this.clientId,
+        redirect_uri: this.redirectURI,
+        cacheLocation: "memory",
+      });
+    }
     this.audience = "https://api.neutron.health"
     this.uri = "https://api.neutron.health/graphql"
     this.authentication = new AuthManager({ authentication: this.auth0Client, organization: this.organization, audience: this.audience });
