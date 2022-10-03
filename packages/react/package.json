@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "main": "./dist/react.cjs.js",
   "scripts": {
-    "build": "vite build",
+    "build": "rimraf dist && vite build",
     "prepublish": "npm run build"
   },
   "publishConfig": {
@@ -34,6 +34,7 @@
   "devDependencies": {
     "@types/react": "^18.0.17",
     "@vitejs/plugin-react": "^2.0.1",
+    "rimraf": "^3.0.2",
     "vite-plugin-dts": "^1.4.1"
   }
 }

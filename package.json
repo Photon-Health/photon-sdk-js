@@ -4,6 +4,10 @@
   "workspaces": [
     "packages/*"
   ],
+  "scripts": {
+    "build": "npx lerna bootstrap && cd packages/sdk && npm run build && cd ../react && npm run build && cd ../",
+    "publish": "npm run build && npx lerna publish patch --yes"
+  },
   "devDependencies": {
     "json": "^11.0.0",
     "lerna": "^5.3.0"
