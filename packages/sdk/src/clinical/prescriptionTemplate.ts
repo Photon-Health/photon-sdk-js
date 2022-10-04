@@ -61,10 +61,9 @@ import { PrescriptionTemplate } from "../types";
             instructions: $instructions
             notes: $notes
         ) {
-          ) {
             ...${fName}
-          }
         }
+      }
       `;
       return makeMutation<{ createPrescriptionTemplate: PrescriptionTemplate } | undefined | null>(
         this.apollo,
