@@ -68,6 +68,7 @@ export type Catalog = {
   __typename?: 'Catalog';
   id: Scalars['ID'];
   name: Scalars['String'];
+  templates: Array<Maybe<PrescriptionTemplate>>;
   treatments: Array<Maybe<Treatment>>;
 };
 
@@ -193,6 +194,7 @@ export type Mutation = {
   createPatient: Patient;
   /** Create a new `Prescription` associated with the logged in prescriber. A `patientId` is returned after creating a `Patient` with the `createPatient` mutation. `treatmentId` can be searched with the `medications` or `medicalEquipment` queries. */
   createPrescription: Prescription;
+  createPrescriptionTemplate?: Maybe<PrescriptionTemplate>;
   createWebhookConfig: WebhookConfig;
   deleteWebhookConfig?: Maybe<Scalars['Boolean']>;
   removePatientAllergy: Patient;
@@ -244,6 +246,18 @@ export type MutationCreatePrescriptionArgs = {
   treatmentId: Scalars['ID'];
 };
 
+export type MutationCreatePrescriptionTemplateArgs = {
+  catalogId: Scalars['ID'];
+  daysSupply?: InputMaybe<Scalars['Int']>;
+  dispenseAsWritten?: InputMaybe<Scalars['Boolean']>;
+  dispenseQuantity?: InputMaybe<Scalars['Float']>;
+  dispenseUnit?: InputMaybe<Scalars['String']>;
+  instructions?: InputMaybe<Scalars['String']>;
+  notes?: InputMaybe<Scalars['String']>;
+  refillsAllowed?: InputMaybe<Scalars['Int']>;
+  treatmentId: Scalars['ID'];
+};
+
 export type MutationCreateWebhookConfigArgs = {
   filters?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   name?: InputMaybe<Scalars['String']>;
@@ -265,6 +279,7 @@ export type MutationRotateSecretArgs = {
 };
 
 export type MutationUpdatePatientArgs = {
+  address?: InputMaybe<AddressInput>;
   allergies?: InputMaybe<Array<InputMaybe<AllergenInput>>>;
   email?: InputMaybe<Scalars['AWSEmail']>;
   externalId?: InputMaybe<Scalars['ID']>;
@@ -458,6 +473,19 @@ export enum PrescriptionState {
   Processing = 'PROCESSING',
   Ready = 'READY',
 }
+
+export type PrescriptionTemplate = {
+  __typename?: 'PrescriptionTemplate';
+  daysSupply?: Maybe<Scalars['Int']>;
+  dispenseAsWritten?: Maybe<Scalars['Boolean']>;
+  dispenseQuantity?: Maybe<Scalars['Float']>;
+  dispenseUnit?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  instructions?: Maybe<Scalars['String']>;
+  notes?: Maybe<Scalars['String']>;
+  refillsAllowed?: Maybe<Scalars['Int']>;
+  treatment: Treatment;
+};
 
 export type ProductFilter = {
   code?: InputMaybe<Scalars['String']>;
