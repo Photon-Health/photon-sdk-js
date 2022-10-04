@@ -20,6 +20,7 @@ import {
   Pharmacy,
   Prescription,
   PrescriptionState,
+  PrescriptionTemplate,
   WebhookConfig,
 } from "@photonhealth/sdk/dist/types";
 import { useEffect, createContext, useContext, useReducer } from "react";
@@ -231,6 +232,26 @@ export interface PhotonClientContextInterface {
       loading: boolean;
     }
   ];
+  createPrescriptionTemplate: ({
+    refetchQueries,
+    awaitRefetchQueries,
+  }: {
+    refetchQueries: string[];
+    awaitRefetchQueries?: boolean;
+  }) => [
+    ({
+      variables,
+      onCompleted,
+    }: {
+      variables: object;
+      onCompleted?: (data: any) => void | undefined;
+    }) => Promise<void>,
+    {
+      data: { createPrescriptionTemplate: PrescriptionTemplate } | undefined | null;
+      error: GraphQLError;
+      loading: boolean;
+    }
+  ];
   getPrescription: ({ id }: { id: string }) => {
     prescription: Prescription;
     loading: boolean;
@@ -430,6 +451,7 @@ const PhotonClientContext = createContext<PhotonClientContextInterface>({
   updatePatient: stub,
   removePatientAllergy: stub,
   createOrder: stub,
+  createPrescriptionTemplate: stub,
   getClients: stub,
   getPharmacies: stub,
   getMedications: stub,
@@ -1887,6 +1909,69 @@ export const PhotonProvider = (opts: {
     ];
   };
 
+  /// Prescription Templates
+  
+  const createPrescriptionTemplateStore = map<{
+    createPrescriptionTemplate?: PrescriptionTemplate;
+    loading: boolean;
+    error?: GraphQLError;
+  }>({
+    createPrescriptionTemplate: undefined,
+    loading: false,
+    error: undefined,
+  });
+
+  const createPrescriptionTemplateMutation = client.clinical.prescriptionTemplate.createPrescriptionTemplate({});
+
+  const constructFetchCreatePrescriptionTemplate = () =>
+    action(
+      createPrescriptionTemplateStore,
+      "createPrescriptionTemplateMutation",
+      async (store, { variables, onCompleted }) => {
+        store.setKey("loading", true);
+
+        try {
+          const { data, errors } = await createPrescriptionTemplateMutation({
+            variables,
+            refetchQueries: [],
+            awaitRefetchQueries: false,
+          });
+          store.setKey("createPrescriptionTemplate", data?.createPrescriptionTemplate);
+          store.setKey("error", errors?.[0]);
+          if (onCompleted) {
+            onCompleted(data);
+          }
+        } catch (err) {
+          store.setKey("createPrescriptionTemplate", undefined);
+          store.setKey("error", err as GraphQLError);
+        }
+
+        store.setKey("loading", false);
+      }
+    );
+
+  const createPrescriptionTemplate = ({
+    refetchQueries = undefined,
+    awaitRefetchQueries = false,
+  }: {
+    refetchQueries?: string[];
+    awaitRefetchQueries?: boolean;
+  }) => {
+    const { createPrescriptionTemplate, loading, error } = useStore(createPrescriptionTemplateStore);
+
+    if (refetchQueries && refetchQueries.length > 0) {
+      runRefetch(createPrescriptionTemplate, refetchQueries, awaitRefetchQueries);
+    }
+    return [
+      constructFetchCreatePrescriptionTemplate(),
+      {
+        createPrescriptionTemplate,
+        loading,
+        error,
+      },
+    ];
+  };
+
   /// Clients
 
   const getClientsStore = map<{
@@ -2013,6 +2098,7 @@ export const PhotonProvider = (opts: {
     getPrescription,
     getPrescriptions,
     createPrescription,
+    createPrescriptionTemplate,
     getCatalog,
     getCatalogs,
     getMedications,

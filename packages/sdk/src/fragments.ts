@@ -185,3 +185,17 @@ export const PHARMACY_FIELDS = gql`
      }
    }
  `
+
+export const PRESCRIPTION_TEMPLATE_FIELDS = gql`
+  fragment PrescriptionTemplateFields on PrescriptionTemplate {
+    id
+    daysSupply
+    dispenseAsWritten
+    dispenseQuantity
+    dispenseUnit
+    instructions
+    notes
+    refillsAllowed
+    treatment
+}
+`
