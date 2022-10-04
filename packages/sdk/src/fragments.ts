@@ -196,6 +196,9 @@ export const PRESCRIPTION_TEMPLATE_FIELDS = gql`
     instructions
     notes
     refillsAllowed
-    treatment
-}
+    treatment {
+      id
+      name
+    }
+  }
 `
