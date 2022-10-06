@@ -631,6 +631,7 @@ export enum ScheduleType {
 export enum SexType {
   Female = 'FEMALE',
   Male = 'MALE',
+  Unknown = 'Unknown'
 }
 
 export type Treatment = {
