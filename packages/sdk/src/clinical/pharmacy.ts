@@ -50,12 +50,12 @@ export class PharmacyQueryManager {
       first,
       fragment,
     }: GetPharmaciesOptions = {
-      first: 25,
+      first: 100,
       fragment: { PharmacyFields: PHARMACY_FIELDS },
     }
   ) {
     if (!first) {
-      first = 25;
+      first = 100;
     }
     if (!fragment) {
       fragment = { PharmacyFields: PHARMACY_FIELDS };
