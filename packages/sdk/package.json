@@ -1,6 +1,6 @@
 {
   "name": "@photonhealth/sdk",
-  "version": "0.1.7-alpha.1+12afc61",
+  "version": "0.1.7-alpha.2+44cc7f7",
   "main": "src/lib.js",
   "scripts": {
     "build": "rimraf dist && vite build",
@@ -47,5 +47,5 @@
   },
   "homepage": "https://github.com/Photon-Health/photon-sdk-js#readme",
   "description": "",
-  "gitHead": "12afc6181c2c620c461872767c6f51518d9f7596"
+  "gitHead": "44cc7f793d450333804d67f30c969d3b84841494"
 }
