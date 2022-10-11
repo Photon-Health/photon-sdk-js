@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client"
+import { gql } from '@apollo/client'
 
 export const ORGANIZATION_FIELDS = gql`
   fragment OrganizationFields on Organization {
@@ -148,6 +148,8 @@ export const ORDER_FIELDS = gql`
     pharmacy {
       id
       name
+      phone
+      address
     }
     createdAt
   }
@@ -172,19 +174,19 @@ export const CLIENT_FIELDS = gql`
 `
 
 export const PHARMACY_FIELDS = gql`
-   fragment PharmacyFields on Organization {
-     id
-     name
-     address {
-       city
-       country
-       postalCode
-       state
-       street1
-       street2
-     }
-   }
- `
+  fragment PharmacyFields on Organization {
+    id
+    name
+    address {
+      city
+      country
+      postalCode
+      state
+      street1
+      street2
+    }
+  }
+`
 
 export const PRESCRIPTION_TEMPLATE_FIELDS = gql`
   fragment PrescriptionTemplateFields on PrescriptionTemplate {
