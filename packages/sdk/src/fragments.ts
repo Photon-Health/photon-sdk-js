@@ -149,7 +149,14 @@ export const ORDER_FIELDS = gql`
       id
       name
       phone
-      address
+      address {
+        city
+        country
+        postalCode
+        state
+        street1
+        street2
+      }
     }
     createdAt
   }
