@@ -11,6 +11,10 @@ import { PrescriptionTemplate } from "../types";
   export interface CreatePrescriptionTemplateOptions {
     fragment?: Record<string, DocumentNode>;
   }
+
+  export interface DeletePrescriptionTemplateOptions {
+    fragment?: Record<string, DocumentNode>;
+  }
   
   /**
    * Contains various methods for Photon Prescription Templates
@@ -68,6 +72,36 @@ import { PrescriptionTemplate } from "../types";
       return makeMutation<{ createPrescriptionTemplate: PrescriptionTemplate } | undefined | null>(
         this.apollo,
         CREATE_PRESCRIPTION_TEMPLATE
+      );
+    }
+
+    /**
+     * Deletes an existing prescription template
+     * @param options - Query options
+     * @returns
+     */
+     public deletePrescriptionTemplate({ fragment }: DeletePrescriptionTemplateOptions) {
+      if (!fragment) {
+        fragment = { PrescriptionTemplateFields: PRESCRIPTION_TEMPLATE_FIELDS };
+      }
+      let [fName, fValue] = Object.entries(fragment)[0];
+      const DELETE_PRESCRIPTION_TEMPLATE = gql`
+        ${fValue}
+        mutation deletePrescriptionTemplate(
+          $catalogId: ID!,
+          $templateId: ID!
+        ) {
+          deletePrescriptionTemplate(
+            catalogId: $catalogId
+            templateId: $templateId
+        ) {
+            ...${fName}
+        }
+      }
+      `;
+      return makeMutation<{ deletePrescriptionTemplate: PrescriptionTemplate } | undefined | null>(
+        this.apollo,
+        DELETE_PRESCRIPTION_TEMPLATE
       );
     }
   }

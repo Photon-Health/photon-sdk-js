@@ -1,8 +1,8 @@
-import { ApolloError, DocumentNode } from "@apollo/client";
-import { useStore } from "@nanostores/react";
-import { GraphQLError } from "graphql";
-import { action, map } from "nanostores";
-import { PhotonClient } from "@photonhealth/sdk";
+import { ApolloError, DocumentNode } from '@apollo/client'
+import { useStore } from '@nanostores/react'
+import { GraphQLError } from 'graphql'
+import { action, map } from 'nanostores'
+import { PhotonClient } from '@photonhealth/sdk'
 import {
   Allergen,
   AllergenFilter,
@@ -21,426 +21,565 @@ import {
   Prescription,
   PrescriptionState,
   PrescriptionTemplate,
-  WebhookConfig,
-} from "@photonhealth/sdk/dist/types";
-import { useEffect, createContext, useContext, useReducer } from "react";
+  SearchMedication,
+  Treatment,
+  WebhookConfig
+} from '@photonhealth/sdk/dist/types'
+import { useEffect, createContext, useContext, useReducer } from 'react'
 
 const reducer = (state: any, action: any) => {
   switch (action.type) {
-    case "INITIALISED":
+    case 'INITIALISED':
       return {
         ...state,
         isAuthenticated: !!action.user,
         user: action.user,
         isLoading: false,
-        error: undefined,
-      };
-    case "HANDLE_REDIRECT_COMPLETE":
+        error: undefined
+      }
+    case 'HANDLE_REDIRECT_COMPLETE':
       if (state.user?.updated_at === action.user?.updated_at) {
-        return state;
+        return state
       }
       return {
         ...state,
         isAuthenticated: !!action.user,
-        user: action.user,
-      };
-    case "GET_ACCESS_TOKEN_COMPLETE":
+        user: action.user
+      }
+    case 'GET_ACCESS_TOKEN_COMPLETE':
       if (state.user?.updated_at === action.user?.updated_at) {
-        return state;
+        return state
       }
       return {
         ...state,
         isAuthenticated: !!action.user,
-        user: action.user,
-      };
-    case "ERROR":
+        user: action.user
+      }
+    case 'ERROR':
       return {
         ...state,
         isLoading: false,
-        error: action.error,
-      };
-    case "CLEAR_ERROR":
+        error: action.error
+      }
+    case 'CLEAR_ERROR':
       return {
         ...state,
-        error: undefined,
-      };
+        error: undefined
+      }
   }
-};
+}
 
 const defaultOnRedirectCallback = (appState?: any): void => {
-  window.history.replaceState(
-    {},
-    document.title,
-    appState?.returnTo || window.location.pathname
-  );
-};
+  window.history.replaceState({}, document.title, appState?.returnTo || window.location.pathname)
+}
 
 export type GetCatalogReturn = {
-  catalog: Catalog;
-  loading: boolean;
-  error?: ApolloError;
-  refetch: PhotonClient["clinical"]["catalog"]["getCatalog"];
-};
+  catalog: Catalog
+  loading: boolean
+  error?: ApolloError
+  refetch: PhotonClient['clinical']['catalog']['getCatalog'],
+  query?: ({ id, fragment }: { id: string, fragment?: Record<string, DocumentNode> }) => Promise<{
+    catalog?: Catalog
+    loading: boolean
+    error?: ApolloError
+  }>
+}
 
 export type GetMedicationReturn = {
-  medications: Medication[];
-  loading: boolean;
-  error?: ApolloError;
-  refetch: PhotonClient["clinical"]["medication"]["getMedications"];
-};
+  medications: Medication[]
+  loading: boolean
+  error?: ApolloError
+  refetch: PhotonClient['clinical']['medication']['getMedications']
+}
 
 export type GetMedicalEquipmentReturn = {
-  medicalEquipment: MedicalEquipment[];
-  loading: boolean;
-  error?: ApolloError;
-  refetch: PhotonClient["clinical"]["medicalEquipment"]["getMedicalEquipment"];
-};
+  medicalEquipment: MedicalEquipment[]
+  loading: boolean
+  error?: ApolloError
+  refetch: PhotonClient['clinical']['medicalEquipment']['getMedicalEquipment']
+}
 
 export type GetAllergensReturn = {
-  allergens: Allergen[];
-  loading: boolean;
-  error?: ApolloError;
-  refetch: PhotonClient["clinical"]["allergens"]["getAllergens"];
-};
+  allergens: Allergen[]
+  loading: boolean
+  error?: ApolloError
+  refetch: PhotonClient['clinical']['allergens']['getAllergens']
+}
 
 export interface PhotonClientContextInterface {
   getPatient: ({ id }: { id: string }) => {
-    patient: Patient;
-    loading: boolean;
-    error?: ApolloError;
-    refetch: PhotonClient["clinical"]["patient"]["getPatient"];
-  };
+    patient: Patient
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['clinical']['patient']['getPatient']
+  }
   getDispenseUnits: () => {
-    dispenseUnits: DispenseUnit[];
-    loading: boolean;
-    error?: ApolloError;
-    refetch: PhotonClient["clinical"]["prescription"]["getDispenseUnits"];
-  };
+    dispenseUnits: DispenseUnit[]
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['clinical']['prescription']['getDispenseUnits']
+  }
   getPatients: ({
     after,
     first,
-    name,
+    name
   }: {
-    after?: Maybe<string>;
-    first?: Maybe<number>;
-    name?: Maybe<string>;
+    after?: Maybe<string>
+    first?: Maybe<number>
+    name?: Maybe<string>
   }) => {
-    patients: Patient[];
-    loading: boolean;
-    error?: ApolloError;
-    refetch: PhotonClient["clinical"]["patient"]["getPatients"];
-  };
+    patients: Patient[]
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['clinical']['patient']['getPatients']
+  }
   createPatient: ({
     refetchQueries,
-    awaitRefetchQueries,
+    awaitRefetchQueries
   }: {
-    refetchQueries: string[];
-    awaitRefetchQueries?: boolean;
+    refetchQueries: string[]
+    awaitRefetchQueries?: boolean
   }) => [
     ({
       variables,
-      onCompleted,
+      onCompleted
     }: {
-      variables: object;
-      onCompleted?: (data: any) => void | undefined;
+      variables: object
+      onCompleted?: (data: any) => void | undefined
     }) => Promise<void>,
     {
-      data: { createPatient: Patient } | undefined | null;
-      error: GraphQLError;
-      loading: boolean;
+      data: { createPatient: Patient } | undefined | null
+      error: GraphQLError
+      loading: boolean
     }
-  ];
+  ]
   updatePatient: ({
     refetchQueries,
-    awaitRefetchQueries,
+    awaitRefetchQueries
   }: {
-    refetchQueries: string[];
-    awaitRefetchQueries?: boolean;
+    refetchQueries: string[]
+    awaitRefetchQueries?: boolean
   }) => [
     ({
       variables,
-      onCompleted,
+      onCompleted
     }: {
-      variables: object;
-      onCompleted?: (data: any) => void | undefined;
+      variables: object
+      onCompleted?: (data: any) => void | undefined
     }) => Promise<void>,
     {
-      data: { updatePatient: Patient } | undefined | null;
-      error: GraphQLError;
-      loading: boolean;
+      data: { updatePatient: Patient } | undefined | null
+      error: GraphQLError
+      loading: boolean
     }
-  ];
+  ]
   removePatientAllergy: ({
     refetchQueries,
-    awaitRefetchQueries,
+    awaitRefetchQueries
   }: {
-    refetchQueries: string[];
-    awaitRefetchQueries?: boolean;
+    refetchQueries: string[]
+    awaitRefetchQueries?: boolean
   }) => [
     ({
       variables,
-      onCompleted,
+      onCompleted
     }: {
-      variables: object;
-      onCompleted?: (data: any) => void | undefined;
+      variables: object
+      onCompleted?: (data: any) => void | undefined
     }) => Promise<void>,
     {
-      data: { removePatientAllergy: Patient } | undefined | null;
-      error: GraphQLError;
-      loading: boolean;
+      data: { removePatientAllergy: Patient } | undefined | null
+      error: GraphQLError
+      loading: boolean
     }
-  ];
+  ]
   getOrder: ({ id }: { id: string }) => {
-    order: Order;
-    loading: boolean;
-    error?: ApolloError;
-    refetch: PhotonClient["clinical"]["order"]["getOrder"];
-  };
+    order: Order
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['clinical']['order']['getOrder']
+  }
   getOrders: ({
     after,
     first,
     patientId,
-    patientName,
+    patientName
   }: {
-    after?: Maybe<string>;
-    first?: Maybe<number>;
-    patientId?: Maybe<string>;
-    patientName?: Maybe<string>;
+    after?: Maybe<string>
+    first?: Maybe<number>
+    patientId?: Maybe<string>
+    patientName?: Maybe<string>
   }) => {
-    orders: Order[];
-    loading: boolean;
-    error?: ApolloError;
-    refetch: PhotonClient["clinical"]["order"]["getOrders"];
-  };
+    orders: Order[]
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['clinical']['order']['getOrders']
+  }
   createOrder: ({
     refetchQueries,
-    awaitRefetchQueries,
+    awaitRefetchQueries
   }: {
-    refetchQueries: string[];
-    awaitRefetchQueries?: boolean;
+    refetchQueries: string[]
+    awaitRefetchQueries?: boolean
   }) => [
     ({
       variables,
-      onCompleted,
+      onCompleted
     }: {
-      variables: object;
-      onCompleted?: (data: any) => void | undefined;
+      variables: object
+      onCompleted?: (data: any) => void | undefined
     }) => Promise<void>,
     {
-      data: { createOrder: Order } | undefined | null;
-      error: GraphQLError;
-      loading: boolean;
+      data: { createOrder: Order } | undefined | null
+      error: GraphQLError
+      loading: boolean
     }
-  ];
+  ]
+  addToCatalog: ({
+    refetchQueries,
+    refetchArgs,
+    awaitRefetchQueries,
+  }: {
+    refetchQueries: string[]
+    refetchArgs?: Record<string, any>,
+    awaitRefetchQueries?: boolean,
+  }) => [
+    ({
+      variables,
+      onCompleted
+    }: {
+      variables: object
+      onCompleted?: (data: any) => void | undefined
+    }) => Promise<void>,
+    {
+      data: { addToCatalog: Treatment } | undefined | null
+      error: GraphQLError
+      loading: boolean
+    }
+  ]
+  removeFromCatalog: ({
+    refetchQueries,
+    refetchArgs,
+    awaitRefetchQueries,
+  }: {
+    refetchQueries: string[]
+    refetchArgs?: Record<string, any>,
+    awaitRefetchQueries?: boolean,
+  }) => [
+    ({
+      variables,
+      onCompleted
+    }: {
+      variables: object
+      onCompleted?: (data: any) => void | undefined
+    }) => Promise<void>,
+    {
+      data: { removeFromCatalog: Treatment } | undefined | null
+      error: GraphQLError
+      loading: boolean
+    }
+  ]
   createPrescriptionTemplate: ({
     refetchQueries,
     awaitRefetchQueries,
+    refetchArgs
   }: {
-    refetchQueries: string[];
-    awaitRefetchQueries?: boolean;
+    refetchQueries: string[]
+    awaitRefetchQueries?: boolean
+    refetchArgs?: Record<string, any>
   }) => [
     ({
       variables,
-      onCompleted,
+      onCompleted
     }: {
-      variables: object;
-      onCompleted?: (data: any) => void | undefined;
+      variables: object
+      onCompleted?: (data: any) => void | undefined
     }) => Promise<void>,
     {
-      data: { createPrescriptionTemplate: PrescriptionTemplate } | undefined | null;
-      error: GraphQLError;
-      loading: boolean;
+      data: { createPrescriptionTemplate: PrescriptionTemplate } | undefined | null
+      error: GraphQLError
+      loading: boolean
     }
-  ];
+  ]
+  deletePrescriptionTemplate: ({
+    refetchQueries,
+    awaitRefetchQueries,
+    refetchArgs
+  }: {
+    refetchQueries: string[]
+    awaitRefetchQueries?: boolean
+    refetchArgs?: Record<string, any>
+  }) => [
+    ({
+      variables,
+      onCompleted
+    }: {
+      variables: object
+      onCompleted?: (data: any) => void | undefined
+    }) => Promise<void>,
+    {
+      data: { deletePrescriptionTemplate: PrescriptionTemplate } | undefined | null
+      error: GraphQLError
+      loading: boolean
+    }
+  ]
   getPrescription: ({ id }: { id: string }) => {
-    prescription: Prescription;
-    loading: boolean;
-    error?: ApolloError;
-    refetch: PhotonClient["clinical"]["prescription"]["getPrescription"];
-  };
+    prescription: Prescription
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['clinical']['prescription']['getPrescription']
+  }
+  getMedicationConcepts: ({ name, defer }: { name: string, defer?: boolean }) => {
+    medicationConcepts: SearchMedication[]
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['clinical']['searchMedication']['getConcepts']
+    query?: ({ name }: { name: string }) => Promise<{
+      medicationConcepts: SearchMedication[]
+      loading: boolean
+      error?: ApolloError
+    }>
+  }
+  getMedicationStrengths: ({ id, defer }: { id: string, defer?: boolean }) => {
+    medicationStrengths: SearchMedication[]
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['clinical']['searchMedication']['getStrengths']
+    query?: ({ id }: { id: string }) => Promise<{
+      medicationStrengths: SearchMedication[]
+      loading: boolean
+      error?: ApolloError
+    }>
+  }
+  getMedicationRoutes: ({ id, defer }: { id: string, defer?: boolean }) => {
+    medicationRoutes: SearchMedication[]
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['clinical']['searchMedication']['getRoutes']
+    query?: ({ id }: { id: string }) => Promise<{
+      medicationRoutes: SearchMedication[]
+      loading: boolean
+      error?: ApolloError
+    }>
+  }
+  getMedicationForms: ({ id, defer }: { id: string, defer?: boolean }) => {
+    medicationForms: Medication[]
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['clinical']['searchMedication']['getForms']
+    query?: ({ id }: { id: string }) => Promise<{
+      medicationForms: Medication[]
+      loading: boolean
+      error?: ApolloError
+    }>
+  }
+  getMedicationProducts: ({ id, defer }: { id: string, defer?: boolean }) => {
+    medicationProducts: Medication[]
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['clinical']['searchMedication']['getProducts']
+    query?: ({ id }: { id: string }) => Promise<{
+      medicationProducts: Medication[]
+      loading: boolean
+      error?: ApolloError
+    }>
+  }
+  getMedicationPackages: ({ id, defer }: { id: string, defer?: boolean }) => {
+    medicationPackages: Medication[]
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['clinical']['searchMedication']['getPackages']
+    query?: ({ id }: { id: string }) => Promise<{
+      medicationPackages: Medication[]
+      loading: boolean
+      error?: ApolloError
+    }>
+  }
   getPrescriptions: ({
     patientId,
     patientName,
     prescriberId,
     state,
     after,
-    first,
+    first
   }: {
-    patientId?: Maybe<string>;
-    patientName?: Maybe<string>;
-    prescriberId?: Maybe<string>;
-    state?: Maybe<PrescriptionState>;
-    after?: Maybe<string>;
-    first?: Maybe<number>;
+    patientId?: Maybe<string>
+    patientName?: Maybe<string>
+    prescriberId?: Maybe<string>
+    state?: Maybe<PrescriptionState>
+    after?: Maybe<string>
+    first?: Maybe<number>
   }) => {
-    prescriptions: Prescription[];
-    loading: boolean;
-    error?: ApolloError;
-    refetch: PhotonClient["clinical"]["prescription"]["getPrescriptions"];
-  };
+    prescriptions: Prescription[]
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['clinical']['prescription']['getPrescriptions']
+  }
   createPrescription: ({
     refetchQueries,
-    awaitRefetchQueries,
+    awaitRefetchQueries
   }: {
-    refetchQueries: string[];
-    awaitRefetchQueries?: boolean;
+    refetchQueries: string[]
+    awaitRefetchQueries?: boolean
   }) => [
     ({
       variables,
-      onCompleted,
+      onCompleted
     }: {
-      variables: object;
-      onCompleted?: (data: any) => void | undefined;
+      variables: object
+      onCompleted?: (data: any) => void | undefined
     }) => Promise<void>,
     {
-      data: { createPrescription: Prescription } | undefined | null;
-      error: GraphQLError;
-      loading: boolean;
+      data: { createPrescription: Prescription } | undefined | null
+      error: GraphQLError
+      loading: boolean
     }
-  ];
+  ]
   getCatalog: ({
     id,
     fragment,
+    defer
   }: {
-    id: string;
-    fragment?: Record<string, DocumentNode>;
-  }) => GetCatalogReturn;
+    id: string
+    fragment?: Record<string, DocumentNode>
+    defer?: boolean
+  }) => GetCatalogReturn
   getCatalogs: () => {
-    catalogs: Catalog[];
-    loading: boolean;
-    error?: ApolloError;
-    refetch: PhotonClient["clinical"]["catalog"]["getCatalogs"];
-  };
+    catalogs: Catalog[]
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['clinical']['catalog']['getCatalogs']
+  }
   getMedications: ({
     filter,
     first,
-    after,
+    after
   }: {
-    filter?: MedicationFilter;
-    first?: Number;
-    after?: String;
-  }) => GetMedicationReturn;
+    filter?: MedicationFilter
+    first?: Number
+    after?: String
+  }) => GetMedicationReturn
   getMedicalEquipment: ({
     name,
     first,
-    after,
+    after
   }: {
-    name?: String;
-    first?: Number;
-    after?: String;
-  }) => GetMedicalEquipmentReturn;
-  getAllergens: ({ filter }: { filter?: AllergenFilter }) => GetAllergensReturn;
+    name?: String
+    first?: Number
+    after?: String
+  }) => GetMedicalEquipmentReturn
+  getAllergens: ({ filter }: { filter?: AllergenFilter }) => GetAllergensReturn
   getPharmacies: ({
     name,
-    location,
+    location
   }: {
-    name?: Maybe<string>;
-    location?: Maybe<LatLongSearch>;
+    name?: Maybe<string>
+    location?: Maybe<LatLongSearch>
   }) => {
-    pharmacies: Pharmacy[];
-    loading: boolean;
-    error?: ApolloError;
-    refetch: PhotonClient["clinical"]["pharmacy"]["getPharmacies"];
-  };
+    pharmacies: Pharmacy[]
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['clinical']['pharmacy']['getPharmacies']
+  }
   getOrganization: () => {
-    organization: Organization;
-    loading: boolean;
-    error?: ApolloError;
-    refetch: PhotonClient["management"]["organization"]["getOrganization"];
-  };
+    organization: Organization
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['management']['organization']['getOrganization']
+  }
   getOrganizations: () => {
-    organizations: Organization[];
-    loading: boolean;
-    error?: ApolloError;
-    refetch: PhotonClient["management"]["organization"]["getOrganizations"];
-  };
+    organizations: Organization[]
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['management']['organization']['getOrganizations']
+  }
   getWebhooks: () => {
-    webhooks: WebhookConfig[];
-    loading: boolean;
-    error?: ApolloError;
-    refetch: PhotonClient["management"]["webhook"]["getWebhooks"];
-  };
+    webhooks: WebhookConfig[]
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['management']['webhook']['getWebhooks']
+  }
   createWebhook: ({
     refetchQueries,
-    awaitRefetchQueries,
+    awaitRefetchQueries
   }: {
-    refetchQueries: string[];
-    awaitRefetchQueries?: boolean;
+    refetchQueries: string[]
+    awaitRefetchQueries?: boolean
   }) => [
     ({
       variables,
-      onCompleted,
+      onCompleted
     }: {
-      variables: object;
-      onCompleted?: (data: any) => void | undefined;
+      variables: object
+      onCompleted?: (data: any) => void | undefined
     }) => Promise<void>,
     {
-      data: { createWebhook: WebhookConfig } | undefined | null;
-      error: GraphQLError;
-      loading: boolean;
+      data: { createWebhook: WebhookConfig } | undefined | null
+      error: GraphQLError
+      loading: boolean
     }
-  ];
+  ]
   deleteWebhook: ({
     refetchQueries,
-    awaitRefetchQueries,
+    awaitRefetchQueries
   }: {
-    refetchQueries: string[];
-    awaitRefetchQueries?: boolean;
+    refetchQueries: string[]
+    awaitRefetchQueries?: boolean
   }) => [
     ({
       variables,
-      onCompleted,
+      onCompleted
     }: {
-      variables: object;
-      onCompleted?: (data: any) => void | undefined;
+      variables: object
+      onCompleted?: (data: any) => void | undefined
     }) => Promise<void>,
     {
-      data: { deleteWebhook: boolean } | undefined | null;
-      error: GraphQLError;
-      loading: boolean;
+      data: { deleteWebhook: boolean } | undefined | null
+      error: GraphQLError
+      loading: boolean
     }
-  ];
+  ]
   getClients: () => {
-    clients: Client[];
-    loading: boolean;
-    error?: ApolloError;
-    refetch: PhotonClient["management"]["client"]["getClients"];
-  };
+    clients: Client[]
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['management']['client']['getClients']
+  }
   rotateSecret: ({
     refetchQueries,
-    awaitRefetchQueries,
+    awaitRefetchQueries
   }: {
-    refetchQueries: string[];
-    awaitRefetchQueries?: boolean;
+    refetchQueries: string[]
+    awaitRefetchQueries?: boolean
   }) => [
     ({
       variables,
-      onCompleted,
+      onCompleted
     }: {
-      variables: object;
-      onCompleted?: (data: any) => void | undefined;
+      variables: object
+      onCompleted?: (data: any) => void | undefined
     }) => Promise<void>,
     {
-      data: { rotateSecret: Client } | undefined | null;
-      error: GraphQLError;
-      loading: boolean;
+      data: { rotateSecret: Client } | undefined | null
+      error: GraphQLError
+      loading: boolean
     }
-  ];
-  clearError: () => void;
-  login: PhotonClient["authentication"]["login"];
-  getToken: PhotonClient["authentication"]["getAccessToken"];
-  handleRedirect: PhotonClient["authentication"]["handleRedirect"];
-  logout: PhotonClient["authentication"]["logout"];
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  user: any;
-  error: any;
-  setOrganization: (organizationId: string) => void;
+  ]
+  clearError: () => void
+  login: PhotonClient['authentication']['login']
+  getToken: PhotonClient['authentication']['getAccessToken']
+  handleRedirect: PhotonClient['authentication']['handleRedirect']
+  logout: PhotonClient['authentication']['logout']
+  isLoading: boolean
+  isAuthenticated: boolean
+  user: any
+  error: any
+  setOrganization: (organizationId: string) => void
 }
 
 const stub = (): never => {
-  throw new Error("You forgot to wrap your component in <PhotonProvider>.");
-};
+  throw new Error('You forgot to wrap your component in <PhotonProvider>.')
+}
 
 const PhotonClientContext = createContext<PhotonClientContextInterface>({
   getAllergens: stub,
@@ -452,6 +591,7 @@ const PhotonClientContext = createContext<PhotonClientContextInterface>({
   removePatientAllergy: stub,
   createOrder: stub,
   createPrescriptionTemplate: stub,
+  deletePrescriptionTemplate: stub,
   getClients: stub,
   getPharmacies: stub,
   getMedications: stub,
@@ -478,122 +618,120 @@ const PhotonClientContext = createContext<PhotonClientContextInterface>({
   isAuthenticated: false,
   user: undefined,
   error: undefined,
-  setOrganization: stub
-});
+  setOrganization: stub,
+  addToCatalog: stub,
+  removeFromCatalog: stub,
+  getMedicationConcepts: stub,
+  getMedicationStrengths: stub,
+  getMedicationRoutes: stub,
+  getMedicationForms: stub,
+  getMedicationProducts: stub,
+  getMedicationPackages: stub
+})
 
 export const PhotonProvider = (opts: {
-  children: any;
-  client: PhotonClient;
-  searchParams?: string;
-  onRedirectCallback?: any;
+  children: any
+  client: PhotonClient
+  searchParams?: string
+  onRedirectCallback?: any
 }) => {
-  const {
-    children,
-    client,
-    onRedirectCallback = defaultOnRedirectCallback,
-    searchParams,
-  } = opts;
+  const { children, client, onRedirectCallback = defaultOnRedirectCallback, searchParams } = opts
   const [state, dispatch] = useReducer(reducer, {
     isAuthenticated: false,
-    isLoading: true,
-  });
+    isLoading: true
+  })
 
-  const functionLookup: Record<string, Function> = {};
+  const functionLookup: Record<string, Function> = {}
 
   useEffect(() => {
     const initialize = async () => {
       if (client.authentication.hasAuthParams()) {
         try {
-          const { appState } = await client.authentication.handleRedirect();
-          onRedirectCallback(appState);
+          const { appState } = await client.authentication.handleRedirect()
+          onRedirectCallback(appState)
         } catch (e) {
-          let message = (e as Error).message;
-          dispatch({ type: "ERROR", error: message });
+          let message = (e as Error).message
+          dispatch({ type: 'ERROR', error: message })
         }
       }
-      await client.authentication.checkSession();
-      const user = await client.authentication.getUser();
-      dispatch({ type: "INITIALISED", user });
-    };
-    initialize();
-  }, [client, onRedirectCallback]);
+      await client.authentication.checkSession()
+      const user = await client.authentication.getUser()
+      dispatch({ type: 'INITIALISED', user })
+    }
+    initialize()
+  }, [client, onRedirectCallback])
 
   /// Auth0
 
   const handleRedirect = async (url?: string) => {
     try {
-      await client.authentication.handleRedirect(url);
+      await client.authentication.handleRedirect(url)
     } catch (e) {
-      let message = (e as Error).message;
-      dispatch({ type: "ERROR", error: message });
+      let message = (e as Error).message
+      dispatch({ type: 'ERROR', error: message })
     }
     dispatch({
-      type: "HANDLE_REDIRECT_COMPLETE",
-      user: await client.authentication.getUser(),
-    });
-  };
+      type: 'HANDLE_REDIRECT_COMPLETE',
+      user: await client.authentication.getUser()
+    })
+  }
 
   useEffect(() => {
     if (client.authentication.hasAuthParams(searchParams)) {
-      handleRedirect();
+      handleRedirect()
     }
-  }, [searchParams]);
+  }, [searchParams])
 
   const login = ({
     organizationId,
     invitation,
-    appState,
+    appState
   }: {
-    organizationId?: string;
-    invitation?: string;
-    appState?: object;
+    organizationId?: string
+    invitation?: string
+    appState?: object
   } = {}) => {
     return client.authentication.login({
       organizationId,
       invitation,
-      appState,
-    });
-  };
+      appState
+    })
+  }
 
   const clearError = () => {
     dispatch({
-      type: "CLEAR_ERROR",
-    });
-  };
+      type: 'CLEAR_ERROR'
+    })
+  }
 
-  const logout = ({ returnTo }: { returnTo?: string }) =>
-    client.authentication.logout({ returnTo });
+  const logout = ({ returnTo }: { returnTo?: string }) => client.authentication.logout({ returnTo })
 
   const getToken = async ({ audience }: { audience?: string } = {}) => {
     try {
-      const token = await client.authentication.getAccessToken({ audience });
+      const token = await client.authentication.getAccessToken({ audience })
       dispatch({
-        type: "GET_ACCESS_TOKEN_COMPLETE",
-        user: await client.authentication.getUser(),
-      });
-      return token;
+        type: 'GET_ACCESS_TOKEN_COMPLETE',
+        user: await client.authentication.getUser()
+      })
+      return token
     } catch (e) {
-      if ((e as Error).message.includes("Consent required")) {
+      if ((e as Error).message.includes('Consent required')) {
         const token = await client.authentication.getAccessTokenWithConsent({
-          audience,
-        });
+          audience
+        })
         dispatch({
-          type: "GET_ACCESS_TOKEN_COMPLETE",
-          user: await client.authentication.getUser(),
-        });
-        return token;
+          type: 'GET_ACCESS_TOKEN_COMPLETE',
+          user: await client.authentication.getUser()
+        })
+        return token
       } else {
-        throw e;
+        throw e
       }
     }
-  };
+  }
   /// Utilities
 
-  const runRefetch = (
-    query: any,
-    refetchQueries: string[],
-    awaitRefetchQueries: boolean
-  ) =>
+  const runRefetch = (query: any, refetchQueries: string[], awaitRefetchQueries: boolean, args?: Record<string, any>) =>
     useEffect(() => {
       const asyncExecutor = async () => {
         if (query) {
@@ -601,110 +739,105 @@ export const PhotonProvider = (opts: {
             const promises = refetchQueries
               .filter((x) => {
                 if (!Object.keys(functionLookup).includes(x)) {
-                  console.warn(`${x} is not a defined query in the React SDK`);
-                  return false;
+                  console.warn(`${x} is not a defined query in the React SDK`)
+                  return false
                 }
-                return true;
+                return true
               })
               .map((x) => {
-                const fn = functionLookup[x];
-                return fn();
-              });
+                const fn = functionLookup[x]
+                if (args) {
+                  return fn(args)
+                } else {
+                  return fn()
+                }
+              })
             if (awaitRefetchQueries) {
-              await Promise.all(promises);
+              await Promise.all(promises)
             } else {
-              Promise.all(promises);
+              Promise.all(promises)
             }
           }
         }
-      };
-      asyncExecutor();
-    }, [query]);
+      }
+      asyncExecutor()
+    }, [query])
 
   /// Patient
 
   const getPatientStore = map<{
-    patient?: Patient;
-    loading: boolean;
-    error?: ApolloError;
+    patient?: Patient
+    loading: boolean
+    error?: ApolloError
   }>({
     patient: undefined,
     loading: true,
-    error: undefined,
-  });
+    error: undefined
+  })
 
-  const fetchPatient = action(
-    getPatientStore,
-    "fetchPatient",
-    async (store, { id }) => {
-      store.setKey("loading", true);
-      const { data, error } = await client.clinical.patient.getPatient({
-        id,
-      });
-      store.setKey("patient", data?.patient || undefined);
-      store.setKey("error", error);
-      store.setKey("loading", false);
-    }
-  );
+  const fetchPatient = action(getPatientStore, 'fetchPatient', async (store, { id }) => {
+    store.setKey('loading', true)
+    const { data, error } = await client.clinical.patient.getPatient({
+      id
+    })
+    store.setKey('patient', data?.patient || undefined)
+    store.setKey('error', error)
+    store.setKey('loading', false)
+  })
 
   const getPatient = ({ id }: { id: string }) => {
-    const { patient, loading, error } = useStore(getPatientStore);
+    const { patient, loading, error } = useStore(getPatientStore)
 
     useEffect(() => {
-      fetchPatient({ id });
-    }, [id]);
+      fetchPatient({ id })
+    }, [id])
 
     return {
       patient,
       loading,
       error,
-      refetch: ({ id }: { id: string }) =>
-        client.clinical.patient.getPatient({ id }),
-    };
-  };
+      refetch: ({ id }: { id: string }) => client.clinical.patient.getPatient({ id })
+    }
+  }
 
   const getPatientsStore = map<{
-    patients: Patient[];
-    loading: boolean;
-    error?: ApolloError;
+    patients: Patient[]
+    loading: boolean
+    error?: ApolloError
   }>({
     patients: [],
     loading: true,
-    error: undefined,
-  });
+    error: undefined
+  })
 
-  const fetchPatients = action(
-    getPatientsStore,
-    "fetchPatients",
-    async (store, args?: any) => {
-      store.setKey("loading", true);
-      const { data, error } = await client.clinical.patient.getPatients({
-        after: args?.after,
-        first: args?.first || 25,
-        name: args?.name,
-      });
-      store.setKey("patients", data?.patients || []);
-      store.setKey("error", error);
-      store.setKey("loading", false);
-    }
-  );
+  const fetchPatients = action(getPatientsStore, 'fetchPatients', async (store, args?: any) => {
+    store.setKey('loading', true)
+    const { data, error } = await client.clinical.patient.getPatients({
+      after: args?.after,
+      first: args?.first || 25,
+      name: args?.name
+    })
+    store.setKey('patients', data?.patients || [])
+    store.setKey('error', error)
+    store.setKey('loading', false)
+  })
 
   const getPatients = (
     {
       after,
       first,
-      name,
+      name
     }: {
-      after?: string;
-      first?: number;
-      name?: string;
+      after?: string
+      first?: number
+      name?: string
     } = { first: 25 }
   ) => {
-    const { patients, loading, error } = useStore(getPatientsStore);
+    const { patients, loading, error } = useStore(getPatientsStore)
 
     useEffect(() => {
-      fetchPatients({ after, first, name });
-    }, [after, first, name]);
+      fetchPatients({ after, first, name })
+    }, [after, first, name])
 
     return {
       patients,
@@ -714,66 +847,66 @@ export const PhotonProvider = (opts: {
         {
           after,
           first,
-          name,
+          name
         }: {
-          after?: string;
-          first?: number;
-          name?: string;
+          after?: string
+          first?: number
+          name?: string
         } = { first: 25 }
-      ) => client.clinical.patient.getPatients({ after, first, name }),
-    };
-  };
+      ) => client.clinical.patient.getPatients({ after, first, name })
+    }
+  }
 
   const createPatientStore = map<{
-    createPatient?: Patient;
-    loading: boolean;
-    error?: GraphQLError;
+    createPatient?: Patient
+    loading: boolean
+    error?: GraphQLError
   }>({
     createPatient: undefined,
     loading: false,
-    error: undefined,
-  });
+    error: undefined
+  })
 
-  const createPatientMutation = client.clinical.patient.createPatient({});
+  const createPatientMutation = client.clinical.patient.createPatient({})
 
   const constructFetchCreatePatient = () =>
     action(
       createPatientStore,
-      "createPatientMutation",
+      'createPatientMutation',
       async (store, { variables, onCompleted }) => {
-        store.setKey("loading", true);
+        store.setKey('loading', true)
 
         try {
           const { data, errors } = await createPatientMutation({
             variables,
             refetchQueries: [],
-            awaitRefetchQueries: false,
-          });
-          store.setKey("createPatient", data?.createPatient);
-          store.setKey("error", errors?.[0]);
+            awaitRefetchQueries: false
+          })
+          store.setKey('createPatient', data?.createPatient)
+          store.setKey('error', errors?.[0])
           if (onCompleted) {
-            onCompleted(data);
+            onCompleted(data)
           }
         } catch (err) {
-          store.setKey("createPatient", undefined);
-          store.setKey("error", err as GraphQLError);
+          store.setKey('createPatient', undefined)
+          store.setKey('error', err as GraphQLError)
         }
 
-        store.setKey("loading", false);
+        store.setKey('loading', false)
       }
-    );
+    )
 
   const createPatient = ({
     refetchQueries = undefined,
-    awaitRefetchQueries = false,
+    awaitRefetchQueries = false
   }: {
-    refetchQueries?: string[];
-    awaitRefetchQueries?: boolean;
+    refetchQueries?: string[]
+    awaitRefetchQueries?: boolean
   }) => {
-    const { createPatient, loading, error } = useStore(createPatientStore);
+    const { createPatient, loading, error } = useStore(createPatientStore)
 
     if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(createPatient, refetchQueries, awaitRefetchQueries);
+      runRefetch(createPatient, refetchQueries, awaitRefetchQueries)
     }
 
     return [
@@ -781,61 +914,61 @@ export const PhotonProvider = (opts: {
       {
         createPatient,
         loading,
-        error,
-      },
-    ];
-  };
+        error
+      }
+    ]
+  }
 
   const updatePatientStore = map<{
-    updatePatient?: Patient;
-    loading: boolean;
-    error?: GraphQLError;
+    updatePatient?: Patient
+    loading: boolean
+    error?: GraphQLError
   }>({
     updatePatient: undefined,
     loading: false,
-    error: undefined,
-  });
+    error: undefined
+  })
 
-  const updatePatientMutation = client.clinical.patient.updatePatient({});
+  const updatePatientMutation = client.clinical.patient.updatePatient({})
 
   const constructFetchUpdatePatient = () =>
     action(
       updatePatientStore,
-      "updatePatientMutation",
+      'updatePatientMutation',
       async (store, { variables, onCompleted }) => {
-        store.setKey("loading", true);
+        store.setKey('loading', true)
 
         try {
           const { data, errors } = await updatePatientMutation({
             variables,
             refetchQueries: [],
-            awaitRefetchQueries: false,
-          });
-          store.setKey("updatePatient", data?.updatePatient);
-          store.setKey("error", errors?.[0]);
+            awaitRefetchQueries: false
+          })
+          store.setKey('updatePatient', data?.updatePatient)
+          store.setKey('error', errors?.[0])
           if (onCompleted) {
-            onCompleted(data);
+            onCompleted(data)
           }
         } catch (err) {
-          store.setKey("updatePatient", undefined);
-          store.setKey("error", err as GraphQLError);
+          store.setKey('updatePatient', undefined)
+          store.setKey('error', err as GraphQLError)
         }
 
-        store.setKey("loading", false);
+        store.setKey('loading', false)
       }
-    );
+    )
 
   const updatePatient = ({
     refetchQueries = undefined,
-    awaitRefetchQueries = false,
+    awaitRefetchQueries = false
   }: {
-    refetchQueries?: string[];
-    awaitRefetchQueries?: boolean;
+    refetchQueries?: string[]
+    awaitRefetchQueries?: boolean
   }) => {
-    const { updatePatient, loading, error } = useStore(updatePatientStore);
+    const { updatePatient, loading, error } = useStore(updatePatientStore)
 
     if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(updatePatient, refetchQueries, awaitRefetchQueries);
+      runRefetch(updatePatient, refetchQueries, awaitRefetchQueries)
     }
 
     return [
@@ -843,64 +976,61 @@ export const PhotonProvider = (opts: {
       {
         updatePatient,
         loading,
-        error,
-      },
-    ];
-  };
+        error
+      }
+    ]
+  }
 
   const removePatientAllergyStore = map<{
-    removePatientAllergy?: Patient;
-    loading: boolean;
-    error?: GraphQLError;
+    removePatientAllergy?: Patient
+    loading: boolean
+    error?: GraphQLError
   }>({
     removePatientAllergy: undefined,
     loading: false,
-    error: undefined,
-  });
+    error: undefined
+  })
 
-  const removePatientAllergyMutation =
-    client.clinical.patient.removePatientAllergy({});
+  const removePatientAllergyMutation = client.clinical.patient.removePatientAllergy({})
 
   const constructFetchRemovePatientAllergy = () =>
     action(
       removePatientAllergyStore,
-      "removePatientAllergyMutation",
+      'removePatientAllergyMutation',
       async (store, { variables, onCompleted }) => {
-        store.setKey("loading", true);
+        store.setKey('loading', true)
 
         try {
           const { data, errors } = await removePatientAllergyMutation({
             variables,
             refetchQueries: [],
-            awaitRefetchQueries: false,
-          });
-          store.setKey("removePatientAllergy", data?.removePatientAllergy);
-          store.setKey("error", errors?.[0]);
+            awaitRefetchQueries: false
+          })
+          store.setKey('removePatientAllergy', data?.removePatientAllergy)
+          store.setKey('error', errors?.[0])
           if (onCompleted) {
-            onCompleted(data);
+            onCompleted(data)
           }
         } catch (err) {
-          store.setKey("removePatientAllergy", undefined);
-          store.setKey("error", err as GraphQLError);
+          store.setKey('removePatientAllergy', undefined)
+          store.setKey('error', err as GraphQLError)
         }
 
-        store.setKey("loading", false);
+        store.setKey('loading', false)
       }
-    );
+    )
 
   const removePatientAllergy = ({
     refetchQueries = undefined,
-    awaitRefetchQueries = false,
+    awaitRefetchQueries = false
   }: {
-    refetchQueries?: string[];
-    awaitRefetchQueries?: boolean;
+    refetchQueries?: string[]
+    awaitRefetchQueries?: boolean
   }) => {
-    const { removePatientAllergy, loading, error } = useStore(
-      removePatientAllergyStore
-    );
+    const { removePatientAllergy, loading, error } = useStore(removePatientAllergyStore)
 
     if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(removePatientAllergy, refetchQueries, awaitRefetchQueries);
+      runRefetch(removePatientAllergy, refetchQueries, awaitRefetchQueries)
     }
 
     return [
@@ -908,98 +1038,89 @@ export const PhotonProvider = (opts: {
       {
         removePatientAllergy,
         loading,
-        error,
-      },
-    ];
-  };
+        error
+      }
+    ]
+  }
 
   /// Order
 
   const getOrderStore = map<{
-    order?: Order;
-    loading: boolean;
-    error?: ApolloError;
+    order?: Order
+    loading: boolean
+    error?: ApolloError
   }>({
     order: undefined,
     loading: true,
-    error: undefined,
-  });
+    error: undefined
+  })
 
-  const fetchOrder = action(
-    getOrderStore,
-    "fetchOrder",
-    async (store, { id }) => {
-      store.setKey("loading", true);
-      const { data, error } = await client.clinical.order.getOrder({
-        id,
-      });
-      store.setKey("order", data?.order || undefined);
-      store.setKey("error", error);
-      store.setKey("loading", false);
-    }
-  );
+  const fetchOrder = action(getOrderStore, 'fetchOrder', async (store, { id }) => {
+    store.setKey('loading', true)
+    const { data, error } = await client.clinical.order.getOrder({
+      id
+    })
+    store.setKey('order', data?.order || undefined)
+    store.setKey('error', error)
+    store.setKey('loading', false)
+  })
 
   const getOrder = ({ id }: { id: string }) => {
-    const { order, loading, error } = useStore(getOrderStore);
+    const { order, loading, error } = useStore(getOrderStore)
 
     useEffect(() => {
-      fetchOrder({ id });
-    }, [id]);
+      fetchOrder({ id })
+    }, [id])
 
     return {
       order,
       loading,
       error,
-      refetch: ({ id }: { id: string }) =>
-        client.clinical.order.getOrder({ id }),
-    };
-  };
+      refetch: ({ id }: { id: string }) => client.clinical.order.getOrder({ id })
+    }
+  }
 
   const getOrdersStore = map<{
-    orders: Order[];
-    loading: boolean;
-    error?: ApolloError;
+    orders: Order[]
+    loading: boolean
+    error?: ApolloError
   }>({
     orders: [],
     loading: true,
-    error: undefined,
-  });
+    error: undefined
+  })
 
-  const fetchOrders = action(
-    getOrdersStore,
-    "fetchOrders",
-    async (store, args?: any) => {
-      store.setKey("loading", true);
-      const { data, error } = await client.clinical.order.getOrders({
-        after: args?.after,
-        first: args?.first || 25,
-        patientName: args?.patientName,
-        patientId: args?.patientId,
-      });
-      store.setKey("orders", data?.orders || []);
-      store.setKey("error", error);
-      store.setKey("loading", false);
-    }
-  );
+  const fetchOrders = action(getOrdersStore, 'fetchOrders', async (store, args?: any) => {
+    store.setKey('loading', true)
+    const { data, error } = await client.clinical.order.getOrders({
+      after: args?.after,
+      first: args?.first || 25,
+      patientName: args?.patientName,
+      patientId: args?.patientId
+    })
+    store.setKey('orders', data?.orders || [])
+    store.setKey('error', error)
+    store.setKey('loading', false)
+  })
 
   const getOrders = (
     {
       after,
       first,
       patientId,
-      patientName,
+      patientName
     }: {
-      after?: string;
-      first?: number;
-      patientId?: string;
-      patientName?: string;
+      after?: string
+      first?: number
+      patientId?: string
+      patientName?: string
     } = { first: 25 }
   ) => {
-    const { orders, loading, error } = useStore(getOrdersStore);
+    const { orders, loading, error } = useStore(getOrdersStore)
 
     useEffect(() => {
-      fetchOrders({ after, first, patientId, patientName });
-    }, [after, first, patientId, patientName]);
+      fetchOrders({ after, first, patientId, patientName })
+    }, [after, first, patientId, patientName])
 
     return {
       orders,
@@ -1010,196 +1131,188 @@ export const PhotonProvider = (opts: {
           after,
           first,
           patientId,
-          patientName,
+          patientName
         }: {
-          after?: string;
-          first?: number;
-          patientId?: string;
-          patientName?: string;
+          after?: string
+          first?: number
+          patientId?: string
+          patientName?: string
         } = { first: 25 }
       ) =>
         client.clinical.order.getOrders({
           after,
           first,
           patientId,
-          patientName,
-        }),
-    };
-  };
+          patientName
+        })
+    }
+  }
 
   const createOrderStore = map<{
-    createOrder?: Order;
-    loading: boolean;
-    error?: GraphQLError;
+    createOrder?: Order
+    loading: boolean
+    error?: GraphQLError
   }>({
     createOrder: undefined,
     loading: false,
-    error: undefined,
-  });
+    error: undefined
+  })
 
-  const createOrderMutation = client.clinical.order.createOrder({});
+  const createOrderMutation = client.clinical.order.createOrder({})
 
   const constructFetchCreateOrder = () =>
-    action(
-      createOrderStore,
-      "createOrderMutation",
-      async (store, { variables, onCompleted }) => {
-        store.setKey("loading", true);
+    action(createOrderStore, 'createOrderMutation', async (store, { variables, onCompleted }) => {
+      store.setKey('loading', true)
 
-        try {
-          const { data, errors } = await createOrderMutation({
-            variables,
-            refetchQueries: [],
-            awaitRefetchQueries: false,
-          });
-          store.setKey("createOrder", data?.createOrder);
-          store.setKey("error", errors?.[0]);
-          if (onCompleted) {
-            onCompleted(data);
-          }
-        } catch (err) {
-          store.setKey("createOrder", undefined);
-          store.setKey("error", err as GraphQLError);
+      try {
+        const { data, errors } = await createOrderMutation({
+          variables,
+          refetchQueries: [],
+          awaitRefetchQueries: false
+        })
+        store.setKey('createOrder', data?.createOrder)
+        store.setKey('error', errors?.[0])
+        if (onCompleted) {
+          onCompleted(data)
         }
-
-        store.setKey("loading", false);
+      } catch (err) {
+        store.setKey('createOrder', undefined)
+        store.setKey('error', err as GraphQLError)
       }
-    );
+
+      store.setKey('loading', false)
+    })
 
   const createOrder = ({
     refetchQueries = undefined,
-    awaitRefetchQueries = false,
+    awaitRefetchQueries = false
   }: {
-    refetchQueries?: string[];
-    awaitRefetchQueries?: boolean;
+    refetchQueries?: string[]
+    awaitRefetchQueries?: boolean
   }) => {
-    const { createOrder, loading, error } = useStore(createOrderStore);
+    const { createOrder, loading, error } = useStore(createOrderStore)
 
     if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(createOrder, refetchQueries, awaitRefetchQueries);
+      runRefetch(createOrder, refetchQueries, awaitRefetchQueries)
     }
     return [
       constructFetchCreateOrder(),
       {
         createOrder,
         loading,
-        error,
-      },
-    ];
-  };
+        error
+      }
+    ]
+  }
 
   /// DispenseUnits
 
   const getDispenseUnitsStore = map<{
-    dispenseUnits?: DispenseUnit[];
-    loading: boolean;
-    error?: ApolloError;
+    dispenseUnits?: DispenseUnit[]
+    loading: boolean
+    error?: ApolloError
   }>({
     dispenseUnits: undefined,
     loading: true,
-    error: undefined,
-  });
+    error: undefined
+  })
 
   const fetchDispenseUnits = action(
     getDispenseUnitsStore,
-    "fetchDispenseUnits",
+    'fetchDispenseUnits',
     async (store, { id }) => {
-      store.setKey("loading", true);
-      const { data, error } =
-        await client.clinical.prescription.getDispenseUnits({});
-      store.setKey("dispenseUnits", data?.dispenseUnits || undefined);
-      store.setKey("error", error);
-      store.setKey("loading", false);
+      store.setKey('loading', true)
+      const { data, error } = await client.clinical.prescription.getDispenseUnits({})
+      store.setKey('dispenseUnits', data?.dispenseUnits || undefined)
+      store.setKey('error', error)
+      store.setKey('loading', false)
     }
-  );
+  )
 
   const getDispenseUnits = () => {
-    const { dispenseUnits, loading, error } = useStore(getDispenseUnitsStore);
+    const { dispenseUnits, loading, error } = useStore(getDispenseUnitsStore)
 
     useEffect(() => {
-      fetchDispenseUnits({});
-    }, []);
+      fetchDispenseUnits({})
+    }, [])
 
     return {
       dispenseUnits,
       loading,
       error,
-      refetch: () => client.clinical.prescription.getDispenseUnits(),
-    };
-  };
+      refetch: () => client.clinical.prescription.getDispenseUnits()
+    }
+  }
 
   /// Prescription
 
   const getPrescriptionStore = map<{
-    prescription?: Prescription;
-    loading: boolean;
-    error?: ApolloError;
+    prescription?: Prescription
+    loading: boolean
+    error?: ApolloError
   }>({
     prescription: undefined,
     loading: true,
-    error: undefined,
-  });
+    error: undefined
+  })
 
   const fetchPrescription = action(
     getPrescriptionStore,
-    "fetchPrescription",
+    'fetchPrescription',
     async (store, { id }) => {
-      store.setKey("loading", true);
-      const { data, error } =
-        await client.clinical.prescription.getPrescription({
-          id,
-        });
-      store.setKey("prescription", data?.prescription || undefined);
-      store.setKey("error", error);
-      store.setKey("loading", false);
+      store.setKey('loading', true)
+      const { data, error } = await client.clinical.prescription.getPrescription({
+        id
+      })
+      store.setKey('prescription', data?.prescription || undefined)
+      store.setKey('error', error)
+      store.setKey('loading', false)
     }
-  );
+  )
 
   const getPrescription = ({ id }: { id: string }) => {
-    const { prescription, loading, error } = useStore(getPrescriptionStore);
+    const { prescription, loading, error } = useStore(getPrescriptionStore)
 
     useEffect(() => {
-      fetchPrescription({ id });
-    }, [id]);
+      fetchPrescription({ id })
+    }, [id])
 
     return {
       prescription,
       loading,
       error,
-      refetch: ({ id }: { id: string }) =>
-        client.clinical.prescription.getPrescription({ id }),
-    };
-  };
+      refetch: ({ id }: { id: string }) => client.clinical.prescription.getPrescription({ id })
+    }
+  }
 
   const getPrescriptionsStore = map<{
-    prescriptions: Prescription[];
-    loading: boolean;
-    error?: ApolloError;
+    prescriptions: Prescription[]
+    loading: boolean
+    error?: ApolloError
   }>({
     prescriptions: [],
     loading: true,
-    error: undefined,
-  });
+    error: undefined
+  })
 
   const fetchPrescriptions = action(
     getPrescriptionsStore,
-    "fetchPrescriptions",
+    'fetchPrescriptions',
     async (store, args?: any) => {
-      store.setKey("loading", true);
-      const { data, error } =
-        await client.clinical.prescription.getPrescriptions({
-          after: args?.after,
-          first: args?.first || 25,
-          patientName: args?.patientName,
-          patientId: args?.patientId,
-          prescriberId: args?.prescriberId,
-          state: args?.state,
-        });
-      store.setKey("prescriptions", data?.prescriptions || []);
-      store.setKey("error", error);
-      store.setKey("loading", false);
+      store.setKey('loading', true)
+      const { data, error } = await client.clinical.prescription.getPrescriptions({
+        after: args?.after,
+        first: args?.first || 25,
+        patientName: args?.patientName,
+        patientId: args?.patientId,
+        prescriberId: args?.prescriberId,
+        state: args?.state
+      })
+      store.setKey('prescriptions', data?.prescriptions || [])
+      store.setKey('error', error)
+      store.setKey('loading', false)
     }
-  );
+  )
 
   const getPrescriptions = (
     {
@@ -1208,17 +1321,17 @@ export const PhotonProvider = (opts: {
       patientId,
       patientName,
       prescriberId,
-      state,
+      state
     }: {
-      after?: string;
-      first?: number;
-      patientId?: string;
-      patientName?: string;
-      prescriberId?: string;
-      state?: PrescriptionState;
+      after?: string
+      first?: number
+      patientId?: string
+      patientName?: string
+      prescriberId?: string
+      state?: PrescriptionState
     } = { first: 25 }
   ) => {
-    const { prescriptions, loading, error } = useStore(getPrescriptionsStore);
+    const { prescriptions, loading, error } = useStore(getPrescriptionsStore)
 
     useEffect(() => {
       fetchPrescriptions({
@@ -1227,9 +1340,9 @@ export const PhotonProvider = (opts: {
         patientId,
         patientName,
         prescriberId,
-        state,
-      });
-    }, [after, first, patientId, patientName]);
+        state
+      })
+    }, [after, first, patientId, patientName])
 
     return {
       prescriptions,
@@ -1242,14 +1355,14 @@ export const PhotonProvider = (opts: {
           patientId,
           patientName,
           prescriberId,
-          state,
+          state
         }: {
-          after?: string;
-          first?: number;
-          patientId?: string;
-          patientName?: string;
-          prescriberId?: string;
-          state?: PrescriptionState;
+          after?: string
+          first?: number
+          patientId?: string
+          patientName?: string
+          prescriberId?: string
+          state?: PrescriptionState
         } = { first: 25 }
       ) =>
         client.clinical.prescription.getPrescriptions({
@@ -1258,63 +1371,60 @@ export const PhotonProvider = (opts: {
           patientId,
           patientName,
           prescriberId,
-          state,
-        }),
-    };
-  };
+          state
+        })
+    }
+  }
 
   const createPrescriptionStore = map<{
-    createPrescription?: Prescription;
-    loading: boolean;
-    error?: GraphQLError;
+    createPrescription?: Prescription
+    loading: boolean
+    error?: GraphQLError
   }>({
     createPrescription: undefined,
     loading: false,
-    error: undefined,
-  });
-  const createPrescriptionMutation =
-    client.clinical.prescription.createPrescription({});
+    error: undefined
+  })
+  const createPrescriptionMutation = client.clinical.prescription.createPrescription({})
 
   const constructFetchCreatePrescription = () =>
     action(
       createPrescriptionStore,
-      "createPrescriptionMutation",
+      'createPrescriptionMutation',
       async (store, { variables, onCompleted }) => {
-        store.setKey("loading", true);
+        store.setKey('loading', true)
 
         try {
           const { data, errors } = await createPrescriptionMutation({
             variables,
             refetchQueries: [],
-            awaitRefetchQueries: false,
-          });
-          store.setKey("createPrescription", data?.createPrescription);
-          store.setKey("error", errors?.[0]);
+            awaitRefetchQueries: false
+          })
+          store.setKey('createPrescription', data?.createPrescription)
+          store.setKey('error', errors?.[0])
           if (onCompleted) {
-            onCompleted(data);
+            onCompleted(data)
           }
         } catch (err) {
-          store.setKey("createPrescription", undefined);
-          store.setKey("error", err as GraphQLError);
+          store.setKey('createPrescription', undefined)
+          store.setKey('error', err as GraphQLError)
         }
 
-        store.setKey("loading", false);
+        store.setKey('loading', false)
       }
-    );
+    )
 
   const createPrescription = ({
     refetchQueries = undefined,
-    awaitRefetchQueries = false,
+    awaitRefetchQueries = false
   }: {
-    refetchQueries?: string[];
-    awaitRefetchQueries?: boolean;
+    refetchQueries?: string[]
+    awaitRefetchQueries?: boolean
   }) => {
-    const { createPrescription, loading, error } = useStore(
-      createPrescriptionStore
-    );
+    const { createPrescription, loading, error } = useStore(createPrescriptionStore)
 
     if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(createPrescription, refetchQueries, awaitRefetchQueries);
+      runRefetch(createPrescription, refetchQueries, awaitRefetchQueries)
     }
 
     return [
@@ -1322,186 +1432,301 @@ export const PhotonProvider = (opts: {
       {
         createPrescription,
         loading,
-        error,
-      },
-    ];
-  };
+        error
+      }
+    ]
+  }
 
   /// Catalog
 
   const getCatalogStore = map<{
-    catalog?: Catalog;
-    loading: boolean;
-    error?: ApolloError;
+    catalog?: Catalog
+    loading: boolean
+    error?: ApolloError
   }>({
     catalog: undefined,
-    loading: true,
-    error: undefined,
-  });
+    loading: false,
+    error: undefined
+  })
 
-  const fetchCatalog = action(
-    getCatalogStore,
-    "fetchCatalog",
-    async (store, { id, fragment }) => {
-      store.setKey("loading", true);
-      const { data, error } = await client.clinical.catalog.getCatalog({
-        id,
-        fragment,
-      });
-      store.setKey("catalog", data?.catalog || undefined);
-      store.setKey("error", error);
-      store.setKey("loading", false);
-    }
-  );
+  const fetchCatalog = action(getCatalogStore, 'fetchCatalog', async (store, { id, fragment }) => {
+    store.setKey('loading', true)
+    const { data, error } = await client.clinical.catalog.getCatalog({
+      id,
+      fragment
+    })
+    store.setKey('catalog', data?.catalog || undefined)
+    store.setKey('error', error)
+    store.setKey('loading', false)
+  })
 
   const getCatalog = ({
     id,
     fragment,
+    defer
   }: {
-    id: string;
-    fragment?: Record<string, DocumentNode>;
+    id: string
+    fragment?: Record<string, DocumentNode>,
+    defer?: boolean
   }) => {
-    const { catalog, loading, error } = useStore(getCatalogStore);
+    const { catalog, loading, error } = useStore(getCatalogStore)
 
-    useEffect(() => {
-      if (id) {
-        fetchCatalog({ id, fragment });
-      }
-    }, [id]);
+
+    if (!defer) {
+      useEffect(() => {
+        if (id) {
+          fetchCatalog({ id, fragment })
+        }
+      }, [id])
+    }
 
     return {
       catalog,
       loading,
       error,
-      refetch: ({
-        id,
-      }: {
-        id: string;
-        fragment?: Record<string, DocumentNode>;
-      }) => client.clinical.catalog.getCatalog({ id, fragment }),
-    };
-  };
+      refetch: ({ id }: { id: string; fragment?: Record<string, DocumentNode> }) =>
+        client.clinical.catalog.getCatalog({ id, fragment }),
+      query: defer ? async ({ id, fragment }: { id: string, fragment?: Record<string, DocumentNode> }) => {
+          await fetchCatalog({ id, fragment })
+          return {
+            catalog,
+            loading,
+            error
+          }
+        } : undefined
+    }
+  }
 
   const getCatalogsStore = map<{
-    catalogs: Catalog[];
-    loading: boolean;
-    error?: ApolloError;
+    catalogs: Catalog[]
+    loading: boolean
+    error?: ApolloError
   }>({
     catalogs: [],
     loading: true,
-    error: undefined,
-  });
+    error: undefined
+  })
 
-  const fetchCatalogs = action(
-    getCatalogsStore,
-    "fetchCatalogs",
-    async (store) => {
-      store.setKey("loading", true);
-      const { data, error } = await client.clinical.catalog.getCatalogs();
-      store.setKey("catalogs", data?.catalogs || []);
-      store.setKey("error", error);
-      store.setKey("loading", false);
-    }
-  );
+  const fetchCatalogs = action(getCatalogsStore, 'fetchCatalogs', async (store) => {
+    store.setKey('loading', true)
+    const { data, error } = await client.clinical.catalog.getCatalogs()
+    store.setKey('catalogs', data?.catalogs || [])
+    store.setKey('error', error)
+    store.setKey('loading', false)
+  })
 
   const getCatalogs = () => {
-    const { catalogs, loading, error } = useStore(getCatalogsStore);
+    const { catalogs, loading, error } = useStore(getCatalogsStore)
 
     useEffect(() => {
-      fetchCatalogs();
-    }, []);
+      fetchCatalogs()
+    }, [])
 
     return {
       catalogs,
       loading,
       error,
-      refetch: () => client.clinical.catalog.getCatalogs(),
-    };
-  };
+      refetch: () => client.clinical.catalog.getCatalogs()
+    }
+  }
+
+  const addToCatalogStore = map<{
+    addToCatalog?: Treatment
+    loading: boolean
+    error?: GraphQLError
+  }>({
+    addToCatalog: undefined,
+    loading: false,
+    error: undefined
+  })
+
+  const addToCatalogMutation = client.clinical.catalog.addToCatalog({})
+
+  const constructFetchAddToCatalog = () =>
+    action(addToCatalogStore, 'addToCatalogMutation', async (store, { variables, onCompleted }) => {
+      store.setKey('loading', true)
+
+      try {
+        const { data, errors } = await addToCatalogMutation({
+          variables,
+          refetchQueries: [],
+          awaitRefetchQueries: false
+        })
+        store.setKey('addToCatalog', data?.addToCatalog)
+        store.setKey('error', errors?.[0])
+        if (onCompleted) {
+          onCompleted(data)
+        }
+      } catch (err) {
+        store.setKey('addToCatalog', undefined)
+        store.setKey('error', err as GraphQLError)
+      }
+
+      store.setKey('loading', false)
+    })
+
+  const addToCatalog = ({
+    refetchQueries = undefined,
+    refetchArgs = undefined,
+    awaitRefetchQueries = false,
+  }: {
+    refetchQueries?: string[]
+    refetchArgs?: Record<string, any>
+    awaitRefetchQueries?: boolean,
+  }) => {
+    const { addToCatalog, loading, error } = useStore(addToCatalogStore)
+
+    if (refetchQueries && refetchQueries.length > 0) {
+      runRefetch(addToCatalog, refetchQueries, awaitRefetchQueries, refetchArgs)
+    }
+    return [
+      constructFetchAddToCatalog(),
+      {
+        addToCatalog,
+        loading,
+        error
+      }
+    ]
+  }
+
+  const removeFromCatalogStore = map<{
+    removeFromCatalog?: Treatment
+    loading: boolean
+    error?: GraphQLError
+  }>({
+    removeFromCatalog: undefined,
+    loading: false,
+    error: undefined
+  })
+
+  const removeFromCatalogMutation = client.clinical.catalog.removeFromCatalog({})
+
+  const constructFetchRemoveFromCatalog = () =>
+    action(removeFromCatalogStore, 'removeFromCatalogMutation', async (store, { variables, onCompleted }) => {
+      store.setKey('loading', true)
+
+      try {
+        const { data, errors } = await removeFromCatalogMutation({
+          variables,
+          refetchQueries: [],
+          awaitRefetchQueries: false
+        })
+        store.setKey('removeFromCatalog', data?.removeFromCatalog)
+        store.setKey('error', errors?.[0])
+        if (onCompleted) {
+          onCompleted(data)
+        }
+      } catch (err) {
+        store.setKey('removeFromCatalog', undefined)
+        store.setKey('error', err as GraphQLError)
+      }
+
+      store.setKey('loading', false)
+    })
+
+  const removeFromCatalog = ({
+    refetchQueries = undefined,
+    refetchArgs = undefined,
+    awaitRefetchQueries = false,
+  }: {
+    refetchQueries?: string[]
+    refetchArgs?: Record<string, any>
+    awaitRefetchQueries?: boolean,
+  }) => {
+    const { removeFromCatalog, loading, error } = useStore(removeFromCatalogStore)
+
+    if (refetchQueries && refetchQueries.length > 0) {
+      runRefetch(removeFromCatalog, refetchQueries, awaitRefetchQueries, refetchArgs)
+    }
+    return [
+      constructFetchRemoveFromCatalog(),
+      {
+        removeFromCatalog,
+        loading,
+        error
+      }
+    ]
+  }
 
   /// Allergens
 
   const getAllergensStore = map<{
-    allergens: Allergen[];
-    loading: boolean;
-    error?: ApolloError;
+    allergens: Allergen[]
+    loading: boolean
+    error?: ApolloError
   }>({
     allergens: [],
     loading: true,
-    error: undefined,
-  });
+    error: undefined
+  })
 
-  const fetchAllergens = action(
-    getAllergensStore,
-    "fetchAllergens",
-    async (store, { filter }) => {
-      store.setKey("loading", true);
-      const { data, error } = await client.clinical.allergens.getAllergens({
-        filter,
-      });
-      store.setKey("allergens", data?.allergens || []);
-      store.setKey("error", error);
-      store.setKey("loading", false);
-    }
-  );
+  const fetchAllergens = action(getAllergensStore, 'fetchAllergens', async (store, { filter }) => {
+    store.setKey('loading', true)
+    const { data, error } = await client.clinical.allergens.getAllergens({
+      filter
+    })
+    store.setKey('allergens', data?.allergens || [])
+    store.setKey('error', error)
+    store.setKey('loading', false)
+  })
 
   const getAllergens = ({ filter }: { filter?: AllergenFilter }) => {
-    const { allergens, loading, error } = useStore(getAllergensStore);
+    const { allergens, loading, error } = useStore(getAllergensStore)
 
     useEffect(() => {
-      fetchAllergens({ filter });
-    }, [filter?.name]);
+      fetchAllergens({ filter })
+    }, [filter?.name])
 
     return {
       allergens,
       loading,
       error,
       refetch: ({ filter }: { filter?: AllergenFilter }) =>
-        client.clinical.allergens.getAllergens({ filter }),
-    };
-  };
+        client.clinical.allergens.getAllergens({ filter })
+    }
+  }
 
   /// Medication
 
   const getMedicationsStore = map<{
-    medications: Medication[];
-    loading: boolean;
-    error?: ApolloError;
+    medications: Medication[]
+    loading: boolean
+    error?: ApolloError
   }>({
     medications: [],
     loading: true,
-    error: undefined,
-  });
+    error: undefined
+  })
 
   const fetchMedications = action(
     getMedicationsStore,
-    "fetchMedications",
+    'fetchMedications',
     async (store, { filter, first, after }) => {
-      store.setKey("loading", true);
+      store.setKey('loading', true)
       const { data, error } = await client.clinical.medication.getMedications({
         filter,
         first,
-        after,
-      });
-      store.setKey("medications", data?.medications || []);
-      store.setKey("error", error);
-      store.setKey("loading", false);
+        after
+      })
+      store.setKey('medications', data?.medications || [])
+      store.setKey('error', error)
+      store.setKey('loading', false)
     }
-  );
+  )
 
   const getMedications = ({
     filter,
     first,
-    after,
+    after
   }: {
-    filter?: MedicationFilter;
-    first?: number;
-    after?: string;
+    filter?: MedicationFilter
+    first?: number
+    after?: string
   }) => {
-    const { medications, loading, error } = useStore(getMedicationsStore);
+    const { medications, loading, error } = useStore(getMedicationsStore)
 
     useEffect(() => {
-      fetchMedications({ filter, first, after });
+      fetchMedications({ filter, first, after })
     }, [
       filter?.drug?.name,
       filter?.drug?.code,
@@ -1514,8 +1739,8 @@ export const PhotonProvider = (opts: {
       filter?.package?.code,
       filter?.package?.type,
       first,
-      after,
-    ]);
+      after
+    ])
 
     return {
       medications,
@@ -1524,125 +1749,114 @@ export const PhotonProvider = (opts: {
       refetch: ({
         filter,
         first,
-        after,
+        after
       }: {
-        filter?: MedicationFilter;
-        first?: number;
-        after?: string;
-      }) => client.clinical.medication.getMedications({ filter, first, after }),
-    };
-  };
+        filter?: MedicationFilter
+        first?: number
+        after?: string
+      }) => client.clinical.medication.getMedications({ filter, first, after })
+    }
+  }
 
   /// Medical Equipment
 
   const getMedicalEquipmentStore = map<{
-    medicalEquipment: MedicalEquipment[];
-    loading: boolean;
-    error?: ApolloError;
+    medicalEquipment: MedicalEquipment[]
+    loading: boolean
+    error?: ApolloError
   }>({
     medicalEquipment: [],
     loading: true,
-    error: undefined,
-  });
+    error: undefined
+  })
 
   const fetchMedicalEquipment = action(
     getMedicalEquipmentStore,
-    "fetchMedicalEquipment",
+    'fetchMedicalEquipment',
     async (store, { name, first, after }) => {
-      store.setKey("loading", true);
-      const { data, error } =
-        await client.clinical.medicalEquipment.getMedicalEquipment({
-          name,
-          first,
-          after,
-        });
-      store.setKey("medicalEquipment", data?.medicalEquipment || []);
-      store.setKey("error", error);
-      store.setKey("loading", false);
+      store.setKey('loading', true)
+      const { data, error } = await client.clinical.medicalEquipment.getMedicalEquipment({
+        name,
+        first,
+        after
+      })
+      store.setKey('medicalEquipment', data?.medicalEquipment || [])
+      store.setKey('error', error)
+      store.setKey('loading', false)
     }
-  );
+  )
 
   const getMedicalEquipment = ({
     name,
     first,
-    after,
+    after
   }: {
-    name?: string;
-    first?: number;
-    after?: string;
+    name?: string
+    first?: number
+    after?: string
   }) => {
-    const { medicalEquipment, loading, error } = useStore(
-      getMedicalEquipmentStore
-    );
+    const { medicalEquipment, loading, error } = useStore(getMedicalEquipmentStore)
 
     useEffect(() => {
-      fetchMedicalEquipment({ name, first, after });
-    }, [name, first, after]);
+      fetchMedicalEquipment({ name, first, after })
+    }, [name, first, after])
 
     return {
       medicalEquipment,
       loading,
       error,
-      refetch: ({
-        name,
-        first,
-        after,
-      }: {
-        name?: string;
-        first?: number;
-        after?: string;
-      }) =>
+      refetch: ({ name, first, after }: { name?: string; first?: number; after?: string }) =>
         client.clinical.medicalEquipment.getMedicalEquipment({
           name,
           first,
-          after,
-        }),
-    };
-  };
+          after
+        })
+    }
+  }
 
   /// Pharmacy
 
   const getPharmaciesStore = map<{
-    pharmacies: Pharmacy[];
-    loading: boolean;
-    error?: ApolloError;
+    pharmacies: Pharmacy[]
+    loading: boolean
+    error?: ApolloError
   }>({
     pharmacies: [],
     loading: true,
-    error: undefined,
-  });
+    error: undefined
+  })
 
   const fetchPharmacies = action(
     getPharmaciesStore,
-    "fetchPharmacies",
+    'fetchPharmacies',
     async (store, { name, location }) => {
-      store.setKey("loading", true);
+      store.setKey('loading', true)
       const { data, error } = await client.clinical.pharmacy.getPharmacies({
         name,
-        location,
-      });
-      store.setKey("pharmacies", data?.pharmacies || []);
-      store.setKey("error", error);
-      store.setKey("loading", false);
+        location
+      })
+      store.setKey('pharmacies', data?.pharmacies || [])
+      store.setKey('error', error)
+      store.setKey('loading', false)
     }
-  );
+  )
 
   const getPharmacies = ({
     name,
     location,
     after,
-    first,
+    first
   }: {
-    name?: string;
-    location?: LatLongSearch;
-    after?: number;
-    first?: number;
+    name?: string
+    location?: LatLongSearch
+    after?: number
+    first?: number
   }) => {
-    const { pharmacies, loading, error } = useStore(getPharmaciesStore);
+    const { pharmacies, loading, error } = useStore(getPharmaciesStore)
 
     useEffect(() => {
-      fetchPharmacies({ name, location, after, first });
-    }, [name, location]);
+      fetchPharmacies({ name, location, after, first })
+    }, [name, location])
 
     return {
       pharmacies,
@@ -1651,190 +1865,176 @@ export const PhotonProvider = (opts: {
       refetch: ({
         name,
         location,
-        after, 
+        after,
         first
       }: {
-        name?: string;
-        location?: LatLongSearch;
-        after?: number;
-        first?: number;
+        name?: string
+        location?: LatLongSearch
+        after?: number
+        first?: number
       }) =>
         client.clinical.pharmacy.getPharmacies({
           name,
           location,
           after,
-          first,
-        }),
-    };
-  };
+          first
+        })
+    }
+  }
 
   // Organization
 
   const getOrganizationStore = map<{
-    organization?: Organization;
-    loading: boolean;
-    error?: ApolloError;
+    organization?: Organization
+    loading: boolean
+    error?: ApolloError
   }>({
     organization: undefined,
     loading: true,
-    error: undefined,
-  });
+    error: undefined
+  })
 
-  const fetchOrganization = action(
-    getOrganizationStore,
-    "fetchOrganization",
-    async (store) => {
-      store.setKey("loading", true);
-      const { data, error } =
-        await client.management.organization.getOrganization();
-      store.setKey("organization", data?.organization || undefined);
-      store.setKey("error", error);
-      store.setKey("loading", false);
-    }
-  );
+  const fetchOrganization = action(getOrganizationStore, 'fetchOrganization', async (store) => {
+    store.setKey('loading', true)
+    const { data, error } = await client.management.organization.getOrganization()
+    store.setKey('organization', data?.organization || undefined)
+    store.setKey('error', error)
+    store.setKey('loading', false)
+  })
 
   const getOrganization = () => {
-    const { organization, loading, error } = useStore(getOrganizationStore);
+    const { organization, loading, error } = useStore(getOrganizationStore)
 
     useEffect(() => {
-      fetchOrganization();
-    }, []);
+      fetchOrganization()
+    }, [])
 
     return {
       organization,
       loading,
       error,
-      refetch: () => client.management.organization.getOrganization(),
-    };
-  };
+      refetch: () => client.management.organization.getOrganization()
+    }
+  }
 
   const getOrganizationsStore = map<{
-    organizations: Organization[];
-    loading: boolean;
-    error?: ApolloError;
+    organizations: Organization[]
+    loading: boolean
+    error?: ApolloError
   }>({
     organizations: [],
     loading: true,
-    error: undefined,
-  });
+    error: undefined
+  })
 
-  const fetchOrganizations = action(
-    getOrganizationsStore,
-    "fetchOrganizations",
-    async (store) => {
-      store.setKey("loading", true);
-      const { data, error } =
-        await client.management.organization.getOrganizations();
-      store.setKey("organizations", data?.organizations || []);
-      store.setKey("error", error);
-      store.setKey("loading", false);
-    }
-  );
+  const fetchOrganizations = action(getOrganizationsStore, 'fetchOrganizations', async (store) => {
+    store.setKey('loading', true)
+    const { data, error } = await client.management.organization.getOrganizations()
+    store.setKey('organizations', data?.organizations || [])
+    store.setKey('error', error)
+    store.setKey('loading', false)
+  })
 
   const getOrganizations = () => {
-    const { organizations, loading, error } = useStore(getOrganizationsStore);
+    const { organizations, loading, error } = useStore(getOrganizationsStore)
 
     useEffect(() => {
-      fetchOrganizations();
-    }, []);
+      fetchOrganizations()
+    }, [])
 
     return {
       organizations,
       loading,
       error,
-      refetch: () => client.management.organization.getOrganizations(),
-    };
-  };
+      refetch: () => client.management.organization.getOrganizations()
+    }
+  }
 
   // Webhooks
 
   const getWebhooksStore = map<{
-    webhooks: WebhookConfig[];
-    loading: boolean;
-    error?: ApolloError;
+    webhooks: WebhookConfig[]
+    loading: boolean
+    error?: ApolloError
   }>({
     webhooks: [],
     loading: true,
-    error: undefined,
-  });
+    error: undefined
+  })
 
-  const fetchWebhooks = action(
-    getWebhooksStore,
-    "fetchWebhooks",
-    async (store) => {
-      store.setKey("loading", true);
-      const { data, error } = await client.management.webhook.getWebhooks();
-      store.setKey("webhooks", data?.webhooks || []);
-      store.setKey("error", error);
-      store.setKey("loading", false);
-    }
-  );
+  const fetchWebhooks = action(getWebhooksStore, 'fetchWebhooks', async (store) => {
+    store.setKey('loading', true)
+    const { data, error } = await client.management.webhook.getWebhooks()
+    store.setKey('webhooks', data?.webhooks || [])
+    store.setKey('error', error)
+    store.setKey('loading', false)
+  })
 
   const getWebhooks = () => {
-    const { webhooks, loading, error } = useStore(getWebhooksStore);
+    const { webhooks, loading, error } = useStore(getWebhooksStore)
 
     useEffect(() => {
-      fetchWebhooks();
-    }, []);
+      fetchWebhooks()
+    }, [])
 
     return {
       webhooks,
       loading,
       error,
-      refetch: () => client.management.webhook.getWebhooks(),
-    };
-  };
+      refetch: () => client.management.webhook.getWebhooks()
+    }
+  }
 
   const createWebhookStore = map<{
-    createWebhook?: WebhookConfig;
-    loading: boolean;
-    error?: GraphQLError;
+    createWebhook?: WebhookConfig
+    loading: boolean
+    error?: GraphQLError
   }>({
     createWebhook: undefined,
     loading: false,
-    error: undefined,
-  });
+    error: undefined
+  })
 
-  const createWebhookMutation = client.management.webhook.createWebhook({});
+  const createWebhookMutation = client.management.webhook.createWebhook({})
 
   const constructFetchCreateWebhook = () =>
     action(
       createWebhookStore,
-      "createWebhookMutation",
+      'createWebhookMutation',
       async (store, { variables, onCompleted }) => {
-        store.setKey("loading", true);
+        store.setKey('loading', true)
 
         try {
           const { data, errors } = await createWebhookMutation({
             variables,
             refetchQueries: [],
-            awaitRefetchQueries: false,
-          });
-          store.setKey("createWebhook", data?.createWebhookConfig);
-          store.setKey("error", errors?.[0]);
+            awaitRefetchQueries: false
+          })
+          store.setKey('createWebhook', data?.createWebhookConfig)
+          store.setKey('error', errors?.[0])
           if (onCompleted) {
-            onCompleted(data);
+            onCompleted(data)
           }
         } catch (err) {
-          store.setKey("createWebhook", undefined);
-          store.setKey("error", err as GraphQLError);
+          store.setKey('createWebhook', undefined)
+          store.setKey('error', err as GraphQLError)
         }
 
-        store.setKey("loading", false);
+        store.setKey('loading', false)
       }
-    );
+    )
 
   const createWebhook = ({
     refetchQueries = undefined,
-    awaitRefetchQueries = false,
+    awaitRefetchQueries = false
   }: {
-    refetchQueries?: string[];
-    awaitRefetchQueries?: boolean;
+    refetchQueries?: string[]
+    awaitRefetchQueries?: boolean
   }) => {
-    const { createWebhook, loading, error } = useStore(createWebhookStore);
+    const { createWebhook, loading, error } = useStore(createWebhookStore)
 
     if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(createWebhook, refetchQueries, awaitRefetchQueries);
+      runRefetch(createWebhook, refetchQueries, awaitRefetchQueries)
     }
 
     return [
@@ -1842,61 +2042,61 @@ export const PhotonProvider = (opts: {
       {
         createWebhook,
         loading,
-        error,
-      },
-    ];
-  };
+        error
+      }
+    ]
+  }
 
   const deleteWebhookStore = map<{
-    deleteWebhook?: Boolean;
-    loading: boolean;
-    error?: GraphQLError;
+    deleteWebhook?: Boolean
+    loading: boolean
+    error?: GraphQLError
   }>({
     deleteWebhook: undefined,
     loading: false,
-    error: undefined,
-  });
+    error: undefined
+  })
 
-  const deleteWebhookMutation = client.management.webhook.deleteWebhook();
+  const deleteWebhookMutation = client.management.webhook.deleteWebhook()
 
   const constructFetchDeleteWebhook = () =>
     action(
       deleteWebhookStore,
-      "deleteWebhookMutation",
+      'deleteWebhookMutation',
       async (store, { variables, onCompleted }) => {
-        store.setKey("loading", true);
+        store.setKey('loading', true)
 
         try {
           const { data, errors } = await deleteWebhookMutation({
             variables,
             refetchQueries: [],
-            awaitRefetchQueries: false,
-          });
-          store.setKey("deleteWebhook", data?.deleteWebhookConfig);
-          store.setKey("error", errors?.[0]);
+            awaitRefetchQueries: false
+          })
+          store.setKey('deleteWebhook', data?.deleteWebhookConfig)
+          store.setKey('error', errors?.[0])
           if (onCompleted) {
-            onCompleted(data);
+            onCompleted(data)
           }
         } catch (err) {
-          store.setKey("deleteWebhook", undefined);
-          store.setKey("error", err as GraphQLError);
+          store.setKey('deleteWebhook', undefined)
+          store.setKey('error', err as GraphQLError)
         }
 
-        store.setKey("loading", false);
+        store.setKey('loading', false)
       }
-    );
+    )
 
   const deleteWebhook = ({
     refetchQueries = undefined,
-    awaitRefetchQueries = false,
+    awaitRefetchQueries = false
   }: {
-    refetchQueries?: string[];
-    awaitRefetchQueries?: boolean;
+    refetchQueries?: string[]
+    awaitRefetchQueries?: boolean
   }) => {
-    const { deleteWebhook, loading, error } = useStore(deleteWebhookStore);
+    const { deleteWebhook, loading, error } = useStore(deleteWebhookStore)
 
     if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(deleteWebhook, refetchQueries, awaitRefetchQueries);
+      runRefetch(deleteWebhook, refetchQueries, awaitRefetchQueries)
     }
 
     return [
@@ -1904,163 +2104,575 @@ export const PhotonProvider = (opts: {
       {
         deleteWebhook,
         loading,
-        error,
-      },
-    ];
-  };
+        error
+      }
+    ]
+  }
 
   /// Prescription Templates
-  
+
   const createPrescriptionTemplateStore = map<{
-    createPrescriptionTemplate?: PrescriptionTemplate;
-    loading: boolean;
-    error?: GraphQLError;
+    createPrescriptionTemplate?: PrescriptionTemplate
+    loading: boolean
+    error?: GraphQLError
   }>({
     createPrescriptionTemplate: undefined,
     loading: false,
-    error: undefined,
-  });
+    error: undefined
+  })
 
-  const createPrescriptionTemplateMutation = client.clinical.prescriptionTemplate.createPrescriptionTemplate({});
+  const createPrescriptionTemplateMutation =
+    client.clinical.prescriptionTemplate.createPrescriptionTemplate({})
 
   const constructFetchCreatePrescriptionTemplate = () =>
     action(
       createPrescriptionTemplateStore,
-      "createPrescriptionTemplateMutation",
+      'createPrescriptionTemplateMutation',
       async (store, { variables, onCompleted }) => {
-        store.setKey("loading", true);
+        store.setKey('loading', true)
 
         try {
           const { data, errors } = await createPrescriptionTemplateMutation({
             variables,
             refetchQueries: [],
-            awaitRefetchQueries: false,
-          });
-          store.setKey("createPrescriptionTemplate", data?.createPrescriptionTemplate);
-          store.setKey("error", errors?.[0]);
+            awaitRefetchQueries: false
+          })
+          store.setKey('createPrescriptionTemplate', data?.createPrescriptionTemplate)
+          store.setKey('error', errors?.[0])
           if (onCompleted) {
-            onCompleted(data);
+            onCompleted(data)
           }
         } catch (err) {
-          store.setKey("createPrescriptionTemplate", undefined);
-          store.setKey("error", err as GraphQLError);
+          store.setKey('createPrescriptionTemplate', undefined)
+          store.setKey('error', err as GraphQLError)
         }
 
-        store.setKey("loading", false);
+        store.setKey('loading', false)
       }
-    );
+    )
 
   const createPrescriptionTemplate = ({
     refetchQueries = undefined,
     awaitRefetchQueries = false,
+    refetchArgs
   }: {
-    refetchQueries?: string[];
-    awaitRefetchQueries?: boolean;
+    refetchQueries?: string[]
+    awaitRefetchQueries?: boolean,
+    refetchArgs: Record<string, any>
   }) => {
-    const { createPrescriptionTemplate, loading, error } = useStore(createPrescriptionTemplateStore);
+    const { createPrescriptionTemplate, loading, error } = useStore(createPrescriptionTemplateStore)
 
     if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(createPrescriptionTemplate, refetchQueries, awaitRefetchQueries);
+      runRefetch(createPrescriptionTemplate, refetchQueries, awaitRefetchQueries, refetchArgs)
     }
     return [
       constructFetchCreatePrescriptionTemplate(),
       {
         createPrescriptionTemplate,
         loading,
-        error,
-      },
-    ];
-  };
+        error
+      }
+    ]
+  }
+
+  const deletePrescriptionTemplateStore = map<{
+    deletePrescriptionTemplate?: PrescriptionTemplate
+    loading: boolean
+    error?: GraphQLError
+  }>({
+    deletePrescriptionTemplate: undefined,
+    loading: false,
+    error: undefined
+  })
+
+  const deletePrescriptionTemplateMutation =
+    client.clinical.prescriptionTemplate.deletePrescriptionTemplate({})
+
+  const constructFetchDeletePrescriptionTemplate = () =>
+    action(
+      deletePrescriptionTemplateStore,
+      'deletePrescriptionTemplateMutation',
+      async (store, { variables, onCompleted }) => {
+        store.setKey('loading', true)
+
+        try {
+          const { data, errors } = await deletePrescriptionTemplateMutation({
+            variables,
+            refetchQueries: [],
+            awaitRefetchQueries: false
+          })
+          store.setKey('deletePrescriptionTemplate', data?.deletePrescriptionTemplate)
+          store.setKey('error', errors?.[0])
+          if (onCompleted) {
+            onCompleted(data)
+          }
+        } catch (err) {
+          store.setKey('deletePrescriptionTemplate', undefined)
+          store.setKey('error', err as GraphQLError)
+        }
+
+        store.setKey('loading', false)
+      }
+    )
+
+  const deletePrescriptionTemplate = ({
+    refetchQueries = undefined,
+    awaitRefetchQueries = false,
+    refetchArgs
+  }: {
+    refetchQueries?: string[]
+    awaitRefetchQueries?: boolean,
+    refetchArgs: Record<string, any>
+  }) => {
+    const { deletePrescriptionTemplate, loading, error } = useStore(deletePrescriptionTemplateStore)
+
+    if (refetchQueries && refetchQueries.length > 0) {
+      runRefetch(deletePrescriptionTemplate, refetchQueries, awaitRefetchQueries, refetchArgs)
+    }
+    return [
+      constructFetchDeletePrescriptionTemplate(),
+      {
+        deletePrescriptionTemplate,
+        loading,
+        error
+      }
+    ]
+  }
+
+  /// SearchMedication
+
+  const getMedicationConceptsStore = map<{
+    medicationConcepts: SearchMedication[]
+    loading: boolean
+    error?: ApolloError
+  }>({
+    medicationConcepts: [],
+    loading: false,
+    error: undefined
+  })
+
+  const fetchMedicationConcepts = action(
+    getMedicationConceptsStore,
+    'fetchMedicationConcepts',
+    async (store, { name }) => {
+      store.setKey('loading', true)
+      const { data, error } = await client.clinical.searchMedication.getConcepts({
+        name
+      })
+      store.setKey('medicationConcepts', data?.medicationConcepts || [])
+      store.setKey('error', error)
+      store.setKey('loading', false)
+    }
+  )
+
+  const getMedicationConcepts = (
+    {
+      name,
+      defer
+    }: {
+      name: string
+      defer?: boolean
+    } = {
+      name: '',
+      defer: false
+    }
+  ) => {
+    const { medicationConcepts, loading, error } = useStore(getMedicationConceptsStore)
+
+    if (!defer) {
+      useEffect(() => {
+        fetchMedicationConcepts({ name })
+      }, [name])
+    }
+
+    return {
+      medicationConcepts,
+      loading,
+      error,
+      refetch: ({ name }: { name: string }) =>
+        client.clinical.searchMedication.getConcepts({ name }),
+      query: defer ? async ({ name }: { name: string }) => {
+        await fetchMedicationConcepts({ name })
+        return {
+          medicationConcepts,
+          loading,
+          error
+        }
+      } : undefined
+    }
+  }
+
+  const getMedicationStrengthsStore = map<{
+    medicationStrengths: SearchMedication[]
+    loading: boolean
+    error?: ApolloError
+  }>({
+    medicationStrengths: [],
+    loading: false,
+    error: undefined
+  })
+
+  const fetchMedicationStrengths = action(
+    getMedicationStrengthsStore,
+    'fetchMedicationStrengths',
+    async (store, { id }) => {
+      store.setKey('loading', true)
+      const { data, error } = await client.clinical.searchMedication.getStrengths({
+        id
+      })
+      store.setKey('medicationStrengths', data?.medicationStrengths || [])
+      store.setKey('error', error)
+      store.setKey('loading', false)
+    }
+  )
+
+  const getMedicationStrengths = (
+    {
+      id,
+      defer
+    }: {
+      id: string
+      defer?: boolean
+    }
+  ) => {
+    const { medicationStrengths, loading, error } = useStore(getMedicationStrengthsStore)
+
+    if (!defer) {
+      useEffect(() => {
+        fetchMedicationStrengths({ id })
+      }, [id])
+    }
+
+    return {
+      medicationStrengths,
+      loading,
+      error,
+      refetch: ({ id }: { id: string }) =>
+        client.clinical.searchMedication.getStrengths({ id }),
+      query: defer ? async ({ id }: { id: string }) => {
+          await fetchMedicationStrengths({ id })
+          return {
+            medicationStrengths,
+            loading,
+            error
+          }
+        } : undefined
+    }
+  }
+
+  const getMedicationRoutesStore = map<{
+    medicationRoutes: SearchMedication[]
+    loading: boolean
+    error?: ApolloError
+  }>({
+    medicationRoutes: [],
+    loading: false,
+    error: undefined
+  })
+
+  const fetchMedicationRoutes = action(
+    getMedicationRoutesStore,
+    'fetchMedicationRoutes',
+    async (store, { id }) => {
+      store.setKey('loading', true)
+      const { data, error } = await client.clinical.searchMedication.getRoutes({
+        id
+      })
+      store.setKey('medicationRoutes', data?.medicationRoutes || [])
+      store.setKey('error', error)
+      store.setKey('loading', false)
+    }
+  )
+
+  const getMedicationRoutes = (
+    {
+      id,
+      defer
+    }: {
+      id: string
+      defer?: boolean
+    }
+  ) => {
+    const { medicationRoutes, loading, error } = useStore(getMedicationRoutesStore)
+
+    if (!defer) {
+      useEffect(() => {
+        fetchMedicationRoutes({ id })
+      }, [id])
+    }
+
+    return {
+      medicationRoutes,
+      loading,
+      error,
+      refetch: ({ id }: { id: string }) =>
+        client.clinical.searchMedication.getRoutes({ id }),
+      query: defer ? async ({ id }: { id: string }) => {
+          await fetchMedicationRoutes({ id })
+          return {
+            medicationRoutes,
+            loading,
+            error
+          }
+        } : undefined
+    }
+  }
+
+  const getMedicationFormsStore = map<{
+    medicationForms: Medication[]
+    loading: boolean
+    error?: ApolloError
+  }>({
+    medicationForms: [],
+    loading: false,
+    error: undefined
+  })
+
+  const fetchMedicationForms = action(
+    getMedicationFormsStore,
+    'fetchMedicationForms',
+    async (store, { id }) => {
+      store.setKey('loading', true)
+      const { data, error } = await client.clinical.searchMedication.getForms({
+        id
+      })
+      store.setKey('medicationForms', data?.medicationForms || [])
+      store.setKey('error', error)
+      store.setKey('loading', false)
+    }
+  )
+
+  const getMedicationForms = (
+    {
+      id,
+      defer
+    }: {
+      id: string
+      defer?: boolean
+    }
+  ) => {
+    const { medicationForms, loading, error } = useStore(getMedicationFormsStore)
+
+    if (!defer) {
+      useEffect(() => {
+        fetchMedicationForms({ id })
+      }, [id])
+    }
+
+    return {
+      medicationForms,
+      loading,
+      error,
+      refetch: ({ id }: { id: string }) =>
+        client.clinical.searchMedication.getForms({ id }),
+      query: defer ? async ({ id }: { id: string }) => {
+          await fetchMedicationForms({ id })
+          return {
+            medicationForms,
+            loading,
+            error
+          }
+        } : undefined
+    }
+  }
+
+  const getMedicationProductsStore = map<{
+    medicationProducts: Medication[]
+    loading: boolean
+    error?: ApolloError
+  }>({
+    medicationProducts: [],
+    loading: false,
+    error: undefined
+  })
+
+  const fetchMedicationProducts = action(
+    getMedicationProductsStore,
+    'fetchMedicationProducts',
+    async (store, { id }) => {
+      store.setKey('loading', true)
+      const { data, error } = await client.clinical.searchMedication.getProducts({
+        id
+      })
+      store.setKey('medicationProducts', data?.medicationProducts || [])
+      store.setKey('error', error)
+      store.setKey('loading', false)
+    }
+  )
+
+  const getMedicationProducts = (
+    {
+      id,
+      defer
+    }: {
+      id: string
+      defer?: boolean
+    }
+  ) => {
+    const { medicationProducts, loading, error } = useStore(getMedicationProductsStore)
+
+    if (!defer) {
+      useEffect(() => {
+        fetchMedicationProducts({ id })
+      }, [id])
+    }
+
+    return {
+      medicationProducts,
+      loading,
+      error,
+      refetch: ({ id }: { id: string }) =>
+        client.clinical.searchMedication.getProducts({ id }),
+      query: defer ? async ({ id }: { id: string }) => {
+          await fetchMedicationProducts({ id })
+          return {
+            medicationProducts,
+            loading,
+            error
+          }
+        } : undefined
+    }
+  }
+
+  const getMedicationPackagesStore = map<{
+    medicationPackages: Medication[]
+    loading: boolean
+    error?: ApolloError
+  }>({
+    medicationPackages: [],
+    loading: false,
+    error: undefined
+  })
+
+  const fetchMedicationPackages = action(
+    getMedicationPackagesStore,
+    'fetchMedicationPackages',
+    async (store, { id }) => {
+      store.setKey('loading', true)
+      const { data, error } = await client.clinical.searchMedication.getPackages({
+        id
+      })
+      store.setKey('medicationPackages', data?.medicationPackages || [])
+      store.setKey('error', error)
+      store.setKey('loading', false)
+    }
+  )
+
+  const getMedicationPackages = (
+    {
+      id,
+      defer
+    }: {
+      id: string
+      defer?: boolean
+    }
+  ) => {
+    const { medicationPackages, loading, error } = useStore(getMedicationPackagesStore)
+
+    if (!defer) {
+      useEffect(() => {
+        fetchMedicationPackages({ id })
+      }, [id])
+    }
+
+    return {
+      medicationPackages,
+      loading,
+      error,
+      refetch: ({ id }: { id: string }) =>
+        client.clinical.searchMedication.getPackages({ id }),
+      query: defer ? async ({ id }: { id: string }) => {
+          await fetchMedicationProducts({ id })
+          return {
+            medicationPackages,
+            loading,
+            error
+          }
+        } : undefined
+    }
+  }
 
   /// Clients
 
   const getClientsStore = map<{
-    clients: Client[];
-    loading: boolean;
-    error?: ApolloError;
+    clients: Client[]
+    loading: boolean
+    error?: ApolloError
   }>({
     clients: [],
     loading: true,
-    error: undefined,
-  });
+    error: undefined
+  })
 
-  const fetchClients = action(
-    getClientsStore,
-    "fetchClients",
-    async (store) => {
-      store.setKey("loading", true);
-      const { data, error } = await client.management.client.getClients();
-      store.setKey("clients", data?.clients || []);
-      store.setKey("error", error);
-      store.setKey("loading", false);
-    }
-  );
+  const fetchClients = action(getClientsStore, 'fetchClients', async (store) => {
+    store.setKey('loading', true)
+    const { data, error } = await client.management.client.getClients()
+    store.setKey('clients', data?.clients || [])
+    store.setKey('error', error)
+    store.setKey('loading', false)
+  })
 
   const getClients = () => {
-    const { clients, loading, error } = useStore(getClientsStore);
+    const { clients, loading, error } = useStore(getClientsStore)
 
     useEffect(() => {
-      fetchClients();
-    }, []);
+      fetchClients()
+    }, [])
 
     return {
       clients,
       loading,
       error,
-      refetch: () => client.management.client.getClients(),
-    };
-  };
+      refetch: () => client.management.client.getClients()
+    }
+  }
 
   const rotateSecretStore = map<{
-    rotateSecret?: Client;
-    loading: boolean;
-    error?: GraphQLError;
+    rotateSecret?: Client
+    loading: boolean
+    error?: GraphQLError
   }>({
     rotateSecret: undefined,
     loading: false,
-    error: undefined,
-  });
+    error: undefined
+  })
 
-  const rotateSecretMutation = client.management.client.rotateSecret({});
+  const rotateSecretMutation = client.management.client.rotateSecret({})
 
   const constructFetchRotateSecret = () =>
-    action(
-      rotateSecretStore,
-      "rotateSecretMutation",
-      async (store, { variables, onCompleted }) => {
-        store.setKey("loading", true);
+    action(rotateSecretStore, 'rotateSecretMutation', async (store, { variables, onCompleted }) => {
+      store.setKey('loading', true)
 
-        try {
-          const { data, errors } = await rotateSecretMutation({
-            variables,
-            refetchQueries: [],
-            awaitRefetchQueries: false,
-          });
-          store.setKey("rotateSecret", data?.rotateSecret);
-          store.setKey("error", errors?.[0]);
-          if (onCompleted) {
-            onCompleted(data);
-          }
-        } catch (err) {
-          store.setKey("rotateSecret", undefined);
-          store.setKey("error", err as GraphQLError);
+      try {
+        const { data, errors } = await rotateSecretMutation({
+          variables,
+          refetchQueries: [],
+          awaitRefetchQueries: false
+        })
+        store.setKey('rotateSecret', data?.rotateSecret)
+        store.setKey('error', errors?.[0])
+        if (onCompleted) {
+          onCompleted(data)
         }
-
-        store.setKey("loading", false);
+      } catch (err) {
+        store.setKey('rotateSecret', undefined)
+        store.setKey('error', err as GraphQLError)
       }
-    );
+
+      store.setKey('loading', false)
+    })
 
   const rotateSecret = ({
     refetchQueries = undefined,
-    awaitRefetchQueries = false,
+    awaitRefetchQueries = false
   }: {
-    refetchQueries?: string[];
-    awaitRefetchQueries?: boolean;
+    refetchQueries?: string[]
+    awaitRefetchQueries?: boolean
   }) => {
-    const { rotateSecret, loading, error } = useStore(rotateSecretStore);
+    const { rotateSecret, loading, error } = useStore(rotateSecretStore)
 
     if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(rotateSecret, refetchQueries, awaitRefetchQueries);
+      runRefetch(rotateSecret, refetchQueries, awaitRefetchQueries)
     }
 
     return [
@@ -2068,19 +2680,20 @@ export const PhotonProvider = (opts: {
       {
         rotateSecret,
         loading,
-        error,
-      },
-    ];
-  };
+        error
+      }
+    ]
+  }
 
-  functionLookup.getWebhooks = fetchWebhooks;
-  functionLookup.getOrders = fetchOrders;
-  functionLookup.getPatients = fetchPatients;
-  functionLookup.getPrescriptions = fetchPrescriptions;
-  functionLookup.getClients = fetchClients;
+  functionLookup.getWebhooks = fetchWebhooks
+  functionLookup.getOrders = fetchOrders
+  functionLookup.getPatients = fetchPatients
+  functionLookup.getPrescriptions = fetchPrescriptions
+  functionLookup.getClients = fetchClients
+  functionLookup.getCatalog = fetchCatalog
 
   const setOrganization = (organizationId: string) => {
-    client.setOrganization(organizationId);
+    client.setOrganization(organizationId)
   }
 
   const contextValue = {
@@ -2116,14 +2729,21 @@ export const PhotonProvider = (opts: {
     getAllergens,
     removePatientAllergy,
     getDispenseUnits,
-    setOrganization
-  };
+    setOrganization,
+    addToCatalog,
+    getMedicationConcepts,
+    getMedicationStrengths,
+    getMedicationRoutes,
+    getMedicationForms,
+    getMedicationProducts,
+    getMedicationPackages,
+    removeFromCatalog,
+    deletePrescriptionTemplate
+  }
 
   return (
-    <PhotonClientContext.Provider value={contextValue}>
-      {children}
-    </PhotonClientContext.Provider>
-  );
-};
+    <PhotonClientContext.Provider value={contextValue}>{children}</PhotonClientContext.Provider>
+  )
+}
 
-export const usePhoton = () => useContext(PhotonClientContext);
+export const usePhoton = () => useContext(PhotonClientContext)
