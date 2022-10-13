@@ -52,8 +52,16 @@ export const MEDICATION_FIELDS = gql`
   fragment MedicationFields on Medication {
     id
     name
+    form
     schedule
     controlled
+  }
+`
+
+export const SEARCH_MEDICATION_FIELDS = gql`
+  fragment SearchMedicationFields on SearchMedication {
+    id
+    name
   }
 `
 
