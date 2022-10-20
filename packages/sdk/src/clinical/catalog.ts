@@ -42,7 +42,6 @@ import { Catalog, Treatment } from "../types";
   fragment?: Record<string, DocumentNode>;
 }
 
-
 /**
   * Contains various methods for Photon Catalogs
   */
