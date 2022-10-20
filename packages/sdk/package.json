@@ -1,6 +1,6 @@
 {
   "name": "@photonhealth/sdk",
-  "version": "0.1.11-alpha.5+af370de",
+  "version": "0.1.11",
   "main": "src/lib.js",
   "scripts": {
     "build": "rimraf dist && vite build",
