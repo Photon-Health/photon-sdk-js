@@ -4,9 +4,9 @@ import {
   gql,
   NormalizedCacheObject,
 } from "@apollo/client";
-import { CATALOG_FIELDS } from "../fragments";
-import { makeQuery } from "../utils";
-import { Catalog } from "../types";
+import { CATALOG_FIELDS, MEDICATION_FIELDS } from "../fragments";
+import { makeMutation, makeQuery } from "../utils";
+import { Catalog, Treatment } from "../types";
 
 /**
  * GetCatalogs options
@@ -24,6 +24,14 @@ import { Catalog } from "../types";
  export interface GetCatalogOptions {
   id: string
   fragment?: Record<string, DocumentNode>
+}
+
+/**
+ * CreateCatalog options
+ * @param fragment Allows you to override the default query to request more fields
+ */
+ export interface AddToCatalogOptions {
+  fragment?: Record<string, DocumentNode>;
 }
 
 
@@ -94,5 +102,37 @@ export class CatalogQueryManager {
       }
     `;
     return makeQuery<{ catalog: Catalog }>(this.apollo, GET_CATALOG, { id });
+  }
+
+  /**
+   * Adds a medication to a catalog
+   * @param options - Query options
+   * @returns
+   */
+   public addToCatalog({ fragment }: AddToCatalogOptions) {
+    if (!fragment) {
+      fragment = { MedicationFields: MEDICATION_FIELDS };
+    }
+    let [fName, fValue] = Object.entries(fragment)[0];
+    const ADD_TO_CATALOG = gql`
+      ${fValue}
+      mutation addToCatalog(
+        $catalogId: ID!
+        $treatmentId: ID
+        $ndc: String
+      ) {
+        addToCatalog(
+          catalogId: $catalogId
+          treatmentId: $treatmentId
+          ndc: $ndc
+        ) {
+          ...${fName}
+        }
+      }
+    `;
+    return makeMutation<{ addToCatalog: Treatment } | undefined | null>(
+      this.apollo,
+      ADD_TO_CATALOG
+    );
   }
 }
