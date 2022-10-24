@@ -27,13 +27,20 @@ import { Catalog, Treatment } from "../types";
 }
 
 /**
- * CreateCatalog options
+ * AddToCatalogOptions options
  * @param fragment Allows you to override the default query to request more fields
  */
  export interface AddToCatalogOptions {
   fragment?: Record<string, DocumentNode>;
 }
 
+/**
+ * RemoveFromCatalogOptions options
+ * @param fragment Allows you to override the default query to request more fields
+ */
+ export interface RemoveFromCatalogOptions {
+  fragment?: Record<string, DocumentNode>;
+}
 
 /**
   * Contains various methods for Photon Catalogs
@@ -105,7 +112,7 @@ export class CatalogQueryManager {
   }
 
   /**
-   * Adds a medication to a catalog
+   * Adds a treatment to a catalog
    * @param options - Query options
    * @returns
    */
@@ -118,13 +125,11 @@ export class CatalogQueryManager {
       ${fValue}
       mutation addToCatalog(
         $catalogId: ID!
-        $treatmentId: ID
-        $ndc: String
+        $treatmentId: ID!
       ) {
         addToCatalog(
           catalogId: $catalogId
           treatmentId: $treatmentId
-          ndc: $ndc
         ) {
           ...${fName}
         }
@@ -133,6 +138,36 @@ export class CatalogQueryManager {
     return makeMutation<{ addToCatalog: Treatment } | undefined | null>(
       this.apollo,
       ADD_TO_CATALOG
+    );
+  }
+
+  /**
+   * Removes a treatment from a catalog
+   * @param options - Query options
+   * @returns
+   */
+   public removeFromCatalog({ fragment }: RemoveFromCatalogOptions) {
+    if (!fragment) {
+      fragment = { MedicationFields: MEDICATION_FIELDS };
+    }
+    let [fName, fValue] = Object.entries(fragment)[0];
+    const REMOVE_FROM_CATALOG = gql`
+      ${fValue}
+      mutation removeFromCatalog(
+        $catalogId: ID!
+        $treatmentId: ID!
+      ) {
+        removeFromCatalog(
+          catalogId: $catalogId
+          treatmentId: $treatmentId
+        ) {
+          ...${fName}
+        }
+      }
+    `;
+    return makeMutation<{ removeFromCatalog: Treatment } | undefined | null>(
+      this.apollo,
+      REMOVE_FROM_CATALOG
     );
   }
 }

@@ -77,7 +77,12 @@ export type GetCatalogReturn = {
   catalog: Catalog
   loading: boolean
   error?: ApolloError
-  refetch: PhotonClient['clinical']['catalog']['getCatalog']
+  refetch: PhotonClient['clinical']['catalog']['getCatalog'],
+  query?: ({ id, fragment }: { id: string, fragment?: Record<string, DocumentNode> }) => Promise<{
+    catalog?: Catalog
+    loading: boolean
+    error?: ApolloError
+  }>
 }
 
 export type GetMedicationReturn = {
@@ -233,11 +238,11 @@ export interface PhotonClientContextInterface {
   addToCatalog: ({
     refetchQueries,
     refetchArgs,
-    awaitRefetchQueries
+    awaitRefetchQueries,
   }: {
     refetchQueries: string[]
     refetchArgs?: Record<string, any>,
-    awaitRefetchQueries?: boolean
+    awaitRefetchQueries?: boolean,
   }) => [
     ({
       variables,
@@ -252,12 +257,36 @@ export interface PhotonClientContextInterface {
       loading: boolean
     }
   ]
+  removeFromCatalog: ({
+    refetchQueries,
+    refetchArgs,
+    awaitRefetchQueries,
+  }: {
+    refetchQueries: string[]
+    refetchArgs?: Record<string, any>,
+    awaitRefetchQueries?: boolean,
+  }) => [
+    ({
+      variables,
+      onCompleted
+    }: {
+      variables: object
+      onCompleted?: (data: any) => void | undefined
+    }) => Promise<void>,
+    {
+      data: { removeFromCatalog: Treatment } | undefined | null
+      error: GraphQLError
+      loading: boolean
+    }
+  ]
   createPrescriptionTemplate: ({
     refetchQueries,
-    awaitRefetchQueries
+    awaitRefetchQueries,
+    refetchArgs
   }: {
     refetchQueries: string[]
     awaitRefetchQueries?: boolean
+    refetchArgs?: Record<string, any>
   }) => [
     ({
       variables,
@@ -268,6 +297,28 @@ export interface PhotonClientContextInterface {
     }) => Promise<void>,
     {
       data: { createPrescriptionTemplate: PrescriptionTemplate } | undefined | null
+      error: GraphQLError
+      loading: boolean
+    }
+  ]
+  deletePrescriptionTemplate: ({
+    refetchQueries,
+    awaitRefetchQueries,
+    refetchArgs
+  }: {
+    refetchQueries: string[]
+    awaitRefetchQueries?: boolean
+    refetchArgs?: Record<string, any>
+  }) => [
+    ({
+      variables,
+      onCompleted
+    }: {
+      variables: object
+      onCompleted?: (data: any) => void | undefined
+    }) => Promise<void>,
+    {
+      data: { deletePrescriptionTemplate: PrescriptionTemplate } | undefined | null
       error: GraphQLError
       loading: boolean
     }
@@ -386,10 +437,12 @@ export interface PhotonClientContextInterface {
   ]
   getCatalog: ({
     id,
-    fragment
+    fragment,
+    defer
   }: {
     id: string
     fragment?: Record<string, DocumentNode>
+    defer?: boolean
   }) => GetCatalogReturn
   getCatalogs: () => {
     catalogs: Catalog[]
@@ -538,6 +591,7 @@ const PhotonClientContext = createContext<PhotonClientContextInterface>({
   removePatientAllergy: stub,
   createOrder: stub,
   createPrescriptionTemplate: stub,
+  deletePrescriptionTemplate: stub,
   getClients: stub,
   getPharmacies: stub,
   getMedications: stub,
@@ -566,6 +620,7 @@ const PhotonClientContext = createContext<PhotonClientContextInterface>({
   error: undefined,
   setOrganization: stub,
   addToCatalog: stub,
+  removeFromCatalog: stub,
   getMedicationConcepts: stub,
   getMedicationStrengths: stub,
   getMedicationRoutes: stub,
@@ -1390,7 +1445,7 @@ export const PhotonProvider = (opts: {
     error?: ApolloError
   }>({
     catalog: undefined,
-    loading: true,
+    loading: false,
     error: undefined
   })
 
@@ -1407,25 +1462,38 @@ export const PhotonProvider = (opts: {
 
   const getCatalog = ({
     id,
-    fragment
+    fragment,
+    defer
   }: {
     id: string
-    fragment?: Record<string, DocumentNode>
+    fragment?: Record<string, DocumentNode>,
+    defer?: boolean
   }) => {
     const { catalog, loading, error } = useStore(getCatalogStore)
 
-    useEffect(() => {
-      if (id) {
-        fetchCatalog({ id, fragment })
-      }
-    }, [id])
+
+    if (!defer) {
+      useEffect(() => {
+        if (id) {
+          fetchCatalog({ id, fragment })
+        }
+      }, [id])
+    }
 
     return {
       catalog,
       loading,
       error,
       refetch: ({ id }: { id: string; fragment?: Record<string, DocumentNode> }) =>
-        client.clinical.catalog.getCatalog({ id, fragment })
+        client.clinical.catalog.getCatalog({ id, fragment }),
+      query: defer ? async ({ id, fragment }: { id: string, fragment?: Record<string, DocumentNode> }) => {
+          await fetchCatalog({ id, fragment })
+          return {
+            catalog,
+            loading,
+            error
+          }
+        } : undefined
     }
   }
 
@@ -1500,11 +1568,11 @@ export const PhotonProvider = (opts: {
   const addToCatalog = ({
     refetchQueries = undefined,
     refetchArgs = undefined,
-    awaitRefetchQueries = false
+    awaitRefetchQueries = false,
   }: {
     refetchQueries?: string[]
     refetchArgs?: Record<string, any>
-    awaitRefetchQueries?: boolean
+    awaitRefetchQueries?: boolean,
   }) => {
     const { addToCatalog, loading, error } = useStore(addToCatalogStore)
 
@@ -1515,6 +1583,65 @@ export const PhotonProvider = (opts: {
       constructFetchAddToCatalog(),
       {
         addToCatalog,
+        loading,
+        error
+      }
+    ]
+  }
+
+  const removeFromCatalogStore = map<{
+    removeFromCatalog?: Treatment
+    loading: boolean
+    error?: GraphQLError
+  }>({
+    removeFromCatalog: undefined,
+    loading: false,
+    error: undefined
+  })
+
+  const removeFromCatalogMutation = client.clinical.catalog.removeFromCatalog({})
+
+  const constructFetchRemoveFromCatalog = () =>
+    action(removeFromCatalogStore, 'removeFromCatalogMutation', async (store, { variables, onCompleted }) => {
+      store.setKey('loading', true)
+
+      try {
+        const { data, errors } = await removeFromCatalogMutation({
+          variables,
+          refetchQueries: [],
+          awaitRefetchQueries: false
+        })
+        store.setKey('removeFromCatalog', data?.removeFromCatalog)
+        store.setKey('error', errors?.[0])
+        if (onCompleted) {
+          onCompleted(data)
+        }
+      } catch (err) {
+        store.setKey('removeFromCatalog', undefined)
+        store.setKey('error', err as GraphQLError)
+      }
+
+      store.setKey('loading', false)
+    })
+
+  const removeFromCatalog = ({
+    refetchQueries = undefined,
+    refetchArgs = undefined,
+    awaitRefetchQueries = false,
+  }: {
+    refetchQueries?: string[]
+    refetchArgs?: Record<string, any>
+    awaitRefetchQueries?: boolean,
+  }) => {
+    const { removeFromCatalog, loading, error } = useStore(removeFromCatalogStore)
+
+    if (refetchQueries && refetchQueries.length > 0) {
+      runRefetch(removeFromCatalog, refetchQueries, awaitRefetchQueries, refetchArgs)
+    }
+    return [
+      constructFetchRemoveFromCatalog(),
+      {
+        removeFromCatalog,
         loading,
         error
       }
@@ -2026,20 +2153,86 @@ export const PhotonProvider = (opts: {
 
   const createPrescriptionTemplate = ({
     refetchQueries = undefined,
-    awaitRefetchQueries = false
+    awaitRefetchQueries = false,
+    refetchArgs
   }: {
     refetchQueries?: string[]
-    awaitRefetchQueries?: boolean
+    awaitRefetchQueries?: boolean,
+    refetchArgs: Record<string, any>
   }) => {
     const { createPrescriptionTemplate, loading, error } = useStore(createPrescriptionTemplateStore)
 
     if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(createPrescriptionTemplate, refetchQueries, awaitRefetchQueries)
+      runRefetch(createPrescriptionTemplate, refetchQueries, awaitRefetchQueries, refetchArgs)
     }
     return [
       constructFetchCreatePrescriptionTemplate(),
       {
         createPrescriptionTemplate,
+        loading,
+        error
+      }
+    ]
+  }
+
+  const deletePrescriptionTemplateStore = map<{
+    deletePrescriptionTemplate?: PrescriptionTemplate
+    loading: boolean
+    error?: GraphQLError
+  }>({
+    deletePrescriptionTemplate: undefined,
+    loading: false,
+    error: undefined
+  })
+
+  const deletePrescriptionTemplateMutation =
+    client.clinical.prescriptionTemplate.deletePrescriptionTemplate({})
+
+  const constructFetchDeletePrescriptionTemplate = () =>
+    action(
+      deletePrescriptionTemplateStore,
+      'deletePrescriptionTemplateMutation',
+      async (store, { variables, onCompleted }) => {
+        store.setKey('loading', true)
+
+        try {
+          const { data, errors } = await deletePrescriptionTemplateMutation({
+            variables,
+            refetchQueries: [],
+            awaitRefetchQueries: false
+          })
+          store.setKey('deletePrescriptionTemplate', data?.deletePrescriptionTemplate)
+          store.setKey('error', errors?.[0])
+          if (onCompleted) {
+            onCompleted(data)
+          }
+        } catch (err) {
+          store.setKey('deletePrescriptionTemplate', undefined)
+          store.setKey('error', err as GraphQLError)
+        }
+
+        store.setKey('loading', false)
+      }
+    )
+
+  const deletePrescriptionTemplate = ({
+    refetchQueries = undefined,
+    awaitRefetchQueries = false,
+    refetchArgs
+  }: {
+    refetchQueries?: string[]
+    awaitRefetchQueries?: boolean,
+    refetchArgs: Record<string, any>
+  }) => {
+    const { deletePrescriptionTemplate, loading, error } = useStore(deletePrescriptionTemplateStore)
+
+    if (refetchQueries && refetchQueries.length > 0) {
+      runRefetch(deletePrescriptionTemplate, refetchQueries, awaitRefetchQueries, refetchArgs)
+    }
+    return [
+      constructFetchDeletePrescriptionTemplate(),
+      {
+        deletePrescriptionTemplate,
         loading,
         error
       }
@@ -2543,7 +2736,9 @@ export const PhotonProvider = (opts: {
     getMedicationRoutes,
     getMedicationForms,
     getMedicationProducts,
-    getMedicationPackages
+    getMedicationPackages,
+    removeFromCatalog,
+    deletePrescriptionTemplate
   }
 
   return (

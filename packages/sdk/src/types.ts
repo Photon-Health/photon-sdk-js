@@ -121,7 +121,7 @@ export type FillInput = {
 
 export enum FillState {
   New = 'NEW',
-  Sent = 'SENT'
+  Sent = 'SENT',
 }
 
 export type LatLongSearch = {
@@ -187,7 +187,9 @@ export type Mutation = {
   createPrescription: Prescription;
   createPrescriptionTemplate?: Maybe<PrescriptionTemplate>;
   createWebhookConfig: WebhookConfig;
+  deletePrescriptionTemplate: PrescriptionTemplate;
   deleteWebhookConfig?: Maybe<Scalars['Boolean']>;
+  removeFromCatalog: Treatment;
   removePatientAllergy: Patient;
   rotateSecret: Client;
   /** Update an existing `Patient` record */
@@ -198,8 +200,7 @@ export type Mutation = {
 
 export type MutationAddToCatalogArgs = {
   catalogId: Scalars['ID'];
-  ndc?: InputMaybe<Scalars['String']>;
-  treatmentId?: InputMaybe<Scalars['ID']>;
+  treatmentId: Scalars['ID'];
 };
 
 
@@ -262,11 +263,19 @@ export type MutationCreateWebhookConfigArgs = {
   url: Scalars['String'];
 };
 
+export type MutationDeletePrescriptionTemplateArgs = {
+  catalogId: Scalars['ID'];
+  templateId: Scalars['ID'];
+};
 
 export type MutationDeleteWebhookConfigArgs = {
   id: Scalars['String'];
 };
 
+export type MutationRemoveFromCatalogArgs = {
+  catalogId: Scalars['ID'];
+  treatmentId: Scalars['ID'];
+};
 
 export type MutationRemovePatientAllergyArgs = {
   allergenId: Scalars['ID'];
@@ -340,7 +349,7 @@ export enum OrderState {
   Completed = 'COMPLETED',
   Error = 'ERROR',
   Pending = 'PENDING',
-  Placed = 'PLACED'
+  Placed = 'PLACED',
 }
 
 export enum OrgType {
@@ -470,7 +479,7 @@ export type PrescriptionFilter = {
 export enum PrescriptionState {
   Active = 'ACTIVE',
   Depleted = 'DEPLETED',
-  Expired = 'EXPIRED'
+  Expired = 'EXPIRED',
 }
 
 export type PrescriptionTemplate = {
@@ -584,36 +593,29 @@ export type QueryMedicalEquipmentArgs = {
   name?: InputMaybe<Scalars['String']>;
 };
 
-
 export type QueryMedicationConceptsArgs = {
   name: Scalars['String'];
 };
-
 
 export type QueryMedicationFormsArgs = {
   id: Scalars['String'];
 };
 
-
 export type QueryMedicationPackagesArgs = {
   id: Scalars['String'];
 };
-
 
 export type QueryMedicationProductsArgs = {
   id: Scalars['String'];
 };
 
-
 export type QueryMedicationRoutesArgs = {
   id: Scalars['String'];
 };
 
-
 export type QueryMedicationStrengthsArgs = {
   id: Scalars['String'];
 };
-
 
 export type QueryMedicationsArgs = {
   after?: InputMaybe<Scalars['ID']>;
@@ -682,7 +684,7 @@ export enum ScheduleType {
   Ii = 'II',
   Iii = 'III',
   Iv = 'IV',
-  V = 'V'
+  V = 'V',
 }
 
 export type SearchMedication = {
@@ -696,13 +698,13 @@ export enum SearchMedicationType {
   Concept = 'CONCEPT',
   Form = 'FORM',
   Route = 'ROUTE',
-  Strength = 'STRENGTH'
+  Strength = 'STRENGTH',
 }
 
 export enum SexType {
   Female = 'FEMALE',
   Male = 'MALE',
-  Unknown = 'UNKNOWN'
+  Unknown = 'UNKNOWN',
 }
 
 export type Treatment = {
