@@ -77,8 +77,8 @@ export type GetCatalogReturn = {
   catalog: Catalog
   loading: boolean
   error?: ApolloError
-  refetch: PhotonClient['clinical']['catalog']['getCatalog'],
-  query?: ({ id, fragment }: { id: string, fragment?: Record<string, DocumentNode> }) => Promise<{
+  refetch: PhotonClient['clinical']['catalog']['getCatalog']
+  query?: ({ id, fragment }: { id: string; fragment?: Record<string, DocumentNode> }) => Promise<{
     catalog?: Catalog
     loading: boolean
     error?: ApolloError
@@ -238,11 +238,11 @@ export interface PhotonClientContextInterface {
   addToCatalog: ({
     refetchQueries,
     refetchArgs,
-    awaitRefetchQueries,
+    awaitRefetchQueries
   }: {
     refetchQueries: string[]
-    refetchArgs?: Record<string, any>,
-    awaitRefetchQueries?: boolean,
+    refetchArgs?: Record<string, any>
+    awaitRefetchQueries?: boolean
   }) => [
     ({
       variables,
@@ -260,11 +260,11 @@ export interface PhotonClientContextInterface {
   removeFromCatalog: ({
     refetchQueries,
     refetchArgs,
-    awaitRefetchQueries,
+    awaitRefetchQueries
   }: {
     refetchQueries: string[]
-    refetchArgs?: Record<string, any>,
-    awaitRefetchQueries?: boolean,
+    refetchArgs?: Record<string, any>
+    awaitRefetchQueries?: boolean
   }) => [
     ({
       variables,
@@ -329,7 +329,7 @@ export interface PhotonClientContextInterface {
     error?: ApolloError
     refetch: PhotonClient['clinical']['prescription']['getPrescription']
   }
-  getMedicationConcepts: ({ name, defer }: { name: string, defer?: boolean }) => {
+  getMedicationConcepts: ({ name, defer }: { name: string; defer?: boolean }) => {
     medicationConcepts: SearchMedication[]
     loading: boolean
     error?: ApolloError
@@ -340,7 +340,7 @@ export interface PhotonClientContextInterface {
       error?: ApolloError
     }>
   }
-  getMedicationStrengths: ({ id, defer }: { id: string, defer?: boolean }) => {
+  getMedicationStrengths: ({ id, defer }: { id: string; defer?: boolean }) => {
     medicationStrengths: SearchMedication[]
     loading: boolean
     error?: ApolloError
@@ -351,7 +351,7 @@ export interface PhotonClientContextInterface {
       error?: ApolloError
     }>
   }
-  getMedicationRoutes: ({ id, defer }: { id: string, defer?: boolean }) => {
+  getMedicationRoutes: ({ id, defer }: { id: string; defer?: boolean }) => {
     medicationRoutes: SearchMedication[]
     loading: boolean
     error?: ApolloError
@@ -362,7 +362,7 @@ export interface PhotonClientContextInterface {
       error?: ApolloError
     }>
   }
-  getMedicationForms: ({ id, defer }: { id: string, defer?: boolean }) => {
+  getMedicationForms: ({ id, defer }: { id: string; defer?: boolean }) => {
     medicationForms: Medication[]
     loading: boolean
     error?: ApolloError
@@ -373,7 +373,7 @@ export interface PhotonClientContextInterface {
       error?: ApolloError
     }>
   }
-  getMedicationProducts: ({ id, defer }: { id: string, defer?: boolean }) => {
+  getMedicationProducts: ({ id, defer }: { id: string; defer?: boolean }) => {
     medicationProducts: Medication[]
     loading: boolean
     error?: ApolloError
@@ -384,7 +384,7 @@ export interface PhotonClientContextInterface {
       error?: ApolloError
     }>
   }
-  getMedicationPackages: ({ id, defer }: { id: string, defer?: boolean }) => {
+  getMedicationPackages: ({ id, defer }: { id: string; defer?: boolean }) => {
     medicationPackages: Medication[]
     loading: boolean
     error?: ApolloError
@@ -731,37 +731,27 @@ export const PhotonProvider = (opts: {
   }
   /// Utilities
 
-  const runRefetch = (query: any, refetchQueries: string[], awaitRefetchQueries: boolean, args?: Record<string, any>) =>
-    useEffect(() => {
-      const asyncExecutor = async () => {
-        if (query) {
-          if (refetchQueries) {
-            const promises = refetchQueries
-              .filter((x) => {
-                if (!Object.keys(functionLookup).includes(x)) {
-                  console.warn(`${x} is not a defined query in the React SDK`)
-                  return false
-                }
-                return true
-              })
-              .map((x) => {
-                const fn = functionLookup[x]
-                if (args) {
-                  return fn(args)
-                } else {
-                  return fn()
-                }
-              })
-            if (awaitRefetchQueries) {
-              await Promise.all(promises)
-            } else {
-              Promise.all(promises)
-            }
+  const runRefetch = async (refetchQueries: string[], args?: Record<string, any>) => {
+    if (refetchQueries) {
+      const promises = refetchQueries
+        .filter((x) => {
+          if (!Object.keys(functionLookup).includes(x)) {
+            console.warn(`${x} is not a defined query in the React SDK`)
+            return false
           }
-        }
-      }
-      asyncExecutor()
-    }, [query])
+          return true
+        })
+        .map((x) => {
+          const fn = functionLookup[x]
+          if (args) {
+            return fn(args)
+          } else {
+            return fn()
+          }
+        })
+      await Promise.all(promises)
+    }
+  }
 
   /// Patient
 
@@ -869,7 +859,11 @@ export const PhotonProvider = (opts: {
 
   const createPatientMutation = client.clinical.patient.createPatient({})
 
-  const constructFetchCreatePatient = () =>
+  const constructFetchCreatePatient = ({
+    refetchQueries = undefined
+  }: {
+    refetchQueries?: string[]
+  }) =>
     action(
       createPatientStore,
       'createPatientMutation',
@@ -886,6 +880,9 @@ export const PhotonProvider = (opts: {
           store.setKey('error', errors?.[0])
           if (onCompleted) {
             onCompleted(data)
+          }
+          if (refetchQueries && refetchQueries.length > 0) {
+            await runRefetch(refetchQueries)
           }
         } catch (err) {
           store.setKey('createPatient', undefined)
@@ -905,12 +902,8 @@ export const PhotonProvider = (opts: {
   }) => {
     const { createPatient, loading, error } = useStore(createPatientStore)
 
-    if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(createPatient, refetchQueries, awaitRefetchQueries)
-    }
-
     return [
-      constructFetchCreatePatient(),
+      constructFetchCreatePatient({ refetchQueries }),
       {
         createPatient,
         loading,
@@ -931,7 +924,11 @@ export const PhotonProvider = (opts: {
 
   const updatePatientMutation = client.clinical.patient.updatePatient({})
 
-  const constructFetchUpdatePatient = () =>
+  const constructFetchUpdatePatient = ({
+    refetchQueries = undefined
+  }: {
+    refetchQueries?: string[]
+  }) =>
     action(
       updatePatientStore,
       'updatePatientMutation',
@@ -949,6 +946,9 @@ export const PhotonProvider = (opts: {
           if (onCompleted) {
             onCompleted(data)
           }
+          if (refetchQueries && refetchQueries.length > 0) {
+            await runRefetch(refetchQueries)
+          }
         } catch (err) {
           store.setKey('updatePatient', undefined)
           store.setKey('error', err as GraphQLError)
@@ -958,21 +958,11 @@ export const PhotonProvider = (opts: {
       }
     )
 
-  const updatePatient = ({
-    refetchQueries = undefined,
-    awaitRefetchQueries = false
-  }: {
-    refetchQueries?: string[]
-    awaitRefetchQueries?: boolean
-  }) => {
+  const updatePatient = ({ refetchQueries = undefined }: { refetchQueries?: string[] }) => {
     const { updatePatient, loading, error } = useStore(updatePatientStore)
 
-    if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(updatePatient, refetchQueries, awaitRefetchQueries)
-    }
-
     return [
-      constructFetchUpdatePatient(),
+      constructFetchUpdatePatient({ refetchQueries }),
       {
         updatePatient,
         loading,
@@ -993,7 +983,11 @@ export const PhotonProvider = (opts: {
 
   const removePatientAllergyMutation = client.clinical.patient.removePatientAllergy({})
 
-  const constructFetchRemovePatientAllergy = () =>
+  const constructFetchRemovePatientAllergy = ({
+    refetchQueries = undefined
+  }: {
+    refetchQueries?: string[]
+  }) =>
     action(
       removePatientAllergyStore,
       'removePatientAllergyMutation',
@@ -1011,6 +1005,9 @@ export const PhotonProvider = (opts: {
           if (onCompleted) {
             onCompleted(data)
           }
+          if (refetchQueries && refetchQueries.length > 0) {
+            runRefetch(refetchQueries)
+          }
         } catch (err) {
           store.setKey('removePatientAllergy', undefined)
           store.setKey('error', err as GraphQLError)
@@ -1020,21 +1017,11 @@ export const PhotonProvider = (opts: {
       }
     )
 
-  const removePatientAllergy = ({
-    refetchQueries = undefined,
-    awaitRefetchQueries = false
-  }: {
-    refetchQueries?: string[]
-    awaitRefetchQueries?: boolean
-  }) => {
+  const removePatientAllergy = ({ refetchQueries = undefined }: { refetchQueries?: string[] }) => {
     const { removePatientAllergy, loading, error } = useStore(removePatientAllergyStore)
 
-    if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(removePatientAllergy, refetchQueries, awaitRefetchQueries)
-    }
-
     return [
-      constructFetchRemovePatientAllergy(),
+      constructFetchRemovePatientAllergy({ refetchQueries }),
       {
         removePatientAllergy,
         loading,
@@ -1160,7 +1147,11 @@ export const PhotonProvider = (opts: {
 
   const createOrderMutation = client.clinical.order.createOrder({})
 
-  const constructFetchCreateOrder = () =>
+  const constructFetchCreateOrder = ({
+    refetchQueries = undefined
+  }: {
+    refetchQueries?: string[]
+  }) =>
     action(createOrderStore, 'createOrderMutation', async (store, { variables, onCompleted }) => {
       store.setKey('loading', true)
 
@@ -1175,6 +1166,9 @@ export const PhotonProvider = (opts: {
         if (onCompleted) {
           onCompleted(data)
         }
+        if (refetchQueries && refetchQueries.length > 0) {
+          runRefetch(refetchQueries)
+        }
       } catch (err) {
         store.setKey('createOrder', undefined)
         store.setKey('error', err as GraphQLError)
@@ -1183,20 +1177,11 @@ export const PhotonProvider = (opts: {
       store.setKey('loading', false)
     })
 
-  const createOrder = ({
-    refetchQueries = undefined,
-    awaitRefetchQueries = false
-  }: {
-    refetchQueries?: string[]
-    awaitRefetchQueries?: boolean
-  }) => {
+  const createOrder = ({ refetchQueries = undefined }: { refetchQueries?: string[] }) => {
     const { createOrder, loading, error } = useStore(createOrderStore)
 
-    if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(createOrder, refetchQueries, awaitRefetchQueries)
-    }
     return [
-      constructFetchCreateOrder(),
+      constructFetchCreateOrder({ refetchQueries }),
       {
         createOrder,
         loading,
@@ -1387,7 +1372,11 @@ export const PhotonProvider = (opts: {
   })
   const createPrescriptionMutation = client.clinical.prescription.createPrescription({})
 
-  const constructFetchCreatePrescription = () =>
+  const constructFetchCreatePrescription = ({
+    refetchQueries = undefined
+  }: {
+    refetchQueries?: string[]
+  }) =>
     action(
       createPrescriptionStore,
       'createPrescriptionMutation',
@@ -1405,6 +1394,9 @@ export const PhotonProvider = (opts: {
           if (onCompleted) {
             onCompleted(data)
           }
+          if (refetchQueries && refetchQueries.length > 0) {
+            runRefetch(refetchQueries)
+          }
         } catch (err) {
           store.setKey('createPrescription', undefined)
           store.setKey('error', err as GraphQLError)
@@ -1414,21 +1406,11 @@ export const PhotonProvider = (opts: {
       }
     )
 
-  const createPrescription = ({
-    refetchQueries = undefined,
-    awaitRefetchQueries = false
-  }: {
-    refetchQueries?: string[]
-    awaitRefetchQueries?: boolean
-  }) => {
+  const createPrescription = ({ refetchQueries = undefined }: { refetchQueries?: string[] }) => {
     const { createPrescription, loading, error } = useStore(createPrescriptionStore)
 
-    if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(createPrescription, refetchQueries, awaitRefetchQueries)
-    }
-
     return [
-      constructFetchCreatePrescription(),
+      constructFetchCreatePrescription({ refetchQueries }),
       {
         createPrescription,
         loading,
@@ -1466,11 +1448,10 @@ export const PhotonProvider = (opts: {
     defer
   }: {
     id: string
-    fragment?: Record<string, DocumentNode>,
+    fragment?: Record<string, DocumentNode>
     defer?: boolean
   }) => {
     const { catalog, loading, error } = useStore(getCatalogStore)
-
 
     if (!defer) {
       useEffect(() => {
@@ -1486,14 +1467,16 @@ export const PhotonProvider = (opts: {
       error,
       refetch: ({ id }: { id: string; fragment?: Record<string, DocumentNode> }) =>
         client.clinical.catalog.getCatalog({ id, fragment }),
-      query: defer ? async ({ id, fragment }: { id: string, fragment?: Record<string, DocumentNode> }) => {
-          await fetchCatalog({ id, fragment })
-          return {
-            catalog,
-            loading,
-            error
+      query: defer
+        ? async ({ id, fragment }: { id: string; fragment?: Record<string, DocumentNode> }) => {
+            await fetchCatalog({ id, fragment })
+            return {
+              catalog,
+              loading,
+              error
+            }
           }
-        } : undefined
+        : undefined
     }
   }
 
@@ -1542,7 +1525,13 @@ export const PhotonProvider = (opts: {
 
   const addToCatalogMutation = client.clinical.catalog.addToCatalog({})
 
-  const constructFetchAddToCatalog = () =>
+  const constructFetchAddToCatalog = ({
+    refetchQueries = undefined,
+    refetchArgs = undefined
+  }: {
+    refetchQueries?: string[]
+    refetchArgs?: Record<string, any>
+  }) =>
     action(addToCatalogStore, 'addToCatalogMutation', async (store, { variables, onCompleted }) => {
       store.setKey('loading', true)
 
@@ -1557,6 +1546,9 @@ export const PhotonProvider = (opts: {
         if (onCompleted) {
           onCompleted(data)
         }
+        if (refetchQueries && refetchQueries.length > 0) {
+          runRefetch(refetchQueries, refetchArgs)
+        }
       } catch (err) {
         store.setKey('addToCatalog', undefined)
         store.setKey('error', err as GraphQLError)
@@ -1567,20 +1559,15 @@ export const PhotonProvider = (opts: {
 
   const addToCatalog = ({
     refetchQueries = undefined,
-    refetchArgs = undefined,
-    awaitRefetchQueries = false,
+    refetchArgs = undefined
   }: {
     refetchQueries?: string[]
     refetchArgs?: Record<string, any>
-    awaitRefetchQueries?: boolean,
   }) => {
     const { addToCatalog, loading, error } = useStore(addToCatalogStore)
 
-    if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(addToCatalog, refetchQueries, awaitRefetchQueries, refetchArgs)
-    }
     return [
-      constructFetchAddToCatalog(),
+      constructFetchAddToCatalog({ refetchQueries, refetchArgs }),
       {
         addToCatalog,
         loading,
@@ -1601,45 +1588,53 @@ export const PhotonProvider = (opts: {
 
   const removeFromCatalogMutation = client.clinical.catalog.removeFromCatalog({})
 
-  const constructFetchRemoveFromCatalog = () =>
-    action(removeFromCatalogStore, 'removeFromCatalogMutation', async (store, { variables, onCompleted }) => {
-      store.setKey('loading', true)
-
-      try {
-        const { data, errors } = await removeFromCatalogMutation({
-          variables,
-          refetchQueries: [],
-          awaitRefetchQueries: false
-        })
-        store.setKey('removeFromCatalog', data?.removeFromCatalog)
-        store.setKey('error', errors?.[0])
-        if (onCompleted) {
-          onCompleted(data)
-        }
-      } catch (err) {
-        store.setKey('removeFromCatalog', undefined)
-        store.setKey('error', err as GraphQLError)
-      }
-
-      store.setKey('loading', false)
-    })
-
-  const removeFromCatalog = ({
+  const constructFetchRemoveFromCatalog = ({
     refetchQueries = undefined,
-    refetchArgs = undefined,
-    awaitRefetchQueries = false,
+    refetchArgs = undefined
   }: {
     refetchQueries?: string[]
     refetchArgs?: Record<string, any>
-    awaitRefetchQueries?: boolean,
+  }) =>
+    action(
+      removeFromCatalogStore,
+      'removeFromCatalogMutation',
+      async (store, { variables, onCompleted }) => {
+        store.setKey('loading', true)
+
+        try {
+          const { data, errors } = await removeFromCatalogMutation({
+            variables,
+            refetchQueries: [],
+            awaitRefetchQueries: false
+          })
+          store.setKey('removeFromCatalog', data?.removeFromCatalog)
+          store.setKey('error', errors?.[0])
+          if (onCompleted) {
+            onCompleted(data)
+          }
+          if (refetchQueries && refetchQueries.length > 0) {
+            await runRefetch(refetchQueries, refetchArgs)
+          }
+        } catch (err) {
+          store.setKey('removeFromCatalog', undefined)
+          store.setKey('error', err as GraphQLError)
+        }
+
+        store.setKey('loading', false)
+      }
+    )
+
+  const removeFromCatalog = ({
+    refetchQueries = undefined,
+    refetchArgs = undefined
+  }: {
+    refetchQueries?: string[]
+    refetchArgs?: Record<string, any>
   }) => {
     const { removeFromCatalog, loading, error } = useStore(removeFromCatalogStore)
 
-    if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(removeFromCatalog, refetchQueries, awaitRefetchQueries, refetchArgs)
-    }
     return [
-      constructFetchRemoveFromCatalog(),
+      constructFetchRemoveFromCatalog({ refetchQueries, refetchArgs }),
       {
         removeFromCatalog,
         loading,
@@ -1997,7 +1992,11 @@ export const PhotonProvider = (opts: {
 
   const createWebhookMutation = client.management.webhook.createWebhook({})
 
-  const constructFetchCreateWebhook = () =>
+  const constructFetchCreateWebhook = ({
+    refetchQueries = undefined
+  }: {
+    refetchQueries?: string[]
+  }) =>
     action(
       createWebhookStore,
       'createWebhookMutation',
@@ -2015,6 +2014,9 @@ export const PhotonProvider = (opts: {
           if (onCompleted) {
             onCompleted(data)
           }
+          if (refetchQueries && refetchQueries.length > 0) {
+            runRefetch(refetchQueries)
+          }
         } catch (err) {
           store.setKey('createWebhook', undefined)
           store.setKey('error', err as GraphQLError)
@@ -2024,21 +2026,11 @@ export const PhotonProvider = (opts: {
       }
     )
 
-  const createWebhook = ({
-    refetchQueries = undefined,
-    awaitRefetchQueries = false
-  }: {
-    refetchQueries?: string[]
-    awaitRefetchQueries?: boolean
-  }) => {
+  const createWebhook = ({ refetchQueries = undefined }: { refetchQueries?: string[] }) => {
     const { createWebhook, loading, error } = useStore(createWebhookStore)
 
-    if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(createWebhook, refetchQueries, awaitRefetchQueries)
-    }
-
     return [
-      constructFetchCreateWebhook(),
+      constructFetchCreateWebhook({ refetchQueries }),
       {
         createWebhook,
         loading,
@@ -2059,7 +2051,11 @@ export const PhotonProvider = (opts: {
 
   const deleteWebhookMutation = client.management.webhook.deleteWebhook()
 
-  const constructFetchDeleteWebhook = () =>
+  const constructFetchDeleteWebhook = ({
+    refetchQueries = undefined
+  }: {
+    refetchQueries?: string[]
+  }) =>
     action(
       deleteWebhookStore,
       'deleteWebhookMutation',
@@ -2077,6 +2073,9 @@ export const PhotonProvider = (opts: {
           if (onCompleted) {
             onCompleted(data)
           }
+          if (refetchQueries && refetchQueries.length > 0) {
+            runRefetch(refetchQueries)
+          }
         } catch (err) {
           store.setKey('deleteWebhook', undefined)
           store.setKey('error', err as GraphQLError)
@@ -2086,21 +2085,11 @@ export const PhotonProvider = (opts: {
       }
     )
 
-  const deleteWebhook = ({
-    refetchQueries = undefined,
-    awaitRefetchQueries = false
-  }: {
-    refetchQueries?: string[]
-    awaitRefetchQueries?: boolean
-  }) => {
+  const deleteWebhook = ({ refetchQueries = undefined }: { refetchQueries?: string[] }) => {
     const { deleteWebhook, loading, error } = useStore(deleteWebhookStore)
 
-    if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(deleteWebhook, refetchQueries, awaitRefetchQueries)
-    }
-
     return [
-      constructFetchDeleteWebhook(),
+      constructFetchDeleteWebhook({ refetchQueries }),
       {
         deleteWebhook,
         loading,
@@ -2124,7 +2113,13 @@ export const PhotonProvider = (opts: {
   const createPrescriptionTemplateMutation =
     client.clinical.prescriptionTemplate.createPrescriptionTemplate({})
 
-  const constructFetchCreatePrescriptionTemplate = () =>
+  const constructFetchCreatePrescriptionTemplate = ({
+    refetchQueries = undefined,
+    refetchArgs
+  }: {
+    refetchQueries?: string[]
+    refetchArgs: Record<string, any>
+  }) =>
     action(
       createPrescriptionTemplateStore,
       'createPrescriptionTemplateMutation',
@@ -2142,6 +2137,9 @@ export const PhotonProvider = (opts: {
           if (onCompleted) {
             onCompleted(data)
           }
+          if (refetchQueries && refetchQueries.length > 0) {
+            runRefetch(refetchQueries, refetchArgs)
+          }
         } catch (err) {
           store.setKey('createPrescriptionTemplate', undefined)
           store.setKey('error', err as GraphQLError)
@@ -2153,20 +2151,15 @@ export const PhotonProvider = (opts: {
 
   const createPrescriptionTemplate = ({
     refetchQueries = undefined,
-    awaitRefetchQueries = false,
     refetchArgs
   }: {
     refetchQueries?: string[]
-    awaitRefetchQueries?: boolean,
     refetchArgs: Record<string, any>
   }) => {
     const { createPrescriptionTemplate, loading, error } = useStore(createPrescriptionTemplateStore)
 
-    if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(createPrescriptionTemplate, refetchQueries, awaitRefetchQueries, refetchArgs)
-    }
     return [
-      constructFetchCreatePrescriptionTemplate(),
+      constructFetchCreatePrescriptionTemplate({ refetchQueries, refetchArgs }),
       {
         createPrescriptionTemplate,
         loading,
@@ -2188,7 +2181,13 @@ export const PhotonProvider = (opts: {
   const deletePrescriptionTemplateMutation =
     client.clinical.prescriptionTemplate.deletePrescriptionTemplate({})
 
-  const constructFetchDeletePrescriptionTemplate = () =>
+  const constructFetchDeletePrescriptionTemplate = ({
+    refetchQueries = undefined,
+    refetchArgs
+  }: {
+    refetchQueries?: string[]
+    refetchArgs: Record<string, any>
+  }) =>
     action(
       deletePrescriptionTemplateStore,
       'deletePrescriptionTemplateMutation',
@@ -2206,6 +2205,9 @@ export const PhotonProvider = (opts: {
           if (onCompleted) {
             onCompleted(data)
           }
+          if (refetchQueries && refetchQueries.length > 0) {
+            runRefetch(refetchQueries, refetchArgs)
+          }
         } catch (err) {
           store.setKey('deletePrescriptionTemplate', undefined)
           store.setKey('error', err as GraphQLError)
@@ -2217,20 +2219,15 @@ export const PhotonProvider = (opts: {
 
   const deletePrescriptionTemplate = ({
     refetchQueries = undefined,
-    awaitRefetchQueries = false,
     refetchArgs
   }: {
     refetchQueries?: string[]
-    awaitRefetchQueries?: boolean,
     refetchArgs: Record<string, any>
   }) => {
     const { deletePrescriptionTemplate, loading, error } = useStore(deletePrescriptionTemplateStore)
 
-    if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(deletePrescriptionTemplate, refetchQueries, awaitRefetchQueries, refetchArgs)
-    }
     return [
-      constructFetchDeletePrescriptionTemplate(),
+      constructFetchDeletePrescriptionTemplate({ refetchQueries, refetchArgs }),
       {
         deletePrescriptionTemplate,
         loading,
@@ -2291,14 +2288,16 @@ export const PhotonProvider = (opts: {
       error,
       refetch: ({ name }: { name: string }) =>
         client.clinical.searchMedication.getConcepts({ name }),
-      query: defer ? async ({ name }: { name: string }) => {
-        await fetchMedicationConcepts({ name })
-        return {
-          medicationConcepts,
-          loading,
-          error
-        }
-      } : undefined
+      query: defer
+        ? async ({ name }: { name: string }) => {
+            await fetchMedicationConcepts({ name })
+            return {
+              medicationConcepts,
+              loading,
+              error
+            }
+          }
+        : undefined
     }
   }
 
@@ -2326,15 +2325,7 @@ export const PhotonProvider = (opts: {
     }
   )
 
-  const getMedicationStrengths = (
-    {
-      id,
-      defer
-    }: {
-      id: string
-      defer?: boolean
-    }
-  ) => {
+  const getMedicationStrengths = ({ id, defer }: { id: string; defer?: boolean }) => {
     const { medicationStrengths, loading, error } = useStore(getMedicationStrengthsStore)
 
     if (!defer) {
@@ -2347,16 +2338,17 @@ export const PhotonProvider = (opts: {
       medicationStrengths,
       loading,
       error,
-      refetch: ({ id }: { id: string }) =>
-        client.clinical.searchMedication.getStrengths({ id }),
-      query: defer ? async ({ id }: { id: string }) => {
-          await fetchMedicationStrengths({ id })
-          return {
-            medicationStrengths,
-            loading,
-            error
+      refetch: ({ id }: { id: string }) => client.clinical.searchMedication.getStrengths({ id }),
+      query: defer
+        ? async ({ id }: { id: string }) => {
+            await fetchMedicationStrengths({ id })
+            return {
+              medicationStrengths,
+              loading,
+              error
+            }
           }
-        } : undefined
+        : undefined
     }
   }
 
@@ -2384,15 +2376,7 @@ export const PhotonProvider = (opts: {
     }
   )
 
-  const getMedicationRoutes = (
-    {
-      id,
-      defer
-    }: {
-      id: string
-      defer?: boolean
-    }
-  ) => {
+  const getMedicationRoutes = ({ id, defer }: { id: string; defer?: boolean }) => {
     const { medicationRoutes, loading, error } = useStore(getMedicationRoutesStore)
 
     if (!defer) {
@@ -2405,16 +2389,17 @@ export const PhotonProvider = (opts: {
       medicationRoutes,
       loading,
       error,
-      refetch: ({ id }: { id: string }) =>
-        client.clinical.searchMedication.getRoutes({ id }),
-      query: defer ? async ({ id }: { id: string }) => {
-          await fetchMedicationRoutes({ id })
-          return {
-            medicationRoutes,
-            loading,
-            error
+      refetch: ({ id }: { id: string }) => client.clinical.searchMedication.getRoutes({ id }),
+      query: defer
+        ? async ({ id }: { id: string }) => {
+            await fetchMedicationRoutes({ id })
+            return {
+              medicationRoutes,
+              loading,
+              error
+            }
           }
-        } : undefined
+        : undefined
     }
   }
 
@@ -2442,15 +2427,7 @@ export const PhotonProvider = (opts: {
     }
   )
 
-  const getMedicationForms = (
-    {
-      id,
-      defer
-    }: {
-      id: string
-      defer?: boolean
-    }
-  ) => {
+  const getMedicationForms = ({ id, defer }: { id: string; defer?: boolean }) => {
     const { medicationForms, loading, error } = useStore(getMedicationFormsStore)
 
     if (!defer) {
@@ -2463,16 +2440,17 @@ export const PhotonProvider = (opts: {
       medicationForms,
       loading,
       error,
-      refetch: ({ id }: { id: string }) =>
-        client.clinical.searchMedication.getForms({ id }),
-      query: defer ? async ({ id }: { id: string }) => {
-          await fetchMedicationForms({ id })
-          return {
-            medicationForms,
-            loading,
-            error
+      refetch: ({ id }: { id: string }) => client.clinical.searchMedication.getForms({ id }),
+      query: defer
+        ? async ({ id }: { id: string }) => {
+            await fetchMedicationForms({ id })
+            return {
+              medicationForms,
+              loading,
+              error
+            }
           }
-        } : undefined
+        : undefined
     }
   }
 
@@ -2500,15 +2478,7 @@ export const PhotonProvider = (opts: {
     }
   )
 
-  const getMedicationProducts = (
-    {
-      id,
-      defer
-    }: {
-      id: string
-      defer?: boolean
-    }
-  ) => {
+  const getMedicationProducts = ({ id, defer }: { id: string; defer?: boolean }) => {
     const { medicationProducts, loading, error } = useStore(getMedicationProductsStore)
 
     if (!defer) {
@@ -2521,16 +2491,17 @@ export const PhotonProvider = (opts: {
       medicationProducts,
       loading,
       error,
-      refetch: ({ id }: { id: string }) =>
-        client.clinical.searchMedication.getProducts({ id }),
-      query: defer ? async ({ id }: { id: string }) => {
-          await fetchMedicationProducts({ id })
-          return {
-            medicationProducts,
-            loading,
-            error
+      refetch: ({ id }: { id: string }) => client.clinical.searchMedication.getProducts({ id }),
+      query: defer
+        ? async ({ id }: { id: string }) => {
+            await fetchMedicationProducts({ id })
+            return {
+              medicationProducts,
+              loading,
+              error
+            }
           }
-        } : undefined
+        : undefined
     }
   }
 
@@ -2558,15 +2529,7 @@ export const PhotonProvider = (opts: {
     }
   )
 
-  const getMedicationPackages = (
-    {
-      id,
-      defer
-    }: {
-      id: string
-      defer?: boolean
-    }
-  ) => {
+  const getMedicationPackages = ({ id, defer }: { id: string; defer?: boolean }) => {
     const { medicationPackages, loading, error } = useStore(getMedicationPackagesStore)
 
     if (!defer) {
@@ -2579,16 +2542,17 @@ export const PhotonProvider = (opts: {
       medicationPackages,
       loading,
       error,
-      refetch: ({ id }: { id: string }) =>
-        client.clinical.searchMedication.getPackages({ id }),
-      query: defer ? async ({ id }: { id: string }) => {
-          await fetchMedicationProducts({ id })
-          return {
-            medicationPackages,
-            loading,
-            error
+      refetch: ({ id }: { id: string }) => client.clinical.searchMedication.getPackages({ id }),
+      query: defer
+        ? async ({ id }: { id: string }) => {
+            await fetchMedicationProducts({ id })
+            return {
+              medicationPackages,
+              loading,
+              error
+            }
           }
-        } : undefined
+        : undefined
     }
   }
 
@@ -2639,7 +2603,11 @@ export const PhotonProvider = (opts: {
 
   const rotateSecretMutation = client.management.client.rotateSecret({})
 
-  const constructFetchRotateSecret = () =>
+  const constructFetchRotateSecret = ({
+    refetchQueries = undefined
+  }: {
+    refetchQueries?: string[]
+  }) =>
     action(rotateSecretStore, 'rotateSecretMutation', async (store, { variables, onCompleted }) => {
       store.setKey('loading', true)
 
@@ -2654,6 +2622,9 @@ export const PhotonProvider = (opts: {
         if (onCompleted) {
           onCompleted(data)
         }
+        if (refetchQueries && refetchQueries.length > 0) {
+          runRefetch(refetchQueries)
+        }
       } catch (err) {
         store.setKey('rotateSecret', undefined)
         store.setKey('error', err as GraphQLError)
@@ -2662,21 +2633,11 @@ export const PhotonProvider = (opts: {
       store.setKey('loading', false)
     })
 
-  const rotateSecret = ({
-    refetchQueries = undefined,
-    awaitRefetchQueries = false
-  }: {
-    refetchQueries?: string[]
-    awaitRefetchQueries?: boolean
-  }) => {
+  const rotateSecret = ({ refetchQueries = undefined }: { refetchQueries?: string[] }) => {
     const { rotateSecret, loading, error } = useStore(rotateSecretStore)
 
-    if (refetchQueries && refetchQueries.length > 0) {
-      runRefetch(rotateSecret, refetchQueries, awaitRefetchQueries)
-    }
-
     return [
-      constructFetchRotateSecret(),
+      constructFetchRotateSecret({ refetchQueries }),
       {
         rotateSecret,
         loading,
