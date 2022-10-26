@@ -4,7 +4,7 @@ import {
   gql,
   NormalizedCacheObject,
 } from "@apollo/client";
-import { PHARMACY_FIELDS } from "../fragments";
+import { FAKE_PHARMACY_FIELDS, PHARMACY_FIELDS } from "../fragments";
 import { makeQuery } from "../utils";
 import { LatLongSearch, Pharmacy } from "../types";
 
@@ -96,11 +96,11 @@ export class PharmacyQueryManager {
     public async getPharmacy(
       { id, fragment }: GetPharmacyOptions = {
         id: "",
-        fragment: { PharmacyFields: PHARMACY_FIELDS },
+        fragment: { PharmacyFields: FAKE_PHARMACY_FIELDS },
       }
     ) {
       if (!fragment) {
-        fragment = { PharmacyFields: PHARMACY_FIELDS };
+        fragment = { PharmacyFields: FAKE_PHARMACY_FIELDS };
       }
       let [fName, fValue] = Object.entries(fragment)[0];
       const GET_PHARMACY = gql`
