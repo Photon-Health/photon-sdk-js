@@ -22,6 +22,7 @@ import { MedicalEquipment } from "../types";
   fragment?: Record<string, DocumentNode>
 }
 
+
 /**
   * Contains various methods for Photon Medical Equipment
   */
