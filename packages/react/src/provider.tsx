@@ -1817,7 +1817,6 @@ export const PhotonProvider = (opts: {
   }
 
   /// Pharmacy
-
   const getPharmacyStore = map<{
     pharmacy?: Pharmacy
     loading: boolean
