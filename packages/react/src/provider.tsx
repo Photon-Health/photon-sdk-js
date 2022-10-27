@@ -469,6 +469,12 @@ export interface PhotonClientContextInterface {
     after?: String
   }) => GetMedicalEquipmentReturn
   getAllergens: ({ filter }: { filter?: AllergenFilter }) => GetAllergensReturn
+  getPharmacy: ({ id }: { id: string }) => {
+    pharmacy: Pharmacy
+    loading: boolean
+    error?: ApolloError
+    refetch: PhotonClient['clinical']['pharmacy']['getPharmacy']
+  }
   getPharmacies: ({
     name,
     location
@@ -593,6 +599,7 @@ const PhotonClientContext = createContext<PhotonClientContextInterface>({
   createPrescriptionTemplate: stub,
   deletePrescriptionTemplate: stub,
   getClients: stub,
+  getPharmacy: stub,
   getPharmacies: stub,
   getMedications: stub,
   getMedicalEquipment: stub,
@@ -1810,6 +1817,42 @@ export const PhotonProvider = (opts: {
   }
 
   /// Pharmacy
+  
+  const getPharmacyStore = map<{
+    pharmacy?: Pharmacy
+    loading: boolean
+    error?: ApolloError
+  }>({
+    pharmacy: undefined,
+    loading: true,
+    error: undefined
+  })
+
+  const fetchPharmacy = action(getPharmacyStore, 'fetchPharmacy', async (store, { id }) => {
+    store.setKey('loading', true)
+    const { data, error } = await client.clinical.pharmacy.getPharmacy({
+      id
+    })
+    store.setKey('pharmacy', data?.pharmacy || undefined)
+    store.setKey('error', error)
+    store.setKey('loading', false)
+  })
+
+  const getPharmacy = ({ id }: { id: string }) => {
+    const { pharmacy, loading, error } = useStore(getPharmacyStore)
+
+    useEffect(() => {
+      fetchPharmacy({ id })
+    }, [id])
+
+    return {
+      pharmacy,
+      loading,
+      error,
+      refetch: ({ id }: { id: string }) => client.clinical.pharmacy.getPharmacy({ id })
+    }
+  }
+
 
   const getPharmaciesStore = map<{
     pharmacies: Pharmacy[]
@@ -2683,6 +2726,7 @@ export const PhotonProvider = (opts: {
     createWebhook,
     deleteWebhook,
     getPharmacies,
+    getPharmacy,
     getClients,
     rotateSecret,
     clearError,

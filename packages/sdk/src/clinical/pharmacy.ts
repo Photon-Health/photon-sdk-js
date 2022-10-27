@@ -23,6 +23,17 @@ import { LatLongSearch, Pharmacy } from "../types";
 }
 
 /**
+ * GetPharmacy options
+ * @param id The id of the pharmacy
+ * @param fragment Allows you to override the default query to request more fields
+ */
+ export interface GetPharmacyOptions {
+  id?: string;
+  fragment?: Record<string, DocumentNode>;
+}
+
+
+/**
  * Contains various methods for Photon Pharmacies
  */
 export class PharmacyQueryManager {
@@ -76,4 +87,30 @@ export class PharmacyQueryManager {
       first
     });
   }
+
+   /**
+   * Retrieves pharmacy by id
+   * @param options - Query options
+   * @returns
+   */
+    public async getPharmacy(
+      { id, fragment }: GetPharmacyOptions = {
+        id: "",
+        fragment: { PharmacyFields: PHARMACY_FIELDS },
+      }
+    ) {
+      if (!fragment) {
+        fragment = { PharmacyFields: PHARMACY_FIELDS };
+      }
+      let [fName, fValue] = Object.entries(fragment)[0];
+      const GET_PHARMACY = gql`
+          ${fValue}
+          query pharmacy($id: ID!) {
+            pharmacy(id: $id) {
+              ...${fName}
+            }
+          }
+        `;
+      return makeQuery<{ pharmacy: Pharmacy }>(this.apollo, GET_PHARMACY, { id: id });
+    }
 }

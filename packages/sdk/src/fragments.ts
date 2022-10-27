@@ -189,7 +189,7 @@ export const CLIENT_FIELDS = gql`
 `
 
 export const PHARMACY_FIELDS = gql`
-  fragment PharmacyFields on Organization {
+  fragment PharmacyFields on Pharmacy {
     id
     name
     address {
