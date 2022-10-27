@@ -189,21 +189,6 @@ export const CLIENT_FIELDS = gql`
 `
 
 export const PHARMACY_FIELDS = gql`
-  fragment PharmacyFields on Organization {
-    id
-    name
-    address {
-      city
-      country
-      postalCode
-      state
-      street1
-      street2
-    }
-  }
-`
-
-export const FAKE_PHARMACY_FIELDS = gql`
   fragment PharmacyFields on Pharmacy {
     id
     name
