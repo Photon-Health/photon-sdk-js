@@ -204,6 +204,7 @@ export class PatientQueryManager {
         $phone: AWSPhone
         $allergies: [AllergenInput]
         $medicationHistory: [MedHistoryInput]
+        $address: AddressInput
       ) {
         updatePatient(
           id: $id
@@ -214,6 +215,7 @@ export class PatientQueryManager {
           phone: $phone
           allergies: $allergies
           medicationHistory: $medicationHistory
+          address: $address
         ) {
           ...${fName}
         }
