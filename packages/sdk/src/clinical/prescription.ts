@@ -214,4 +214,25 @@ export class PrescriptionQueryManager {
       { createPrescription: Prescription } | undefined | null
     >(this.apollo, CREATE_PRESCRIPTION);
   }
+
+  public createPrescriptions({ fragment }: CreatePrescriptionOptions) {
+    if (!fragment) {
+      fragment = { PrescriptionFields: PRESCRIPTION_FIELDS };
+    }
+    let [fName, fValue] = Object.entries(fragment)[0];
+    const CREATE_PRESCRIPTIONS = gql`
+      ${fValue}
+      mutation createPrescriptions(
+        $prescriptions: [PrescriptionInput]!
+      ) {
+        createPrescriptions(
+          prescriptions: $prescriptions
+        ) {
+          ...${fName}
+        }
+      }`;
+    return makeMutation<
+      { createPrescriptions: [Prescription] } | undefined | null
+    >(this.apollo, CREATE_PRESCRIPTIONS);
+  }
 }
