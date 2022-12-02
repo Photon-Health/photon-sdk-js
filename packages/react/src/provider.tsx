@@ -107,7 +107,13 @@ export type GetAllergensReturn = {
 }
 
 export interface PhotonClientContextInterface {
-  getPatient: ({ id }: { id: string }) => {
+  getPatient: ({
+    id,
+    fragment
+  }: {
+    id: string,
+    fragment?: Record<string, DocumentNode>
+  }) => {
     patient: Patient
     loading: boolean
     error?: ApolloError
