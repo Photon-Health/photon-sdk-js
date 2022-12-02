@@ -139,7 +139,6 @@ export class AuthManager {
     }
   ): Promise<string> {
     let opts: GetTokenSilentlyOptions = { audience: audience || this.audience || undefined };
-
     if (this.organization) {
       opts = Object.assign(opts, {
         organization: this.organization,
