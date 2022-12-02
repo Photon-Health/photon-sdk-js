@@ -30,6 +30,19 @@ export const PATIENT_FIELDS = gql`
       street1
       street2
     }
+    preferredPharmacies {
+      id
+      name
+      phone
+      address {
+        city
+        country
+        postalCode
+        state
+        street1
+        street2
+      }
+    }
   }
 `
 
