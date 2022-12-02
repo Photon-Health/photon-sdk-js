@@ -805,7 +805,7 @@ export const PhotonProvider = (opts: {
       patient,
       loading,
       error,
-      refetch: ({ id }: { id: string }) => client.clinical.patient.getPatient({ id })
+      refetch: ({ id }: { id: string }) => client.clinical.patient.getPatient({ id, fragment })
     }
   }
 
