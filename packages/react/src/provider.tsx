@@ -772,21 +772,27 @@ export const PhotonProvider = (opts: {
     error: undefined
   })
 
-  const fetchPatient = action(getPatientStore, 'fetchPatient', async (store, { id }) => {
+  const fetchPatient = action(getPatientStore, 'fetchPatient', async (store, { id, fragment }) => {
     store.setKey('loading', true)
     const { data, error } = await client.clinical.patient.getPatient({
-      id
+      id, fragment
     })
     store.setKey('patient', data?.patient || undefined)
     store.setKey('error', error)
     store.setKey('loading', false)
   })
 
-  const getPatient = ({ id }: { id: string }) => {
+  const getPatient = ({
+    id,
+    fragment
+  }: {
+    id: string,
+    fragment?: Record<string, DocumentNode>
+  }) => {
     const { patient, loading, error } = useStore(getPatientStore)
 
     useEffect(() => {
-      fetchPatient({ id })
+      fetchPatient({ id, fragment })
     }, [id])
 
     return {
