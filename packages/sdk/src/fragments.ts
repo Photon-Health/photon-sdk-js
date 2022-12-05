@@ -166,6 +166,10 @@ export const ORDER_FIELDS = gql`
         street2
       }
     }
+    fulfillment {
+      type
+      state
+    }
     createdAt
   }
 `
