@@ -44,14 +44,6 @@ export interface UpdatePatientOptions {
 }
 
 /**
- * AddPatientPreferredPharmacy options
- * @param fragment Allows you to override the default query to request more fields
- */
-export interface AddPatientPreferredPharmacyOptions {
-  fragment?: Record<string, DocumentNode>
-}
-
-/**
  * RemovePatientPreferredPharmacy options
  * @param fragment Allows you to override the default query to request more fields
  */
@@ -205,6 +197,7 @@ export class PatientQueryManager {
         $allergies: [AllergenInput]
         $medicationHistory: [MedHistoryInput]
         $address: AddressInput
+        $preferredPharmacies: [ID]
       ) {
         updatePatient(
           id: $id
@@ -215,41 +208,13 @@ export class PatientQueryManager {
           phone: $phone
           allergies: $allergies
           medicationHistory: $medicationHistory
-          address: $address
+          address: $address,
+          preferredPharmacies: $preferredPharmacies
         ) {
           ...${fName}
         }
       }`
     return makeMutation<{ updatePatient: Patient } | undefined | null>(this.apollo, UPDATE_PATIENT)
-  }
-
-  /**
-   * Adds a preferred pharmcy to a patient
-   * @param options - Query options
-   * @returns
-   */
-  public addPatientPreferredPharmacy({ fragment }: AddPatientPreferredPharmacyOptions) {
-    if (!fragment) {
-      fragment = { PatientFields: PATIENT_FIELDS }
-    }
-    let [fName, fValue] = Object.entries(fragment)[0]
-    const ADD_PATIENT_PREFERRED_PHARM = gql`
-      ${fValue}
-      mutation addPatientPreferredPharmacy(
-        $patientId: ID!
-        $pharmacyId: ID!
-      ) {
-        addPatientPreferredPharmacy(
-          patientId: $patientId
-          pharmacyId: $pharmacyId
-        ) {
-          ...${fName}
-        }
-      }`
-    return makeMutation<{ addPatientPreferredPharmacy: Patient } | undefined | null>(
-      this.apollo,
-      ADD_PATIENT_PREFERRED_PHARM
-    )
   }
 
   /**
