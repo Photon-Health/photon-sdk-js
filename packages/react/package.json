@@ -1,6 +1,6 @@
 {
   "name": "@photonhealth/react",
-  "version": "0.1.23",
+  "version": "0.1.24",
   "main": "./dist/react.cjs.js",
   "scripts": {
     "build": "rimraf dist && vite build",
