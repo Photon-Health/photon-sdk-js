@@ -1876,10 +1876,11 @@ export const PhotonProvider = (opts: {
   const fetchPharmacies = action(
     getPharmaciesStore,
     'fetchPharmacies',
-    async (store, { name, location }) => {
+    async (store, { name, type, location }) => {
       store.setKey('loading', true)
       const { data, error } = await client.clinical.pharmacy.getPharmacies({
         name,
+        type,
         location
       })
       store.setKey('pharmacies', data?.pharmacies || [])
