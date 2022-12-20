@@ -9,6 +9,7 @@ import {
   Catalog,
   Client,
   DispenseUnit,
+  FulfillmentType,
   LatLongSearch,
   Maybe,
   MedicalEquipment,
@@ -107,13 +108,7 @@ export type GetAllergensReturn = {
 }
 
 export interface PhotonClientContextInterface {
-  getPatient: ({
-    id,
-    fragment
-  }: {
-    id: string,
-    fragment?: Record<string, DocumentNode>
-  }) => {
+  getPatient: ({ id, fragment }: { id: string; fragment?: Record<string, DocumentNode> }) => {
     patient: Patient
     loading: boolean
     error?: ApolloError
@@ -483,9 +478,11 @@ export interface PhotonClientContextInterface {
   }
   getPharmacies: ({
     name,
+    type,
     location
   }: {
     name?: Maybe<string>
+    type?: Maybe<FulfillmentType>
     location?: Maybe<LatLongSearch>
   }) => {
     pharmacies: Pharmacy[]
@@ -781,7 +778,8 @@ export const PhotonProvider = (opts: {
   const fetchPatient = action(getPatientStore, 'fetchPatient', async (store, { id, fragment }) => {
     store.setKey('loading', true)
     const { data, error } = await client.clinical.patient.getPatient({
-      id, fragment
+      id,
+      fragment
     })
     store.setKey('patient', data?.patient || undefined)
     store.setKey('error', error)
@@ -792,7 +790,7 @@ export const PhotonProvider = (opts: {
     id,
     fragment
   }: {
-    id: string,
+    id: string
     fragment?: Record<string, DocumentNode>
   }) => {
     const { patient, loading, error } = useStore(getPatientStore)
@@ -1865,7 +1863,6 @@ export const PhotonProvider = (opts: {
     }
   }
 
-
   const getPharmaciesStore = map<{
     pharmacies: Pharmacy[]
     loading: boolean
@@ -1894,19 +1891,21 @@ export const PhotonProvider = (opts: {
   const getPharmacies = ({
     name,
     location,
+    type,
     after,
     first
   }: {
     name?: string
     location?: LatLongSearch
+    type?: FulfillmentType
     after?: number
     first?: number
   }) => {
     const { pharmacies, loading, error } = useStore(getPharmaciesStore)
 
     useEffect(() => {
-      fetchPharmacies({ name, location, after, first })
-    }, [name, location])
+      fetchPharmacies({ name, location, type, after, first })
+    }, [name, location, type])
 
     return {
       pharmacies,
@@ -1915,17 +1914,20 @@ export const PhotonProvider = (opts: {
       refetch: ({
         name,
         location,
+        type,
         after,
         first
       }: {
         name?: string
         location?: LatLongSearch
+        type?: FulfillmentType
         after?: number
         first?: number
       }) =>
         client.clinical.pharmacy.getPharmacies({
           name,
           location,
+          type,
           after,
           first
         })
