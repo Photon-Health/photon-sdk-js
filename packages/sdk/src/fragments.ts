@@ -196,6 +196,7 @@ export const PHARMACY_FIELDS = gql`
   fragment PharmacyFields on Pharmacy {
     id
     name
+    fulfillmentTypes
     address {
       city
       country
