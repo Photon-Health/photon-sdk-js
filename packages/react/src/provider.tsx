@@ -1906,7 +1906,7 @@ export const PhotonProvider = (opts: {
 
     useEffect(() => {
       fetchPharmacies({ name, location, type, after, first })
-    }, [name, location, type])
+    }, [name, location?.latitude, location?.longitude, location?.radius, type])
 
     return {
       pharmacies,
