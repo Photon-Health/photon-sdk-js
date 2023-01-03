@@ -50,6 +50,7 @@ import { PrescriptionTemplate } from "../types";
           $dispenseQuantity: Float,
           $dispenseUnit: String,
           $refillsAllowed: Int,
+          $fillsAllowed: Int,
           $daysSupply: Int,
           $instructions: String,
           $notes: String
@@ -61,6 +62,7 @@ import { PrescriptionTemplate } from "../types";
             dispenseQuantity: $dispenseQuantity
             dispenseUnit: $dispenseUnit
             refillsAllowed: $refillsAllowed
+            fillsAllowed: $fillsAllowed
             daysSupply: $daysSupply
             instructions: $instructions
             notes: $notes
