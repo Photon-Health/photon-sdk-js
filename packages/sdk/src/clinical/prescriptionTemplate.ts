@@ -47,6 +47,7 @@ export class PrescriptionTemplateQueryManager {
           $dispenseQuantity: Float,
           $dispenseUnit: String,
           $refillsAllowed: Int,
+          $fillsAllowed: Int,
           $daysSupply: Int,
           $instructions: String,
           $notes: String
@@ -58,6 +59,7 @@ export class PrescriptionTemplateQueryManager {
             dispenseQuantity: $dispenseQuantity
             dispenseUnit: $dispenseUnit
             refillsAllowed: $refillsAllowed
+            fillsAllowed: $fillsAllowed
             daysSupply: $daysSupply
             instructions: $instructions
             notes: $notes

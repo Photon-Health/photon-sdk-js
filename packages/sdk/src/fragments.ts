@@ -119,6 +119,8 @@ export const PRESCRIPTION_FIELDS = gql`
     dispenseUnit
     refillsAllowed
     refillsRemaining
+    fillsAllowed
+    fillsRemaining
     daysSupply
     instructions
     notes
@@ -218,6 +220,7 @@ export const PRESCRIPTION_TEMPLATE_FIELDS = gql`
     instructions
     notes
     refillsAllowed
+    fillsAllowed
     treatment {
       id
       name
