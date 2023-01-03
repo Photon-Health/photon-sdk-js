@@ -635,7 +635,7 @@ export type PrescriptionInput = {
   refillsAllowed: Scalars['Int']
 =======
   refillsAllowed: Scalars['Int'];
-  /** Number of refills allowed before expiration of script */
+  /** Number of fills allowed before expiration of script */
   fillsAllowed: Scalars['Int'];
 >>>>>>> e8cb732 (Add fills allowed and fills remaining)
   /** ID of the treatment being prescribed */
