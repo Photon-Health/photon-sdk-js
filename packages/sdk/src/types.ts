@@ -267,33 +267,6 @@ export type MutationCreatePatientArgs = {
 }
 
 export type MutationCreatePrescriptionArgs = {
-<<<<<<< HEAD
-  daysSupply?: InputMaybe<Scalars['Int']>
-  diagnoses?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>
-  dispenseAsWritten?: InputMaybe<Scalars['Boolean']>
-  dispenseQuantity: Scalars['Float']
-  dispenseUnit: Scalars['String']
-  effectiveDate?: InputMaybe<Scalars['AWSDate']>
-  externalId?: InputMaybe<Scalars['ID']>
-  instructions: Scalars['String']
-  notes?: InputMaybe<Scalars['String']>
-  patientId: Scalars['ID']
-  refillsAllowed: Scalars['Int']
-  treatmentId: Scalars['ID']
-}
-
-export type MutationCreatePrescriptionTemplateArgs = {
-  catalogId: Scalars['ID']
-  daysSupply?: InputMaybe<Scalars['Int']>
-  dispenseAsWritten?: InputMaybe<Scalars['Boolean']>
-  dispenseQuantity?: InputMaybe<Scalars['Float']>
-  dispenseUnit?: InputMaybe<Scalars['String']>
-  instructions?: InputMaybe<Scalars['String']>
-  notes?: InputMaybe<Scalars['String']>
-  refillsAllowed?: InputMaybe<Scalars['Int']>
-  treatmentId: Scalars['ID']
-}
-=======
   daysSupply?: InputMaybe<Scalars['Int']>;
   diagnoses?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
   dispenseAsWritten?: InputMaybe<Scalars['Boolean']>;
@@ -322,7 +295,6 @@ export type MutationCreatePrescriptionTemplateArgs = {
   fillsAllowed?: InputMaybe<Scalars['Int']>;
   treatmentId: Scalars['ID'];
 };
->>>>>>> e8cb732 (Add fills allowed and fills remaining)
 
 export type MutationUpdatePrescriptionTemplateArgs = {
   templateId: Scalars['ID']
@@ -542,41 +514,17 @@ export type PatientPrescriptionFilter = {
 }
 
 export type Pharmacy = {
-  __typename?: 'Pharmacy'
-  NPI?: Maybe<Scalars['String']>
-  address?: Maybe<Address>
-  fax?: Maybe<Scalars['AWSPhone']>
-  fulfillmentTypes?: Maybe<Array<Maybe<FulfillmentType>>>
-  id: Scalars['ID']
-  name: Scalars['String']
-  name2?: Maybe<Scalars['String']>
-  phone?: Maybe<Scalars['AWSPhone']>
-}
+  __typename?: 'Pharmacy';
+  NPI?: Maybe<Scalars['String']>;
+  address?: Maybe<Address>;
+  fax?: Maybe<Scalars['AWSPhone']>;
+  fulfillmentTypes?: Maybe<Array<Maybe<FulfillmentType>>>;
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  phone?: Maybe<Scalars['AWSPhone']>;
+};
 
 export type Prescription = {
-<<<<<<< HEAD
-  __typename?: 'Prescription'
-  daysSupply?: Maybe<Scalars['Int']>
-  diagnoses?: Maybe<Array<Maybe<Diagnosis>>>
-  dispenseAsWritten?: Maybe<Scalars['Boolean']>
-  dispenseQuantity: Scalars['Float']
-  dispenseUnit: Scalars['String']
-  effectiveDate: Scalars['AWSDate']
-  expirationDate: Scalars['AWSDate']
-  externalId?: Maybe<Scalars['ID']>
-  fills: Array<Maybe<Fill>>
-  id: Scalars['ID']
-  instructions: Scalars['String']
-  notes?: Maybe<Scalars['String']>
-  patient: Patient
-  prescriber: Provider
-  refillsAllowed: Scalars['Int']
-  refillsRemaining: Scalars['Int']
-  state: PrescriptionState
-  treatment: Treatment
-  writtenAt: Scalars['AWSDateTime']
-}
-=======
   __typename?: 'Prescription';
   daysSupply?: Maybe<Scalars['Int']>;
   diagnoses?: Maybe<Array<Maybe<Diagnosis>>>;
@@ -600,7 +548,6 @@ export type Prescription = {
   treatment: Treatment;
   writtenAt: Scalars['AWSDateTime'];
 };
->>>>>>> e8cb732 (Add fills allowed and fills remaining)
 
 export type PrescriptionFilter = {
   patientId?: InputMaybe<Scalars['ID']>
@@ -631,13 +578,9 @@ export type PrescriptionInput = {
   /** ID of the patient that this prescription belongs to */
   patientId: Scalars['ID']
   /** Number of refills allowed before expiration of script */
-<<<<<<< HEAD
-  refillsAllowed: Scalars['Int']
-=======
   refillsAllowed: Scalars['Int'];
   /** Number of fills allowed before expiration of script */
   fillsAllowed: Scalars['Int'];
->>>>>>> e8cb732 (Add fills allowed and fills remaining)
   /** ID of the treatment being prescribed */
   treatmentId: Scalars['ID']
 }
@@ -649,19 +592,6 @@ export enum PrescriptionState {
 }
 
 export type PrescriptionTemplate = {
-<<<<<<< HEAD
-  __typename?: 'PrescriptionTemplate'
-  daysSupply?: Maybe<Scalars['Int']>
-  dispenseAsWritten?: Maybe<Scalars['Boolean']>
-  dispenseQuantity?: Maybe<Scalars['Float']>
-  dispenseUnit?: Maybe<Scalars['String']>
-  id: Scalars['ID']
-  instructions?: Maybe<Scalars['String']>
-  notes?: Maybe<Scalars['String']>
-  refillsAllowed?: Maybe<Scalars['Int']>
-  treatment: Treatment
-}
-=======
   __typename?: 'PrescriptionTemplate';
   daysSupply?: Maybe<Scalars['Int']>;
   dispenseAsWritten?: Maybe<Scalars['Boolean']>;
@@ -674,7 +604,6 @@ export type PrescriptionTemplate = {
   fillsAllowed?: Maybe<Scalars['Int']>;
   treatment: Treatment;
 };
->>>>>>> e8cb732 (Add fills allowed and fills remaining)
 
 export type ProductFilter = {
   code?: InputMaybe<Scalars['String']>
