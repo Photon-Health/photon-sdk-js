@@ -2822,6 +2822,7 @@ export const PhotonProvider = (opts: {
     getPrescriptions,
     createPrescription,
     createPrescriptionTemplate,
+    updatePrescriptionTemplate,
     getCatalog,
     getCatalogs,
     getMedications,
