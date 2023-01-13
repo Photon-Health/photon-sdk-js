@@ -618,6 +618,7 @@ const PhotonClientContext = createContext<PhotonClientContextInterface>({
   createPatient: stub,
   updatePatient: stub,
   removePatientAllergy: stub,
+  removePatientPreferredPharmacy: stub,
   createOrder: stub,
   createPrescriptionTemplate: stub,
   deletePrescriptionTemplate: stub,
