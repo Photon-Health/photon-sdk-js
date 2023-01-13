@@ -277,7 +277,6 @@ export type MutationCreatePrescriptionArgs = {
   instructions: Scalars['String'];
   notes?: InputMaybe<Scalars['String']>;
   patientId: Scalars['ID'];
-  refillsAllowed: Scalars['Int'];
   fillsAllowed: Scalars['Int'];
   treatmentId: Scalars['ID'];
 };
@@ -291,7 +290,6 @@ export type MutationCreatePrescriptionTemplateArgs = {
   dispenseUnit?: InputMaybe<Scalars['String']>;
   instructions?: InputMaybe<Scalars['String']>;
   notes?: InputMaybe<Scalars['String']>;
-  refillsAllowed?: InputMaybe<Scalars['Int']>;
   fillsAllowed?: InputMaybe<Scalars['Int']>;
   treatmentId: Scalars['ID'];
 };
@@ -540,8 +538,6 @@ export type Prescription = {
   notes?: Maybe<Scalars['String']>;
   patient: Patient;
   prescriber: Provider;
-  refillsAllowed: Scalars['Int'];
-  refillsRemaining: Scalars['Int'];
   fillsAllowed: Scalars['Int'];
   fillsRemaining: Scalars['Int'];
   state: PrescriptionState;
@@ -576,9 +572,7 @@ export type PrescriptionInput = {
   /** Prescriber notes, available to pharmacist */
   notes?: InputMaybe<Scalars['String']>
   /** ID of the patient that this prescription belongs to */
-  patientId: Scalars['ID']
-  /** Number of refills allowed before expiration of script */
-  refillsAllowed: Scalars['Int'];
+  patientId: Scalars['ID'];
   /** Number of fills allowed before expiration of script */
   fillsAllowed: Scalars['Int'];
   /** ID of the treatment being prescribed */
@@ -600,7 +594,6 @@ export type PrescriptionTemplate = {
   id: Scalars['ID'];
   instructions?: Maybe<Scalars['String']>;
   notes?: Maybe<Scalars['String']>;
-  refillsAllowed?: Maybe<Scalars['Int']>;
   fillsAllowed?: Maybe<Scalars['Int']>;
   treatment: Treatment;
 };
