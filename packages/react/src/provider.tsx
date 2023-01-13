@@ -205,7 +205,7 @@ export interface PhotonClientContextInterface {
       variables,
       onCompleted
     }: {
-      variables: object
+      variables: { patientId: string; pharmacyId: string }
       onCompleted?: (data: any) => void | undefined
     }) => Promise<void>,
     {
