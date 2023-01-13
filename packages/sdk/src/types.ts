@@ -227,6 +227,7 @@ export type Mutation = {
   rotateSecret: Client
   /** Update an existing `Patient` record */
   updatePatient: Patient
+  updatePrescriptionTemplate: PrescriptionTemplate
   /** Allow a user to update their own profile */
   updateProfile: User
   updateWebhookConfig: WebhookConfig
