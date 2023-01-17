@@ -322,6 +322,28 @@ export interface PhotonClientContextInterface {
       loading: boolean
     }
   ]
+  updatePrescriptionTemplate: ({
+    refetchQueries,
+    awaitRefetchQueries,
+    refetchArgs
+  }: {
+    refetchQueries: string[]
+    awaitRefetchQueries?: boolean
+    refetchArgs?: Record<string, any>
+  }) => [
+    ({
+      variables,
+      onCompleted
+    }: {
+      variables: object
+      onCompleted?: (data: any) => void | undefined
+    }) => Promise<void>,
+    {
+      data: { updatePrescriptionTemplate: PrescriptionTemplate } | undefined | null
+      error: GraphQLError
+      loading: boolean
+    }
+  ]
   deletePrescriptionTemplate: ({
     refetchQueries,
     awaitRefetchQueries,
@@ -621,6 +643,7 @@ const PhotonClientContext = createContext<PhotonClientContextInterface>({
   removePatientPreferredPharmacy: stub,
   createOrder: stub,
   createPrescriptionTemplate: stub,
+  updatePrescriptionTemplate: stub,
   deletePrescriptionTemplate: stub,
   getClients: stub,
   getPharmacy: stub,
@@ -2307,6 +2330,74 @@ export const PhotonProvider = (opts: {
     ]
   }
 
+  const updatePrescriptionTemplateStore = map<{
+    updatePrescriptionTemplate?: PrescriptionTemplate
+    loading: boolean
+    error?: GraphQLError
+  }>({
+    updatePrescriptionTemplate: undefined,
+    loading: false,
+    error: undefined
+  })
+
+  const updatePrescriptionTemplateMutation =
+    client.clinical.prescriptionTemplate.updatePrescriptionTemplate({})
+
+  const constructFetchUpdatePrescriptionTemplate = ({
+    refetchQueries = undefined,
+    refetchArgs
+  }: {
+    refetchQueries?: string[]
+    refetchArgs: Record<string, any>
+  }) =>
+    action(
+      updatePrescriptionTemplateStore,
+      'udpatePrescriptionTemplateMutation',
+      async (store, { variables, onCompleted }) => {
+        store.setKey('loading', true)
+
+        try {
+          const { data, errors } = await updatePrescriptionTemplateMutation({
+            variables,
+            refetchQueries: [],
+            awaitRefetchQueries: false
+          })
+          store.setKey('updatePrescriptionTemplate', data?.updatePrescriptionTemplate)
+          store.setKey('error', errors?.[0])
+          if (onCompleted) {
+            onCompleted(data)
+          }
+          if (refetchQueries && refetchQueries.length > 0) {
+            runRefetch(refetchQueries, refetchArgs)
+          }
+        } catch (err) {
+          store.setKey('updatePrescriptionTemplate', undefined)
+          store.setKey('error', err as GraphQLError)
+        }
+
+        store.setKey('loading', false)
+      }
+    )
+
+  const updatePrescriptionTemplate = ({
+    refetchQueries = undefined,
+    refetchArgs
+  }: {
+    refetchQueries?: string[]
+    refetchArgs: Record<string, any>
+  }) => {
+    const { updatePrescriptionTemplate, loading, error } = useStore(updatePrescriptionTemplateStore)
+
+    return [
+      constructFetchUpdatePrescriptionTemplate({ refetchQueries, refetchArgs }),
+      {
+        updatePrescriptionTemplate,
+        loading,
+        error
+      }
+    ]
+  }
+
   const deletePrescriptionTemplateStore = map<{
     deletePrescriptionTemplate?: PrescriptionTemplate
     loading: boolean
@@ -2812,6 +2903,7 @@ export const PhotonProvider = (opts: {
     getPrescriptions,
     createPrescription,
     createPrescriptionTemplate,
+    updatePrescriptionTemplate,
     getCatalog,
     getCatalogs,
     getMedications,
