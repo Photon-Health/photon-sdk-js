@@ -194,6 +194,26 @@ export interface PhotonClientContextInterface {
       loading: boolean
     }
   ]
+  removePatientPreferredPharmacy: ({
+    refetchQueries,
+    awaitRefetchQueries
+  }: {
+    refetchQueries: string[]
+    awaitRefetchQueries?: boolean
+  }) => [
+    ({
+      variables,
+      onCompleted
+    }: {
+      variables: object
+      onCompleted?: (data: any) => void | undefined
+    }) => Promise<void>,
+    {
+      data: { removePatientPreferredPharmacy: Patient } | undefined | null
+      error: GraphQLError
+      loading: boolean
+    }
+  ]
   getOrder: ({ id }: { id: string }) => {
     order: Order
     loading: boolean
@@ -620,6 +640,7 @@ const PhotonClientContext = createContext<PhotonClientContextInterface>({
   createPatient: stub,
   updatePatient: stub,
   removePatientAllergy: stub,
+  removePatientPreferredPharmacy: stub,
   createOrder: stub,
   createPrescriptionTemplate: stub,
   updatePrescriptionTemplate: stub,
@@ -1064,6 +1085,66 @@ export const PhotonProvider = (opts: {
       constructFetchRemovePatientAllergy({ refetchQueries }),
       {
         removePatientAllergy,
+        loading,
+        error
+      }
+    ]
+  }
+
+
+  const removePatientPreferredPharmacyStore = map<{
+    removePatientPreferredPharmacy?: Patient
+    loading: boolean
+    error?: GraphQLError
+  }>({
+    removePatientPreferredPharmacy: undefined,
+    loading: false,
+    error: undefined
+  })
+
+  const removePatientPreferredPharmacyMutation = client.clinical.patient.removePatientPreferredPharmacy({})
+
+  const constructFetchRemovePatientPreferredPharmacy = ({
+    refetchQueries = undefined
+  }: {
+    refetchQueries?: string[]
+  }) =>
+    action(
+      removePatientPreferredPharmacyStore,
+      'removePatientPreferredPharmacyMutation',
+      async (store, { variables, onCompleted }) => {
+        store.setKey('loading', true)
+
+        try {
+          const { data, errors } = await removePatientPreferredPharmacyMutation({
+            variables,
+            refetchQueries: [],
+            awaitRefetchQueries: false
+          })
+          store.setKey('removePatientPreferredPharmacy', data?.removePatientPreferredPharmacy)
+          store.setKey('error', errors?.[0])
+          if (onCompleted) {
+            onCompleted(data)
+          }
+          if (refetchQueries && refetchQueries.length > 0) {
+            runRefetch(refetchQueries)
+          }
+        } catch (err) {
+          store.setKey('removePatientPreferredPharmacy', undefined)
+          store.setKey('error', err as GraphQLError)
+        }
+
+        store.setKey('loading', false)
+      }
+    )
+
+  const removePatientPreferredPharmacy = ({ refetchQueries = undefined }: { refetchQueries?: string[] }) => {
+    const { removePatientPreferredPharmacy, loading, error } = useStore(removePatientPreferredPharmacyStore)
+
+    return [
+      constructFetchRemovePatientPreferredPharmacy({ refetchQueries }),
+      {
+        removePatientPreferredPharmacy,
         loading,
         error
       }
@@ -2840,6 +2921,7 @@ export const PhotonProvider = (opts: {
     updatePatient,
     getAllergens,
     removePatientAllergy,
+    removePatientPreferredPharmacy,
     getDispenseUnits,
     setOrganization,
     addToCatalog,
