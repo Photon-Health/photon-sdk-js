@@ -267,18 +267,18 @@ export type MutationCreatePatientArgs = {
 }
 
 export type MutationCreatePrescriptionArgs = {
-  daysSupply?: InputMaybe<Scalars['Int']>;
-  diagnoses?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
-  dispenseAsWritten?: InputMaybe<Scalars['Boolean']>;
-  dispenseQuantity: Scalars['Float'];
-  dispenseUnit: Scalars['String'];
-  effectiveDate?: InputMaybe<Scalars['AWSDate']>;
-  externalId?: InputMaybe<Scalars['ID']>;
-  instructions: Scalars['String'];
-  notes?: InputMaybe<Scalars['String']>;
-  patientId: Scalars['ID'];
-  fillsAllowed: Scalars['Int'];
-  treatmentId: Scalars['ID'];
+  daysSupply?: InputMaybe<Scalars['Int']>
+  diagnoses?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>
+  dispenseAsWritten?: InputMaybe<Scalars['Boolean']>
+  dispenseQuantity: Scalars['Float']
+  dispenseUnit: Scalars['String']
+  effectiveDate?: InputMaybe<Scalars['AWSDate']>
+  externalId?: InputMaybe<Scalars['ID']>
+  instructions: Scalars['String']
+  notes?: InputMaybe<Scalars['String']>
+  patientId: Scalars['ID']
+  fillsAllowed: Scalars['Int']
+  treatmentId: Scalars['ID']
 };
 
 
