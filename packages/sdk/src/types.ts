@@ -511,15 +511,15 @@ export type PatientPrescriptionFilter = {
 }
 
 export type Pharmacy = {
-  __typename?: 'Pharmacy';
-  NPI?: Maybe<Scalars['String']>;
-  address?: Maybe<Address>;
-  fax?: Maybe<Scalars['AWSPhone']>;
-  fulfillmentTypes?: Maybe<Array<Maybe<FulfillmentType>>>;
-  id: Scalars['ID'];
-  name: Scalars['String'];
-  phone?: Maybe<Scalars['AWSPhone']>;
-};
+  __typename?: 'Pharmacy'
+  NPI?: Maybe<Scalars['String']>
+  address?: Maybe<Address>
+  fax?: Maybe<Scalars['AWSPhone']>
+  fulfillmentTypes?: Maybe<Array<Maybe<FulfillmentType>>>
+  id: Scalars['ID']
+  name: Scalars['String']
+  phone?: Maybe<Scalars['AWSPhone']>
+}
 
 export type Prescription = {
   __typename?: 'Prescription';
