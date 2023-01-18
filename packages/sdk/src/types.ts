@@ -279,8 +279,7 @@ export type MutationCreatePrescriptionArgs = {
   patientId: Scalars['ID']
   fillsAllowed: Scalars['Int']
   treatmentId: Scalars['ID']
-};
-
+}
 
 export type MutationCreatePrescriptionTemplateArgs = {
   catalogId: Scalars['ID'];
