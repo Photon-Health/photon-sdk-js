@@ -585,17 +585,17 @@ export enum PrescriptionState {
 }
 
 export type PrescriptionTemplate = {
-  __typename?: 'PrescriptionTemplate';
-  daysSupply?: Maybe<Scalars['Int']>;
-  dispenseAsWritten?: Maybe<Scalars['Boolean']>;
-  dispenseQuantity?: Maybe<Scalars['Float']>;
-  dispenseUnit?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  instructions?: Maybe<Scalars['String']>;
-  notes?: Maybe<Scalars['String']>;
-  fillsAllowed?: Maybe<Scalars['Int']>;
-  treatment: Treatment;
-};
+  __typename?: 'PrescriptionTemplate'
+  daysSupply?: Maybe<Scalars['Int']>
+  dispenseAsWritten?: Maybe<Scalars['Boolean']>
+  dispenseQuantity?: Maybe<Scalars['Float']>
+  dispenseUnit?: Maybe<Scalars['String']>
+  id: Scalars['ID']
+  instructions?: Maybe<Scalars['String']>
+  notes?: Maybe<Scalars['String']>
+  fillsAllowed?: Maybe<Scalars['Int']>
+  treatment: Treatment
+}
 
 export type ProductFilter = {
   code?: InputMaybe<Scalars['String']>
