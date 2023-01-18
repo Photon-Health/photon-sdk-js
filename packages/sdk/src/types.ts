@@ -282,16 +282,16 @@ export type MutationCreatePrescriptionArgs = {
 }
 
 export type MutationCreatePrescriptionTemplateArgs = {
-  catalogId: Scalars['ID'];
-  daysSupply?: InputMaybe<Scalars['Int']>;
-  dispenseAsWritten?: InputMaybe<Scalars['Boolean']>;
-  dispenseQuantity?: InputMaybe<Scalars['Float']>;
-  dispenseUnit?: InputMaybe<Scalars['String']>;
-  instructions?: InputMaybe<Scalars['String']>;
-  notes?: InputMaybe<Scalars['String']>;
-  fillsAllowed?: InputMaybe<Scalars['Int']>;
-  treatmentId: Scalars['ID'];
-};
+  catalogId: Scalars['ID']
+  daysSupply?: InputMaybe<Scalars['Int']>
+  dispenseAsWritten?: InputMaybe<Scalars['Boolean']>
+  dispenseQuantity?: InputMaybe<Scalars['Float']>
+  dispenseUnit?: InputMaybe<Scalars['String']>
+  instructions?: InputMaybe<Scalars['String']>
+  notes?: InputMaybe<Scalars['String']>
+  fillsAllowed?: InputMaybe<Scalars['Int']>
+  treatmentId: Scalars['ID']
+}
 
 export type MutationUpdatePrescriptionTemplateArgs = {
   templateId: Scalars['ID']
