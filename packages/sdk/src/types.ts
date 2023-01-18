@@ -571,9 +571,9 @@ export type PrescriptionInput = {
   /** Prescriber notes, available to pharmacist */
   notes?: InputMaybe<Scalars['String']>
   /** ID of the patient that this prescription belongs to */
-  patientId: Scalars['ID'];
+  patientId: Scalars['ID']
   /** Number of fills allowed before expiration of script */
-  fillsAllowed: Scalars['Int'];
+  fillsAllowed: Scalars['Int']
   /** ID of the treatment being prescribed */
   treatmentId: Scalars['ID']
 }
