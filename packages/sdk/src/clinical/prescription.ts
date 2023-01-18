@@ -186,7 +186,7 @@ export class PrescriptionQueryManager {
         $dispenseAsWritten: Boolean
         $dispenseQuantity: Float!
         $dispenseUnit: String!
-        $refillsAllowed: Int!
+        $fillsAllowed: Int!
         $daysSupply: Int
         $instructions: String!
         $notes: String
@@ -200,7 +200,7 @@ export class PrescriptionQueryManager {
           dispenseAsWritten: $dispenseAsWritten
           dispenseQuantity: $dispenseQuantity
           dispenseUnit: $dispenseUnit
-          refillsAllowed: $refillsAllowed
+          fillsAllowed: $fillsAllowed
           daysSupply: $daysSupply
           instructions: $instructions
           notes: $notes
