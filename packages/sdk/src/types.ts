@@ -298,7 +298,7 @@ export type MutationUpdatePrescriptionTemplateArgs = {
   dispenseAsWritten?: InputMaybe<Scalars['Boolean']>
   dispenseQuantity?: InputMaybe<Scalars['Float']>
   dispenseUnit?: InputMaybe<Scalars['String']>
-  refillsAllowed?: InputMaybe<Scalars['Int']>
+  fillsAllowed?: InputMaybe<Scalars['Int']>
   instructions?: InputMaybe<Scalars['String']>
   notes?: InputMaybe<Scalars['String']>
 }
