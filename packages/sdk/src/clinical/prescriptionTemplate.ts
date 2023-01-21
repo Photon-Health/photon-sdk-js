@@ -85,6 +85,7 @@ export class PrescriptionTemplateQueryManager {
     const UPDATE_PRESCRIPTION_TEMPLATE = gql`
         ${fValue}
         mutation updatePrescriptionTemplate(
+          $catalogId: ID!,
           $templateId: ID!,
           $dispenseAsWritten: Boolean,
           $dispenseQuantity: Float,
@@ -95,6 +96,7 @@ export class PrescriptionTemplateQueryManager {
           $notes: String
         ) {
           updatePrescriptionTemplate(
+            catalogId: $catalogId
             templateId: $templateId
             dispenseAsWritten: $dispenseAsWritten
             dispenseQuantity: $dispenseQuantity
