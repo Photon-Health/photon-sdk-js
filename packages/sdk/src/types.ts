@@ -294,6 +294,7 @@ export type MutationCreatePrescriptionTemplateArgs = {
 }
 
 export type MutationUpdatePrescriptionTemplateArgs = {
+  catalogId: Scalars['ID']
   templateId: Scalars['ID']
   dispenseAsWritten?: InputMaybe<Scalars['Boolean']>
   dispenseQuantity?: InputMaybe<Scalars['Float']>
