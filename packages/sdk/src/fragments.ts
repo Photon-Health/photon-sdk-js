@@ -169,6 +169,8 @@ export const ORDER_FIELDS = gql`
     fulfillment {
       type
       state
+      carrier
+      trackingNumber
     }
     createdAt
   }
