@@ -105,14 +105,8 @@ export const PRESCRIPTION_FIELDS = gql`
     }
     state
     treatment {
-      ... on Medication {
-        id
-        name
-      }
-      ... on MedicalEquipment {
-        id
-        name
-      }
+      id
+      name
     }
     dispenseAsWritten
     dispenseQuantity
