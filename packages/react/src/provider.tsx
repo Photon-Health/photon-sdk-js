@@ -2040,7 +2040,6 @@ export const PhotonProvider = (opts: {
   }
 
   // Organization
-
   const getOrganizationStore = map<{
     organization?: Organization
     loading: boolean
