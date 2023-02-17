@@ -191,6 +191,8 @@ export const CLIENT_FIELDS = gql`
 export const PHARMACY_FIELDS = gql`
   fragment PharmacyFields on Pharmacy {
     id
+    NPI
+    NCPDP
     name
     fulfillmentTypes
     address {
