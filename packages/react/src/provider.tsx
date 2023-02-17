@@ -693,7 +693,7 @@ export const PhotonProvider = (opts: {
   const [state, dispatch] = useReducer(reducer, {
     isAuthenticated: false,
     isLoading: true
-  })
+  });
 
   const functionLookup: Record<string, Function> = {}
 
