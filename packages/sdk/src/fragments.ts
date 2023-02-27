@@ -195,6 +195,7 @@ export const PHARMACY_FIELDS = gql`
     NCPDP
     name
     fulfillmentTypes
+    phone
     address {
       city
       country
